@@ -29,11 +29,11 @@ export default function SearchInput() {
           type="text"
           ref={searchRef}
           placeholder="Cari judul anime..."
-          className="w-full bg-neutral-800 border-2 border-neutral-700 text-white rounded-full py-3 pl-5 pr-14 focus:outline-none focus:border-pink-500 transition"
+          className="w-full bg-neutral-800 border-2 border-neutral-700 text-white rounded-full py-3 pl-5 pr-14 focus:outline-none focus:border-blue-500 transition"
         />
         <button
           type="submit"
-          className="absolute right-2 top-1/2 -translate-y-1/2 bg-pink-600 text-white p-2 rounded-full hover:bg-pink-700 transition"
+          className="absolute right-2 top-1/2 -translate-y-1/2 bg-pink-600 text-white p-2 rounded-full hover:bg-blue-700 transition"
           aria-label="Cari"
         >
           <MagnifyingGlassIcon className="h-6 w-6" />
