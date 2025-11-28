@@ -31,7 +31,9 @@ const Navbar = ({ user }) => {
       <div className="container mx-auto flex justify-center items-center px-4">
         {/* === Menu Desktop === */}
         <div className="absolute right-4 top-5 md:right-10 md:top-6 text-white-500 animate-pulse">
+        <Link to="/renai">
         <PiSparkleFill size={28} />
+        </Link>
         </div>
         {/* 4. 'navLinks' sekarang sudah dinamis */}
         <ul className="hidden md:flex items-center space-x-6">
