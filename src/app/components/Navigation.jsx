@@ -12,7 +12,7 @@ const Navigation = () => {
     }
 
     return (
-        <button onClick={handleBack} className="text-pink-400 hover:underline mb-4 inline-flex items-center gap-2 cursor-pointer">
+        <button onClick={handleBack} className="text-blue-400 hover:underline mb-4 inline-flex items-center gap-2 cursor-pointer">
             <ArrowLeftIcon className="h-5 w-5" />
             Kembali
         </button>
