@@ -7,7 +7,7 @@ import Image from 'next/image'
 const HeroSection = () => {
 
   return (
-    <div className="flex items-center justify-center bg-[#1A1A29] p-4">
+    <div className="flex items-center justify-center bg-[#0F0F18] p-4">
       <div className="w-full max-w-5xl bg-[#252736] lg:h-[500px] rounded-2xl overflow-hidden 
     grid grid-cols-1 lg:grid-cols-2 
     shadow-2xl shadow-black/40 border border-neutral-800/30">
