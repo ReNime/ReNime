@@ -44,7 +44,7 @@ const Page = async () => {
     return (
         <div className="min-h-screen text-white p-4 md:p-8">
             <BreadcrumbNavigation crumbs={breadcrumbs} />
-            <h1 className="text-3xl font-bold mb-8 text-center text-pink-500">
+            <h1 className="text-3xl font-bold mb-8 text-center text-blue-500">
                 Daftar Semua Anime A - Z
             </h1>
             
