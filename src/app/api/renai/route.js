@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export async function POST(req) {
   try {
     const body = await req.json();
 
@@ -14,11 +14,11 @@ export async function POST(req: Request) {
 
     const data = await response.json();
 
-    // Jika API mengembalikan daftar anime
+    // Jika API mengembalikan list anime
     if (Array.isArray(data.anime)) {
       return NextResponse.json({
         type: "anime",
-        anime: data.anime.map((a: any) => ({
+        anime: data.anime.map((a) => ({
           id: a.id ?? Math.random(),
           title: a.title ?? "Untitled",
           coverImage: a.coverImage ?? "/default.png",
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // fallback: text reply
+    // fallback → teks dari AI
     return NextResponse.json(
       {
         type: "text",
@@ -39,8 +39,8 @@ export async function POST(req: Request) {
       },
       { status: response.status }
     );
-  } catch (err: any) {
-    console.error("Aichiow -> Aichixia API error:", err);
+  } catch (err) {
+    console.error("ReNai Proxy API error:", err);
 
     return NextResponse.json(
       {
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
   }
 }
 
-// For non-POST methods (GET, PUT, DELETE, etc)
+// Handle method lain
 export function GET() {
   return NextResponse.json(
     { error: "Method Not Allowed" },
