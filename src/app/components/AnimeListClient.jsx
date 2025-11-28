@@ -19,7 +19,7 @@ function AnimeCard({ anime }) {
                     onError={(e) => e.currentTarget.src = 'https://placehold.co/400x600/171717/ef4444?text=Error'}
                 />
             </div>
-            <h3 className="mt-2 text-sm font-medium text-neutral-200 truncate group-hover:text-pink-500">
+            <h3 className="mt-2 text-sm font-medium text-neutral-200 truncate group-hover:text-blue-500">
                 {anime.title}
             </h3>
             <p className="text-xs text-neutral-400">{anime.type || 'N/A'}</p>
@@ -31,7 +31,7 @@ function AnimeCard({ anime }) {
 function Loader() {
     return (
         <div className="col-span-full flex justify-center items-center py-8">
-            <div className="w-10 h-10 border-4 border-neutral-700 border-t-pink-500 rounded-full animate-spin"></div>
+            <div className="w-10 h-10 border-4 border-neutral-700 border-t-blue-500 rounded-full animate-spin"></div>
         </div>
     );
 }
