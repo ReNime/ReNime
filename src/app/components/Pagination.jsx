@@ -18,7 +18,7 @@ const PaginationControls = ({ currentPage, hasNextPage }) => {
   const nextPage = currentPage + 1;
 
   const baseStyle = "px-6 py-2 rounded-full font-semibold transition-colors";
-  const activeStyle = "bg-pink-600 text-white hover:bg-pink-700";
+  const activeStyle = "bg-blue-600 text-white hover:bg-blue-700";
   const disabledStyle = "bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60";
 
   return (
