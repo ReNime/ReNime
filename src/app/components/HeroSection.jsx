@@ -18,29 +18,29 @@ const HeroSection = () => {
       order-2 lg:order-1">
 
           <h1 className="text-2xl lg:text-4xl font-bold text-white mb-3 lg:mb-4 relative z-20">
-            Kaelnime
+            ReNime
           </h1>
           <p className="text-neutral-400 mb-4 lg:mb-6 text-sm lg:text-base relative z-20">
-            Kaelnime adalah situs anime gratis tanpa iklan untuk menonton anime gratis
+            ReNime adalah situs anime gratis tanpa iklan untuk menonton anime gratis
           </p>
           <SearchInput />
-          <div className="text-xs text-neutral-400 mb-4 lg:mb-6 relative z-20 line-clamp-2 lg:line-clamp-none">
+          {/* <div className="text-xs text-neutral-400 mb-4 lg:mb-6 relative z-20 line-clamp-2 lg:line-clamp-none">
             Top search: Demon Slayer: Kimetsu no Y..., Demon Slayer: Kimetsu no Y...,
             One Piece, Demon Slayer: Mt. Natagum..., Sakamoto Days Part 2,
             The Fragrant Flower Blooms... Kaiji No. 8 Season 2,
             Demon Slayer: Kimetsu no Y... Demon Slayer: The Hashira... To Be Hero X
-          </div>
+          </div>*/}
           <div className="flex flex-col lg:flex-row space-y-3 lg:space-y-0 lg:space-x-4 relative z-20">
             <Link
               href="/animelist"
-              className="bg-pink-500 text-white px-6 py-2 lg:py-3 rounded-full flex items-center justify-center"
+              className="bg-blue-500 text-white px-6 py-2 lg:py-3 rounded-full flex items-center justify-center"
             >
               Database Anime A - Z
             </Link>
 
-            <Link href={'https://sociabuzz.com/kaell22'} target='_blank' className="bg-blue-500 text-center text-white px-6 py-2 lg:py-3 rounded-full">
+            {/*<Link href={'https://sociabuzz.com/kaell22'} target='_blank' className="bg-blue-500 text-center text-white px-6 py-2 lg:py-3 rounded-full">
               Donate Admin
-            </Link>
+            </Link>*/}
           </div>
         </div>
 
