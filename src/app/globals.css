@@ -2,7 +2,7 @@
 
 :root {
   /* LANGSUNG ATUR WARNA DARK MODE DI SINI */
-  --background: #1A1A29;       /* Latar belakang utama Anda */
+  --background: #0F0F18;       /* Latar belakang utama Anda */
   --foreground: #ededed;       /* Teks putih Anda */
   
   /* Ini adalah warna lain dari desain Anda yang kita tambahkan sebelumnya */
@@ -10,7 +10,7 @@
   --background-hero: #252736;
   --foreground-secondary: #a1a1aa;
   --border-color: #3f3f46;
-  --color-accent: #ec4899;
+  --color-accent: #63b9db;
   --color-accent-2: #3b82f6;
 }
 
