@@ -1,6 +1,6 @@
 {
-  "name": "JujuOtaku - Web Streaming Anime Sub Indo",
-  "short_name": "JujuOtaku",
+  "name": "ReNime - Web Streaming Anime Sub Indo",
+  "short_name": "ReNime",
   "icons": [
     {
       "src": "/images/favicon_io/android-chrome-192x192.png",
@@ -13,7 +13,7 @@
       "type": "image/png"
     }
   ],
-  "theme_color": "#ec4899",
+  "theme_color": "#0F0F18",
   "background_color": "#171717",
   "display": "standalone"
 }
