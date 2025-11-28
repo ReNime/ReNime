@@ -33,7 +33,7 @@ export default function SearchInput() {
         />
         <button
           type="submit"
-          className="absolute right-2 top-1/2 -translate-y-1/2 bg-pink-600 text-white p-2 rounded-full hover:bg-blue-700 transition"
+          className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition"
           aria-label="Cari"
         >
           <MagnifyingGlassIcon className="h-6 w-6" />
