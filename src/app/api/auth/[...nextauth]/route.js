@@ -23,22 +23,21 @@ export const authOptions = {
   ],
   callbacks: {
     async session({ session, user }) {
-      // Tambahkan user.id ke session
       if (session?.user) {
-        session.user.id = user.id;
+        session.user = { ...session.user, id: user.id };
       }
       return session;
     },
   },
   pages: {
-    signIn: '/signin',
+    signIn: "/signin",
   },
   session: {
-    strategy: 'database',
+    strategy: "database",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   secret: process.env.NEXT_AUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
+  debug: process.env.NODE_ENV === "development",
 };
 
 const handler = NextAuth(authOptions);
