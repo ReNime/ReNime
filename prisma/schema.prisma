@@ -5,7 +5,7 @@
 // Gunakan "mysql" jika Anda memakai PlanetScale
 datasource db {
   provider     = "postgresql" // atau "mysql"
-  url          = env("DATABASE_URL")
+  url          = env("postgresql://neondb_owner:npg_4F3mKAkxarZJ@ep-noisy-forest-a1a0tdec-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
   relationMode = "prisma"
 }
 
