@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import { PiSparkleFill } from 'react-icons/pi'
 
 // 1. Terima 'user' sebagai prop
@@ -26,14 +27,17 @@ const Navbar = ({ user }) => {
     navLinks.push({ href: "/api/auth/signin", name: "Login" });
   }
 
+  const MyComponent = () => {
+  const navigate = useNavigate();
+
   return (
     <nav className="w-full md:pt-10 pt-5 relative z-50">
       <div className="container mx-auto flex justify-center items-center px-4">
         {/* === Menu Desktop === */}
         <div className="absolute right-4 top-5 md:right-10 md:top-6 text-white-500 animate-pulse">
-        <Link to="/renai">
+          <div onClick={() => navigate("/renai")}>
         <PiSparkleFill size={28} />
-        </Link>
+          </div>
         </div>
         {/* 4. 'navLinks' sekarang sudah dinamis */}
         <ul className="hidden md:flex items-center space-x-6">
