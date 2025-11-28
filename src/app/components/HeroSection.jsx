@@ -50,7 +50,7 @@ const HeroSection = () => {
           <Image
             width={500}
             height={500}
-            src="/images/goku.gif"
+            src="/images/a2349fcb-ccf0-4e13-8e42-2b4abff06f41.png"
             alt="Anime Character"
             className="absolute inset-0 w-full h-full object-cover"
             priority={true}
