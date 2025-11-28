@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-dom";
 import { PiSparkleFill } from 'react-icons/pi'
 
 // 1. Terima 'user' sebagai prop
