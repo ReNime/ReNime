@@ -74,7 +74,7 @@ export default async function GenrePage({ params: paramsPromise, searchParams })
           <Header title={`Genre: ${genreName}`} />
           <Link
             href="/genres"
-            className="inline-flex items-center text-pink-400 hover:text-pink-500 transition-colors text-sm sm:text-base"
+            className="inline-flex items-center text-blue-400 hover:text-blue-500 transition-colors text-sm sm:text-base"
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -132,7 +132,7 @@ export default async function GenrePage({ params: paramsPromise, searchParams })
             {currentPage > 1 && (
               <Link
                 href={`/genre/${slug}`}
-                className="bg-pink-600 text-white px-6 py-2 rounded-full hover:bg-pink-700 transition"
+                className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition"
               >
                 Kembali ke Halaman 1
               </Link>
