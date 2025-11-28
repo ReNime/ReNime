@@ -21,7 +21,7 @@ const BreadcrumbNavigation = ({ crumbs = [] }) => {
         <li className="inline-flex items-center">
           <Link 
             href="/" 
-            className="inline-flex items-center text-pink-400 hover:text-blue-500 hover:underline transition-colors"
+            className="inline-flex items-center text-blue-400 hover:text-blue-500 hover:underline transition-colors"
           >
             <HomeIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2" />
             <span className="text-sm sm:text-base">Home</span>
