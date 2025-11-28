@@ -44,7 +44,7 @@ export default async function SearchPage({ params: ParamsPromise }) {
           <SearchInput />
           <h1 className="text-3xl md:text-4xl font-bold">
             {'Hasil Pencarian untuk: '}
-            <span className="text-pink-500">{keyword}</span>
+            <span className="text-blue-500">{keyword}</span>
           </h1>
         </div>
         {searchResults && searchResults.length > 0 ? (
