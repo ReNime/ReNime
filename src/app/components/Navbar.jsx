@@ -79,7 +79,7 @@ const Navbar = ({ user }) => {
 
       {/* === Menu Dropdown Mobile === */}
       <div className={`
-        md:hidden absolute top-full left-0 right-0 bg-[#1A1A29] 
+        md:hidden absolute top-full left-0 right-0 bg-[#0F0F18] 
         transition-all duration-300 ease-in-out overflow-hidden
         ${isOpen ? 'max-h-screen shadow-lg' : 'max-h-0'}
       `}>
@@ -89,7 +89,7 @@ const Navbar = ({ user }) => {
             <li key={link.href} className="w-full"> {/* Gunakan href sebagai key */}
               <Link 
                 href={link.href} 
-                className="block py-3 px-2 text-neutral-200 hover:bg-pink-700 rounded-md transition-colors"
+                className="block py-3 px-2 text-neutral-200 hover:bg-blue-700 rounded-md transition-colors"
                 onClick={() => setIsOpen(false)} // Tutup menu saat link diklik
               >
                 {link.name}
