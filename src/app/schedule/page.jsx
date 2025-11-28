@@ -68,7 +68,7 @@ export default function SchedulePage() {
                 onClick={() => setActiveDay(day.key)}
                 className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 whitespace-nowrap ${
                   activeDay === day.key
-                    ? 'bg-pink-600 text-white shadow-lg'
+                    ? 'bg-blue-600 text-white shadow-lg'
                     : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
                 }`}
               >
@@ -82,14 +82,14 @@ export default function SchedulePage() {
         {isLoading ? (
           <div className="flex justify-center items-center min-h-[50vh]">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-pink-500 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
               <p className="text-neutral-400">Memuat jadwal...</p>
             </div>
           </div>
         ) : currentAnimes.length > 0 ? (
           <>
             <div className="mb-4">
-              <h2 className="text-xl md:text-2xl font-bold text-pink-500">
+              <h2 className="text-xl md:text-2xl font-bold text-blue-500">
                 {DAYS.find(d => d.key === activeDay)?.label}
                 <span className="text-neutral-400 text-base ml-2">
                   ({currentAnimes.length} anime)
