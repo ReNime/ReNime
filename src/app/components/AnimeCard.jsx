@@ -27,7 +27,7 @@ const AnimeCard = ({ title, image, slug, episode, statusOrDay, type, priority = 
 
           {/* Badge TYPE baru (pojok kanan atas) */}
           {type && (
-            <div className="absolute top-2 right-2 z-10 rounded-md bg-pink-600/80 px-2 py-1 text-xs font-bold text-white">
+            <div className="absolute top-2 right-2 z-10 rounded-md bg-blue-600/80 px-2 py-1 text-xs font-bold text-white">
               <span>{type}</span>
             </div>
           )}
@@ -41,7 +41,7 @@ const AnimeCard = ({ title, image, slug, episode, statusOrDay, type, priority = 
         </div>
 
         <div className="mt-2 px-1">
-          <h3 className="font-semibold text-sm text-white line-clamp-2 group-hover:text-pink-400 transition-colors">
+          <h3 className="font-semibold text-sm text-white line-clamp-2 group-hover:text-blue-400 transition-colors">
             {title}
           </h3>
 
