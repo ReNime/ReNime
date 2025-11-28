@@ -193,7 +193,7 @@ async function DashboardPage() {
           <div className="mb-6 bg-zinc-800 p-4 rounded-lg">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-neutral-300">Progress ke Level {safeLevel + 1}</span>
-              <span className="text-sm font-bold text-pink-500">
+              <span className="text-sm font-bold text-blue-500">
                 {safeTotalMinutes} / {safeNextLevelMinutes} menit
               </span>
             </div>
@@ -208,15 +208,15 @@ async function DashboardPage() {
           <div className="flex justify-around">
             <div className="text-center">
               {/* Angka diberi warna pink */}
-              <p className="text-2xl font-bold text-pink-500">{safeTotalMinutes}</p>
+              <p className="text-2xl font-bold text-blue-500">{safeTotalMinutes}</p>
               <p className="text-sm text-neutral-400">menit menonton</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-pink-500">{watchHistoryCount}</p>
+              <p className="text-2xl font-bold text-blue-500">{watchHistoryCount}</p>
               <p className="text-sm text-neutral-400">episode ditonton</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-pink-500">{safeLevel}</p>
+              <p className="text-2xl font-bold text-blue-500">{safeLevel}</p>
               <p className="text-sm text-neutral-400">level saat ini</p>
             </div>
           </div>
@@ -226,13 +226,13 @@ async function DashboardPage() {
       <div className="w-full max-w-md mx-auto mt-8 px-4 flex flex-col sm:flex-row gap-4">
         <Link
           href="/users/dashboard/my-history"
-          className="flex-1 text-center py-3 px-6 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors"
+          className="flex-1 text-center py-3 px-6 bg-blue-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors"
         >
           Riwayat Tontonan
         </Link>
         <Link
           href="/users/dashboard/my-comment"
-          className="flex-1 text-center py-3 px-6 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors"
+          className="flex-1 text-center py-3 px-6 bg-blue-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors"
         >
           Riwayat Komentar
         </Link>
