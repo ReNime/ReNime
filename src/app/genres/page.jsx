@@ -77,7 +77,7 @@ export default async function GenresPage() {
                 <Link
                   key={genre.slug}
                   href={`/genre/${genre.slug}`}
-                  className="group relative bg-neutral-800 rounded-lg overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-pink-600/30 h-32 md:h-40"
+                  className="group relative bg-neutral-800 rounded-lg overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-600/30 h-32 md:h-40"
                 >
                   {/* Background Image */}
                   {genre.image ? (
@@ -90,10 +90,10 @@ export default async function GenresPage() {
                         sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
                       />
                       {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30 group-hover:from-pink-900/90 group-hover:via-pink-800/60 transition-all duration-300"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30 group-hover:from-blue-900/90 group-hover:via-blue-800/60 transition-all duration-300"></div>
                     </>
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-900 group-hover:from-pink-700 group-hover:to-pink-900 transition-all duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-900 group-hover:from-blue-700 group-hover:to-blue-900 transition-all duration-300"></div>
                   )}
 
                   {/* Content */}
