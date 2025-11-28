@@ -12,7 +12,7 @@ const Navigation = () => {
     }
 
     return (
-        <button className='text-pink-500 flex justify-center items-center gap-2 hover:text-pink-400 cursor-pointer' onClick={handleNavigate}><IoMdArrowRoundBack size={30}/>Kembali</button>
+        <button className='text-blue-500 flex justify-center items-center gap-2 hover:text-blue-400 cursor-pointer' onClick={handleNavigate}><IoMdArrowRoundBack size={30}/>Kembali</button>
     )
 }
 
