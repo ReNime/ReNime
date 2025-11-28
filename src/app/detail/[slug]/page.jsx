@@ -91,7 +91,7 @@ export default async function DetailAnimePage({ params: paramsPromise }) {
               {/* --- MODIFIKASI: Tambahkan queryString ke tombol "Watch Now" --- */}
               <Link
                 href={`/watch/${anime.episodes?.[0]?.slug || ''}?${queryString}`}
-                className="bg-pink-600 text-white px-6 py-2 rounded-full flex items-center space-x-2 hover:bg-pink-700 transition"
+                className="bg-blue-600 text-white px-6 py-2 rounded-full flex items-center space-x-2 hover:bg-pink-700 transition"
               >
                 Watch Now
               </Link>
@@ -168,7 +168,7 @@ export default async function DetailAnimePage({ params: paramsPromise }) {
                 className="bg-neutral-800 rounded-lg p-4 flex items-center space-x-4 hover:bg-neutral-700 transition"
               >
                 <div className="w-24 h-12 bg-neutral-700 rounded flex items-center justify-center flex-shrink-0">
-                  <span className="text-pink-500 font-bold text-sm">
+                  <span className="text-blue-500 font-bold text-sm">
                     {episode.name.split(' ')[1] || 'EP'}
                   </span>
                 </div>
