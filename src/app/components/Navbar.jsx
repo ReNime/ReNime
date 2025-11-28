@@ -1,13 +1,14 @@
-"use client";
+"use client"; // <-- Tetap "use client" untuk hamburger
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { User } from "lucide-react"; // Ikon user
+import { PiSparkleFill } from 'react-icons/pi'; // Tambah icon sparkle
 
-const Navbar = ({ user }) => {  
+// 1. Terima 'user' sebagai prop
+const Navbar = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Link utama
+  // 2. Buat daftar link dasar
   const navLinks = [
     { href: "/populer", name: "Populer" },
     { href: "/movie", name: "Movie" },
@@ -15,6 +16,7 @@ const Navbar = ({ user }) => {
     { href: "/schedule", name: "Schedule" },
   ];
 
+  // 3. Tambahkan link dinamis berdasarkan 'user'
   if (user) {
     navLinks.push({ href: "/users/dashboard", name: "Dashboard" });
     navLinks.push({ href: "/api/auth/signout", name: "Logout" });
@@ -24,20 +26,15 @@ const Navbar = ({ user }) => {
 
   return (
     <nav className="w-full md:pt-10 pt-5 relative z-50">
+      <div className="container mx-auto flex justify-between items-center px-4">
 
-      {/* === Ikon kanan atas === */}
-      <div className="absolute right-5 top-5 md:right-10 md:top-10">
-        <Link href={user ? "/users/dashboard" : "/api/auth/signin"}>
-          <User
-            className="w-7 h-7 text-neutral-300 hover:text-pink-500 transition-colors cursor-pointer"
-          />
-        </Link>
-      </div>
+        {/* === Logo / Sparkle Icon === */}
+        <div className="absolute right-4 top-3 md:right-10 md:top-6 text-pink-500 animate-pulse">
+          <PiSparkleFill size={26} />
+        </div>
 
-      <div className="container mx-auto flex justify-center items-center px-4">
-        
         {/* === Menu Desktop === */}
-        <ul className="hidden md:flex items-center space-x-6">
+        <ul className="hidden md:flex items-center space-x-6 mx-auto">
           {navLinks.map((link) => (
             <li key={link.href}>
               <Link
@@ -50,8 +47,8 @@ const Navbar = ({ user }) => {
           ))}
         </ul>
 
-        {/* === Hamburger Mobile === */}
-        <div className="md:hidden w-full">
+        {/* === Tombol Hamburger Mobile === */}
+        <div className="md:hidden w-full flex justify-end">
           <button
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
@@ -68,18 +65,14 @@ const Navbar = ({ user }) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
-                d={
-                  isOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16m-7 6h7"
-                }
+                d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"}
               ></path>
             </svg>
           </button>
         </div>
       </div>
 
-      {/* === Menu Mobile === */}
+      {/* === Menu Dropdown Mobile === */}
       <div
         className={`
           md:hidden absolute top-full left-0 right-0 bg-[#1A1A29]
