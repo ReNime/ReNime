@@ -14,7 +14,7 @@ const HeroSection = () => {
 
         {/* Konten Teks (Sekarang `lg:order-1`) */}
         <div className="p-6 lg:p-12 flex flex-col justify-center relative 
-      bg-gradient-to-b from-[#2E2F40] to-[#1A1A29] 
+      bg-gradient-to-b from-[#2E2F40] to-[#0F0F18] 
       order-2 lg:order-1">
 
           <h1 className="text-2xl lg:text-4xl font-bold text-white mb-3 lg:mb-4 relative z-20">
