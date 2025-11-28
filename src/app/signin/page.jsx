@@ -8,6 +8,7 @@ import BreadcrumbNavigation from "../components/BreadcrumbNavigation";
 // (Opsional) Impor ikon jika Anda mau
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+import { SiDiscord } from "react-icons/si";
 
 export default function SignInPage() {
   const breadcrumbs = [
@@ -36,6 +37,7 @@ export default function SignInPage() {
   const providerIcons = {
     Google: <FcGoogle size={24} />,
     GitHub: <FaGithub size={24} />,
+    Discord: <SiDiscord size={24} />, 
   };
 
   return (
@@ -45,7 +47,7 @@ export default function SignInPage() {
       </div>
       <div className="w-full max-w-sm p-8 space-y-6 bg-gray-800 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center text-white">
-          Login ke Juju Otaku
+          Login ke ReNime
         </h2>
         
         <div className="space-y-4">
