@@ -164,7 +164,7 @@ export default function HistoryList({ initialHistory }) {
                   />
                 </div>
                 <h3 className={`
-                  text-sm font-semibold mt-2 group-hover:text-pink-500
+                  text-sm font-semibold mt-2 group-hover:text-blue-500
                   ${isCurrentlyDeleting ? 'opacity-50' : ''}
                 `}>
                   {item.title}
