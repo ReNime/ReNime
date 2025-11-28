@@ -30,8 +30,8 @@ const Navbar = ({ user }) => {
     <nav className="w-full md:pt-10 pt-5 relative z-50">
       <div className="container mx-auto flex justify-center items-center px-4">
         {/* === Menu Desktop === */}
-        <div className="absolute right-4 top-3 md:right-10 md:top-6 text-white-500 animate-pulse">
-        <PiSparkleFill size={26} />
+        <div className="absolute right-4 top-5 md:right-10 md:top-6 text-white-500 animate-pulse">
+        <PiSparkleFill size={28} />
         </div>
         {/* 4. 'navLinks' sekarang sudah dinamis */}
         <ul className="hidden md:flex items-center space-x-6">
@@ -39,7 +39,7 @@ const Navbar = ({ user }) => {
             <li key={link.href}> {/* Gunakan href sebagai key */}
               <Link 
                 href={link.href} 
-                className="text-neutral-300 hover:text-pink-500 transition-colors duration-200 font-medium text-md"
+                className="text-neutral-300 hover:text-blue-500 transition-colors duration-200 font-medium text-md"
               >
                 {link.name}
               </Link>
