@@ -1,39 +1,56 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 export async function POST(req) {
-  const { username, email, phone, password } = await req.json();
+  try {
+    const data = await req.json();
+    const { name, username, phone, password } = data;
 
-  const exist = await prisma.user.findFirst({
-    where: { OR: [{ email }, { phone }, { username }] },
-  });
+    if (!name || !username || !phone || !password) {
+      return new Response(
+        JSON.stringify({ error: "Semua field wajib diisi!" }),
+        { status: 400 }
+      );
+    }
 
-  if (exist) {
-    return Response.json({ success: false, error: "User sudah terdaftar!" });
+    // Cek duplikasi
+    const exist = await prisma.user.findFirst({
+      where: {
+        OR: [{ username }, { phone }],
+      },
+    });
+
+    if (exist) {
+      return new Response(
+        JSON.stringify({ error: "Username atau nomor sudah terdaftar!" }),
+        { status: 400 }
+      );
+    }
+
+    const hashed = await bcrypt.hash(password, 12);
+
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        username,
+        phone,
+        password: hashed,
+      },
+    });
+
+    return new Response(JSON.stringify({ success: true, newUser }), {
+      status: 201,
+    });
+
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: "Server error" }), {
+      status: 500,
+    });
   }
-
-  const hash = await bcrypt.hash(password, 10);
-
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-  const user = await prisma.user.create({
-    data: {
-      username,
-      email,
-      phone,
-      password: hash,
-      otp,
-      otpExpiry: new Date(Date.now() + 5 * 60 * 1000),
-    },
-  });
-
-  // Kirim OTP via WhatsApp bot
-  await fetch(process.env.WA_BOT_URL + "/send", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+}
       number: phone,
       message: `Kode OTP ReNime kamu: *${otp}* (berlaku 5 menit)`
     }),
