@@ -4,15 +4,13 @@ import { useState, useRef, useEffect } from "react";
 import { FaPaperPlane, FaSpinner, FaTimes } from "react-icons/fa";
 import { LuScanLine } from "react-icons/lu";
 import Image from "next/image";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useSession, signIn } from "next-auth/react";
 import { searchAnimeByFile } from "@/app/libs/traceMoe";
-import Head from "next/head";
 
-export default function AichixiaPage() {
+export default function ReNimePage() {
   const { data: session } = useSession();
   const isAuthenticated = !!session;
 
@@ -21,7 +19,7 @@ export default function AichixiaPage() {
       role: "assistant",
       type: "text",
       content:
-        "Hi I'm **Aichixia**, your AI assistant for anime, manga, manhwa, manhua, and light novels. You can chat or upload a screenshot via Scan button to identify an anime instantly!",
+        "Hi I'm **RENAI**, your AI assistant for anime, manga, manhwa, manhua, and light novels. Chat or upload a screenshot via Scan button to identify an anime instantly!",
     },
   ]);
 
@@ -99,7 +97,7 @@ export default function AichixiaPage() {
 
         const data = await res.json();
 
-        if (data.data && Array.isArray(data.data)) {
+        if (data.type === "anime" && Array.isArray(data.data)) {
           setMessages((prev) => [
             ...prev,
             { role: "assistant", type: "anime", content: data.data },
@@ -107,11 +105,7 @@ export default function AichixiaPage() {
         } else {
           setMessages((prev) => [
             ...prev,
-            {
-              role: "assistant",
-              type: "text",
-              content: data.reply || "⚠️ No valid response.",
-            },
+            { role: "assistant", type: "text", content: data.reply || "⚠️ No valid response." },
           ]);
         }
       }
@@ -122,7 +116,7 @@ export default function AichixiaPage() {
         {
           role: "assistant",
           type: "text",
-          content: "❌ Error while connecting to Aichixia.",
+          content: "❌ Error while connecting to ReNai.",
         },
       ]);
     } finally {
@@ -147,160 +141,127 @@ export default function AichixiaPage() {
   };
 
   return (
-    <>
-      <Head>
-        <title>Aichixia | AI Assistant</title>
-        <meta
-          name="description"
-          content="Aichixia is your AI assistant for anime, manga, manhwa, and light novels. Chat or identify anime from screenshots!"
-        />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className="flex flex-col items-center min-h-screen bg-slate-900 text-white relative overflow-hidden">
-        <div className="w-full max-w-4xl flex flex-col h-screen px-4 relative z-10">
-          <header className="p-4 border-b border-blue-500/20 flex items-center justify-between sticky top-0 z-20 bg-slate-900/80 backdrop-blur-xl rounded-b-2xl">
-            <h1 className="text-xl font-bold text-blue-300">Aichixia</h1>
-            <button
-              onClick={() => setScanOpen(true)}
-              disabled={scanCooldown > 0 || !isAuthenticated}
-              className="px-3 py-2 bg-blue-500 rounded-xl disabled:opacity-50"
+    <main className="flex flex-col h-screen p-4 bg-slate-900 text-white">
+      <div className="flex-1 overflow-y-auto mb-4">
+        {messages.map((msg, idx) => (
+          <div
+            key={idx}
+            className={`mb-2 flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+          >
+            <div
+              className={`px-4 py-2 rounded-2xl max-w-xs break-words ${
+                msg.role === "user" ? "bg-blue-500 text-white" : "bg-gray-700 text-white"
+              }`}
             >
-              <LuScanLine />
-              {scanCooldown > 0 && <span>{scanCooldown}s</span>}
-            </button>
-          </header>
+              {msg.type === "text" ? (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+              ) : msg.type === "image" && typeof msg.content === "string" ? (
+                <Image src={msg.content} alt="preview" width={200} height={200} />
+              ) : msg.type === "scan" ? (
+                <pre>{JSON.stringify(msg.content, null, 2)}</pre>
+              ) : null}
+            </div>
+          </div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
 
-          <section className="flex-1 overflow-y-auto py-4 space-y-3">
-            {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`flex ${
-                  msg.role === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`px-4 py-2 rounded-xl max-w-xs break-words ${
-                    msg.role === "user"
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-700 text-white"
-                  }`}
-                >
-                  {msg.type === "text" ? (
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {msg.content}
-                    </ReactMarkdown>
-                  ) : msg.type === "image" && typeof msg.content === "string" ? (
-                    <Image
-                      src={msg.content}
-                      alt="preview"
-                      width={200}
-                      height={200}
-                      className="rounded-xl"
-                    />
-                  ) : msg.type === "scan" ? (
-                    <pre>{JSON.stringify(msg.content, null, 2)}</pre>
-                  ) : null}
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </section>
+      {!isAuthenticated ? (
+        <button
+          onClick={() => signIn()}
+          className="w-full px-4 py-2 bg-blue-500 rounded-xl font-bold"
+        >
+          Login to chat
+        </button>
+      ) : (
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Ask me anything about anime..."
+            className="flex-1 px-4 py-2 rounded-xl bg-slate-800/50 border border-blue-500/20 text-white"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={loading}
+          />
+          <button
+            onClick={sendMessage}
+            disabled={loading}
+            className="px-4 py-2 bg-blue-500 rounded-xl text-white"
+          >
+            {loading ? <FaSpinner className="animate-spin" /> : <FaPaperPlane />}
+          </button>
+          <button
+            onClick={() => setScanOpen(!scanOpen)}
+            className="px-4 py-2 bg-purple-500 rounded-xl text-white"
+          >
+            <LuScanLine />
+          </button>
+        </div>
+      )}
 
-          <footer className="p-3 bg-slate-900/80 sticky bottom-0 flex gap-2">
-            {!isAuthenticated ? (
-              <button
-                onClick={() => signIn()}
-                className="flex-1 px-4 py-2 bg-blue-500 rounded-xl text-white font-bold"
-              >
-                Login to chat
-              </button>
-            ) : (
-              <>
-                <input
-                  type="text"
-                  placeholder="Ask me anything about anime..."
-                  className="flex-1 px-4 py-2 rounded-xl bg-slate-800/50 border border-blue-500/20 text-white"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  disabled={loading}
-                />
+      <AnimatePresence>
+        {scanOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setScanOpen(false)}
+          >
+            <motion.div
+              className="bg-slate-900 p-6 rounded-xl w-full max-w-md relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {!isAuthenticated ? (
                 <button
-                  onClick={sendMessage}
-                  disabled={loading}
+                  onClick={() => signIn()}
                   className="px-4 py-2 bg-blue-500 rounded-xl text-white"
                 >
-                  {loading ? <FaSpinner className="animate-spin" /> : <FaPaperPlane />}
+                  Login to Scan
                 </button>
-              </>
-            )}
-          </footer>
-        </div>
+              ) : (
+                <label className="px-4 py-2 bg-green-500 rounded-xl text-white cursor-pointer flex items-center gap-2">
+                  <LuScanLine />
+                  Choose Image
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileSelect}
+                  />
+                </label>
+              )}
 
-        <AnimatePresence>
-          {scanOpen && (
-            <motion.div
-              className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setScanOpen(false)}
-            >
-              <motion.div
-                className="bg-slate-900 p-6 rounded-xl w-full max-w-md relative"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {!isAuthenticated ? (
+              {pendingImage && (
+                <div className="mt-4 relative w-56 h-56 mx-auto">
+                  <Image
+                    src={pendingImage}
+                    alt="preview"
+                    fill
+                    className="object-cover rounded-xl"
+                  />
                   <button
-                    onClick={() => signIn()}
-                    className="px-4 py-2 bg-blue-500 rounded-xl text-white"
+                    onClick={() => setPendingImage(null)}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
                   >
-                    Login to Scan
+                    <FaTimes />
                   </button>
-                ) : (
-                  <label className="px-4 py-2 bg-green-500 rounded-xl text-white cursor-pointer flex items-center gap-2">
-                    <LuScanLine />
-                    Choose Image
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleFileSelect}
-                    />
-                  </label>
-                )}
+                </div>
+              )}
 
-                {pendingImage && (
-                  <div className="mt-4 relative w-56 h-56 mx-auto">
-                    <Image
-                      src={pendingImage}
-                      alt="preview"
-                      fill
-                      className="object-cover rounded-xl"
-                    />
-                    <button
-                      onClick={() => setPendingImage(null)}
-                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
-                    >
-                      <FaTimes />
-                    </button>
-                  </div>
-                )}
-
-                {session && pendingImage && (
-                  <button
-                    onClick={sendMessage}
-                    className="mt-4 px-4 py-2 bg-blue-500 rounded-xl text-white w-full"
-                  >
-                    Scan Now
-                  </button>
-                )}
-              </motion.div>
+              {isAuthenticated && pendingImage && (
+                <button
+                  onClick={sendMessage}
+                  className="mt-4 px-4 py-2 bg-blue-500 rounded-xl text-white w-full"
+                >
+                  Scan Now
+                </button>
+              )}
             </motion.div>
-          )}
-        </AnimatePresence>
-      </main>
-    </>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </main>
   );
 }
