@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { signIn, useSession } from "next-auth/react";
-import { searchAnimeByFile } from "@/libs/traceMoe";
+import { searchAnimeByFile } from "@/app/libs/traceMoe";
 import Head from "next/head";
 
 export default function AichixiaPage() {
