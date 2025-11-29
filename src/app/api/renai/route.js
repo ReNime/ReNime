@@ -1,9 +1,11 @@
+// app/api/renai/route.js
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
     const body = await req.json();
 
+    // Ganti URL ini sesuai ReNai backend kamu
     const targetUrl = "https://re-nai.vercel.app/api/chat";
 
     const response = await fetch(targetUrl, {
@@ -18,7 +20,7 @@ export async function POST(req) {
     if (Array.isArray(data.anime)) {
       return NextResponse.json({
         type: "anime",
-        anime: data.anime.map((a) => ({
+        data: data.anime.map((a) => ({
           id: a.id ?? Math.random(),
           title: a.title ?? "Untitled",
           coverImage: a.coverImage ?? "/default.png",
@@ -29,22 +31,20 @@ export async function POST(req) {
       });
     }
 
-    // fallback → teks dari AI
-    return NextResponse.json(
-      {
-        type: "text",
-        reply:
-          data.reply ??
-          "Huwaa~ something went wrong... can you try again, senpai? 😖💔",
-      },
-      { status: response.status }
-    );
+    // Fallback → teks dari AI
+    return NextResponse.json({
+      type: "text",
+      reply:
+        data.reply ||
+        "Huwaa~ something went wrong... can you try again, senpai? 😖💔",
+    });
   } catch (err) {
     console.error("ReNai Proxy API error:", err);
 
     return NextResponse.json(
       {
-        error: "Internal Server Error",
+        type: "text",
+        reply: "❌ Internal Server Error. Please try again later.",
         details: err.message,
       },
       { status: 500 }
@@ -52,21 +52,19 @@ export async function POST(req) {
   }
 }
 
-// Handle method lain
+// Handle method selain POST
 export function GET() {
   return NextResponse.json(
     { error: "Method Not Allowed" },
     { status: 405 }
   );
 }
-
 export function PUT() {
   return NextResponse.json(
     { error: "Method Not Allowed" },
     { status: 405 }
   );
 }
-
 export function DELETE() {
   return NextResponse.json(
     { error: "Method Not Allowed" },
