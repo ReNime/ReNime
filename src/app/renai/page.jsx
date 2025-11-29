@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { signIn, useSession } from "next-auth/react";
 import { searchAnimeByFile } from "@/app/libs/traceMoe";
 
-export default function ReNimePage() {
+export default function AichixiaPage() {
   const { data: session, status } = useSession();
   const isAuthenticated = status === "authenticated";
 
