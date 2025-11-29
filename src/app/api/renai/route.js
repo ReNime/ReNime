@@ -1,23 +1,23 @@
-export default async function handler(req, res) {
-  try {
-    if (req.method !== "POST") {
-      return res.status(405).json({ error: "Method Not Allowed" });
-    }
+import { NextResponse } from "next/server";
 
-    const targetUrl = "https://aichixia.vercel.app/api/chat";
+export async function POST(req) {
+  try {
+    const body = await req.json();
+
+    const targetUrl = "https://re-nai.vercel.app/api/chat";
 
     const response = await fetch(targetUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req.body),
+      body: JSON.stringify(body),
     });
 
     const data = await response.json();
 
     if (Array.isArray(data.anime)) {
-      return res.status(200).json({
+      return NextResponse.json({
         type: "anime",
-        anime: data.anime.map((a) => ({
+        data: data.anime.map((a) => ({
           id: a.id ?? Math.random(),
           title: a.title ?? "Untitled",
           coverImage: a.coverImage ?? "/default.png",
@@ -28,16 +28,18 @@ export default async function handler(req, res) {
       });
     }
 
-    // fallback → pure text reply
-    return res.status(response.status).json({
-      type: "text",
-      reply: data.reply ?? "Huwaa~ something went wrong... can you try again, senpai? 😖💔",
-    });
+    return NextResponse.json(
+      {
+        type: "text",
+        reply: data.reply ?? "Huwaa~ something went wrong... can you try again, senpai? 😖💔",
+      },
+      { status: response.status }
+    );
   } catch (err) {
-    console.error("Aichiow -> Aichixia API error:", err);
-    return res.status(500).json({
-      error: "Internal Server Error",
-      details: err.message,
-    });
+    console.error("ReNai API error:", err);
+    return NextResponse.json(
+      { error: "Internal Server Error", details: err.message },
+      { status: 500 }
+    );
   }
 }
