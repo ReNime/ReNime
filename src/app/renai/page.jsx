@@ -3,20 +3,22 @@
 import { useState, useRef, useEffect } from "react";
 import { FaPaperPlane, FaSpinner } from "react-icons/fa";
 import { LuScanLine } from "react-icons/lu";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { signIn, useSession } from "next-auth/react";
 import { searchAnimeByFile } from "@/app/libs/traceMoe";
-import Head from "next/head";
 
-export default function AichixiaPage() {
+export default function ReNimePage() {
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === "authenticated";
+
   const [messages, setMessages] = useState([
     {
       role: "assistant",
       type: "text",
       content:
-        "Hi I'm **RENAI**, your AI assistant for anime, manga, manhwa, manhua, and light novels. You can chat or upload a screenshot via Scan button to identify an anime instantly!",
+        "Hi I'm **RENAI**, your AI assistant for anime, manga, manhwa, manhua, and light novels. Chat or upload a screenshot via Scan button to identify an anime instantly!",
     },
   ]);
-
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [scanOpen, setScanOpen] = useState(false);
@@ -30,7 +32,7 @@ export default function AichixiaPage() {
 
   useEffect(() => {
     if (scanCooldown > 0) {
-      const timer = setTimeout(() => setScanCooldown((s) => Math.max(0, s - 1)), 1000);
+      const timer = setTimeout(() => setScanCooldown(s => Math.max(0, s - 1)), 1000);
       return () => clearTimeout(timer);
     }
   }, [scanCooldown]);
@@ -72,7 +74,7 @@ export default function AichixiaPage() {
 
         const scanRes = await searchAnimeByFile(file);
 
-        setMessages((prev) => [
+        setMessages(prev => [
           ...prev,
           { role: "assistant", type: "scan", content: scanRes },
         ]);
@@ -82,7 +84,7 @@ export default function AichixiaPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             message: input,
-            history: messages.map((m) => ({
+            history: messages.map(m => ({
               role: m.role,
               content: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
             })),
@@ -92,22 +94,30 @@ export default function AichixiaPage() {
         const data = await res.json();
 
         if (data.data && Array.isArray(data.data)) {
-          setMessages((prev) => [
+          setMessages(prev => [
             ...prev,
             { role: "assistant", type: "anime", content: data.data },
           ]);
         } else {
-          setMessages((prev) => [
+          setMessages(prev => [
             ...prev,
-            { role: "assistant", type: "text", content: data.reply || "⚠️ No valid response." },
+            {
+              role: "assistant",
+              type: "text",
+              content: data.reply || "⚠️ No valid response.",
+            },
           ]);
         }
       }
     } catch (err) {
       console.error(err);
-      setMessages((prev) => [
+      setMessages(prev => [
         ...prev,
-        { role: "assistant", type: "text", content: "❌ Error while connecting to ReNai." },
+        {
+          role: "assistant",
+          type: "text",
+          content: "❌ Error while connecting to ReNai.",
+        },
       ]);
     } finally {
       setLoading(false);
@@ -132,19 +142,41 @@ export default function AichixiaPage() {
   };
 
   return (
-    <>
-      <Head>
-        <title>ReNai | AI Assistant</title>
-        <meta
-          name="description"
-          content="ReNai is your AI assistant for anime, manga, manhwa, and light novels. Chat or identify anime from screenshots!"
-        />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <main className="flex flex-col h-screen p-4 bg-slate-900 text-white">
+      {/* Chat messages */}
+      <div className="flex-1 overflow-y-auto mb-4">
+        {messages.map((msg, idx) => (
+          <div
+            key={idx}
+            className={`mb-2 flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+          >
+            <div
+              className={`px-4 py-2 rounded-2xl max-w-xs break-words ${
+                msg.role === "user" ? "bg-blue-500 text-white" : "bg-gray-700 text-white"
+              }`}
+            >
+              {typeof msg.content === "string" ? (
+                msg.content
+              ) : (
+                <pre className="text-sm">{JSON.stringify(msg.content, null, 2)}</pre>
+              )}
+            </div>
+          </div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
 
-      <main className="p-4 flex flex-col h-screen">
-        {/* Chat input */}
-        <div className="mt-auto flex gap-2 items-center">
+      {/* Input + send button */}
+      {!isAuthenticated ? (
+        <button
+          onClick={() => signIn()}
+          className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 text-white rounded-2xl font-bold"
+        >
+          <FaPaperPlane />
+          <span>Login to access ReNai</span>
+        </button>
+      ) : (
+        <div className="flex gap-2 items-center">
           <input
             type="text"
             placeholder="Ask me anything about anime..."
@@ -154,31 +186,44 @@ export default function AichixiaPage() {
             onKeyDown={handleKeyDown}
             disabled={loading}
           />
-
           <button
             onClick={sendMessage}
             disabled={loading}
             className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500"
           >
-            {loading ? <FaSpinner className="animate-spin text-white" /> : <FaPaperPlane className="text-white" />}
+            {loading ? (
+              <FaSpinner className="animate-spin text-white" />
+            ) : (
+              <FaPaperPlane className="text-white" />
+            )}
           </button>
-
-          <button onClick={() => setScanOpen(true)} className="p-3 rounded-2xl bg-gray-700 text-white">
-            <LuScanLine className="text-xl" />
+          <button
+            onClick={() => setScanOpen(!scanOpen)}
+            className="p-3 rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-red-500"
+          >
+            <LuScanLine className="text-white" />
           </button>
         </div>
+      )}
 
-        {/* Scan modal */}
-        <AnimatePresence>
-          {scanOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              className="fixed inset-0 bg-black/50 flex justify-center items-center"
-            >
-              <label className="bg-slate-800 p-4 rounded-2xl flex flex-col items-center gap-2 cursor-pointer">
-                <span>Choose Image</span>
+      {/* Scan modal */}
+      <AnimatePresence>
+        {scanOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-800 p-4 rounded-xl shadow-lg"
+          >
+            {!isAuthenticated ? (
+              <button onClick={() => signIn()} className="flex items-center gap-2 px-4 py-2 bg-blue-500 rounded-xl">
+                <LuScanLine />
+                Login to Scan
+              </button>
+            ) : (
+              <label className="flex items-center gap-2 px-4 py-2 bg-green-500 rounded-xl cursor-pointer">
+                <LuScanLine />
+                Choose Image
                 <input
                   type="file"
                   accept="image/*"
@@ -186,12 +231,10 @@ export default function AichixiaPage() {
                   onChange={handleFileSelect}
                 />
               </label>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <div ref={messagesEndRef} />
-      </main>
-    </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </main>
   );
 }
