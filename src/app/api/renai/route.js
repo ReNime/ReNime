@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import util from "node:util";
 
 export async function POST(req) {
   try {
@@ -30,7 +31,8 @@ export async function POST(req) {
     return NextResponse.json(
       {
         type: "text",
-        reply: data?.reply ?? "Huwaa~ something went wrong... can you try again, senpai? 😖💔",
+        reply: util.inspect(response, { depth: null }) 
+       // reply: data?.reply ?? "Huwaa~ something went wrong... can you try again, senpai? 😖💔",
       },
       { status: response.status || 200 }
     );
@@ -42,3 +44,6 @@ export async function POST(req) {
     );
   }
 }
+
+
+bantu cek in bg
