@@ -1,21 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FaPaperPlane, FaSpinner, FaTimes } from "react-icons/fa";
+import { FaPaperPlane, FaSpinner } from "react-icons/fa";
 import { LuScanLine } from "react-icons/lu";
-import Image from "next/image";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { signIn, useSession } from "next-auth/react";
 import { searchAnimeByFile } from "@/app/libs/traceMoe";
 import Head from "next/head";
 
 export default function AichixiaPage() {
-  const { data: session, status } = useSession();
-  const isAuthenticated = status === "authenticated";
-
   const [messages, setMessages] = useState([
     {
       role: "assistant",
@@ -38,7 +30,7 @@ export default function AichixiaPage() {
 
   useEffect(() => {
     if (scanCooldown > 0) {
-      const timer = setTimeout(() => setScanCooldown(s => Math.max(0, s - 1)), 1000);
+      const timer = setTimeout(() => setScanCooldown((s) => Math.max(0, s - 1)), 1000);
       return () => clearTimeout(timer);
     }
   }, [scanCooldown]);
@@ -80,7 +72,7 @@ export default function AichixiaPage() {
 
         const scanRes = await searchAnimeByFile(file);
 
-        setMessages(prev => [
+        setMessages((prev) => [
           ...prev,
           { role: "assistant", type: "scan", content: scanRes },
         ]);
@@ -90,12 +82,9 @@ export default function AichixiaPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             message: input,
-            history: messages.map(m => ({
+            history: messages.map((m) => ({
               role: m.role,
-              content:
-                typeof m.content === "string"
-                  ? m.content
-                  : JSON.stringify(m.content),
+              content: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
             })),
           }),
         });
@@ -103,30 +92,22 @@ export default function AichixiaPage() {
         const data = await res.json();
 
         if (data.data && Array.isArray(data.data)) {
-          setMessages(prev => [
+          setMessages((prev) => [
             ...prev,
             { role: "assistant", type: "anime", content: data.data },
           ]);
         } else {
-          setMessages(prev => [
+          setMessages((prev) => [
             ...prev,
-            {
-              role: "assistant",
-              type: "text",
-              content: data.reply || "⚠️ No valid response.",
-            },
+            { role: "assistant", type: "text", content: data.reply || "⚠️ No valid response." },
           ]);
         }
       }
     } catch (err) {
       console.error(err);
-      setMessages(prev => [
+      setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          type: "text",
-          content: "❌ Error while connecting to ReNai.",
-        },
+        { role: "assistant", type: "text", content: "❌ Error while connecting to ReNai." },
       ]);
     } finally {
       setLoading(false);
@@ -161,67 +142,50 @@ export default function AichixiaPage() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="...">
-        {/* header tetap */}
-        
-        {/* Footer */}
-        <footer className="...">
-          {!isAuthenticated ? (
-            <button
-              onClick={() => signIn()}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 text-white rounded-2xl font-bold"
-            >
-              <FaPaperPlane />
-              <span>Login to access ReNai</span>
-            </button>
-          ) : (
-            <div className="flex gap-2 items-center">
-              <input
-                type="text"
-                placeholder="Ask me anything about anime..."
-                className="flex-1 px-4 py-3 rounded-2xl bg-slate-800/50 border border-blue-500/20 text-white"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={loading}
-              />
+      <main className="p-4 flex flex-col h-screen">
+        {/* Chat input */}
+        <div className="mt-auto flex gap-2 items-center">
+          <input
+            type="text"
+            placeholder="Ask me anything about anime..."
+            className="flex-1 px-4 py-3 rounded-2xl bg-slate-800/50 border border-blue-500/20 text-white"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={loading}
+          />
 
-              <button
-                onClick={sendMessage}
-                disabled={loading}
-                className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500"
-              >
-                {loading ? (
-                  <FaSpinner className="animate-spin text-white" />
-                ) : (
-                  <FaPaperPlane className="text-white" />
-                )}
-              </button>
-            </div>
-          )}
-        </footer>
+          <button
+            onClick={sendMessage}
+            disabled={loading}
+            className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500"
+          >
+            {loading ? <FaSpinner className="animate-spin text-white" /> : <FaPaperPlane className="text-white" />}
+          </button>
+
+          <button onClick={() => setScanOpen(true)} className="p-3 rounded-2xl bg-gray-700 text-white">
+            <LuScanLine className="text-xl" />
+          </button>
+        </div>
 
         {/* Scan modal */}
         <AnimatePresence>
           {scanOpen && (
-            <motion.div>
-              {!isAuthenticated ? (
-                <button onClick={() => signIn()} className="...">
-                  <LuScanLine className="text-xl" />
-                  <span>Login to Scan</span>
-                </button>
-              ) : (
-                <label className="...">
-                  <LuScanLine className="text-xl" />
-                  <span>Choose Image</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleFileSelect}
-                  />
-                </label>
-              )}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              className="fixed inset-0 bg-black/50 flex justify-center items-center"
+            >
+              <label className="bg-slate-800 p-4 rounded-2xl flex flex-col items-center gap-2 cursor-pointer">
+                <span>Choose Image</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+              </label>
             </motion.div>
           )}
         </AnimatePresence>
