@@ -45,5 +45,3 @@ export async function POST(req) {
   }
 }
 
-
-bantu cek in bg
