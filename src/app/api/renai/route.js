@@ -5,8 +5,9 @@ export async function POST(req) {
   try {
     const body = await req.json();
 
-    const targetUrl = "https://re-nai.vercel.app/api/chat";
-
+    //const targetUrl = "https://re-nai.vercel.app/api/chat";
+    const targetUrl = "https://aichixia.vercel.app/api/chat";
+    
     const response = await fetch(targetUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
