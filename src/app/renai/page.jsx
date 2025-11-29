@@ -79,7 +79,7 @@ export default function ReNimePage() {
           { role: "assistant", type: "scan", content: scanRes },
         ]);
       } else {
-        const res = await fetch("/api/chat", {
+        const res = await fetch("https://re-nai.vercel.app/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
