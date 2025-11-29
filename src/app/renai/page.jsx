@@ -84,7 +84,7 @@ export default function AichixiaPage() {
           { role: "assistant", type: "scan", content: scanRes },
         ]);
       } else {
-        const res = await fetch("/api/aichixia", {
+        const res = await fetch("/api/renai", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
