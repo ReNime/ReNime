@@ -1,38 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
+import { FaSpinner } from "react-icons/fa";
 
 export default function RegisterPage() {
-  const router = useRouter();
-
   const [form, setForm] = useState({
+    name: "",
     username: "",
-    email: "",
     phone: "",
     password: "",
+    confirmPassword: "",
   });
 
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = async () => {
-    const { username, email, phone, password } = form;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMsg("");
 
-    if (!username || !email || !phone || !password)
-      return alert("Lengkapi semua data!");
-
-    if (!phone.startsWith("08"))
-      return alert("Nomor WhatsApp harus diawali 08!");
+    if (form.password !== form.confirmPassword) {
+      setErrorMsg("Password tidak cocok!");
+      return;
+    }
 
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -40,94 +41,122 @@ export default function RegisterPage() {
 
       const data = await res.json();
 
-      if (!data.success) {
-        alert(data.error);
+      if (!res.ok) {
+        setErrorMsg(data.error || "Gagal mendaftar.");
         setLoading(false);
         return;
       }
 
-      // redirect ke verify OTP
-      router.push(`/verify?phone=${phone}`);
+      // 🔥 AUTO LOGIN
+      await signIn("credentials", {
+        redirect: true,
+        phone: form.phone,
+        password: form.password,
+        callbackUrl: "/users/dashboard",
+      });
+
     } catch (err) {
       console.error(err);
-      alert("Server error!");
+      setErrorMsg("Terjadi kesalahan server!");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-900 px-6">
-      <div className="w-full max-w-sm bg-gray-800 p-8 rounded-2xl shadow-lg">
+    <main className="flex items-center justify-center min-h-screen bg-gray-900 text-white p-4">
+      <div className="w-full max-w-md bg-gray-800 p-8 rounded-xl shadow-lg space-y-6">
 
-        <h1 className="text-2xl font-bold text-white text-center mb-6">
-          Daftar Akun
+        <h1 className="text-2xl font-bold text-center text-blue-400">
+          Daftar Akun ReNime
         </h1>
 
-        <div className="space-y-4">
+        {errorMsg && (
+          <p className="bg-red-500/20 text-red-300 p-2 rounded text-center">
+            {errorMsg}
+          </p>
+        )}
 
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            value={form.username}
-            onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white outline-none border border-gray-600 focus:border-blue-500"
-          />
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white outline-none border border-gray-600 focus:border-blue-500"
-          />
+          <div>
+            <label className="text-sm text-gray-300">Nama Lengkap</label>
+            <input
+              type="text"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600"
+              required
+            />
+          </div>
 
-          <input
-            type="text"
-            name="phone"
-            placeholder="Nomor WhatsApp (08xxxx)"
-            value={form.phone}
-            onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white outline-none border border-gray-600 focus:border-blue-500"
-          />
+          <div>
+            <label className="text-sm text-gray-300">Username</label>
+            <input
+              type="text"
+              name="username"
+              value={form.username}
+              onChange={handleChange}
+              className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600"
+              required
+            />
+          </div>
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white outline-none border border-gray-600 focus:border-blue-500"
-          />
+          <div>
+            <label className="text-sm text-gray-300">Nomor WhatsApp</label>
+            <input
+              type="tel"
+              name="phone"
+              placeholder="62xxxxxxxxxxx"
+              value={form.phone}
+              onChange={handleChange}
+              className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-gray-300">Password</label>
+            <input
+              type="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-gray-300">Konfirmasi Password</label>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600"
+              required
+            />
+          </div>
 
           <button
-            onClick={handleRegister}
+            type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 py-3 rounded-lg font-semibold text-white hover:bg-blue-500 disabled:opacity-50"
+            className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold text-white flex items-center justify-center gap-2"
           >
-            {loading ? "Mendaftarkan..." : "Daftar"}
+            {loading ? <FaSpinner className="animate-spin" /> : "Daftar Sekarang"}
           </button>
-        </div>
 
-        <div className="mt-6">
-          <button
-            onClick={() => signIn("google")}
-            className="w-full py-3 rounded-lg border border-gray-600 text-white hover:bg-gray-700 flex justify-center items-center gap-2"
-          >
-            <img src="/google.svg" className="w-5 h-5" />
-            Daftar dengan Google
-          </button>
-        </div>
+        </form>
 
-        <p className="text-center text-gray-400 text-sm mt-4">
+        <p className="text-center text-gray-400">
           Sudah punya akun?{" "}
-          <a href="/login" className="text-blue-400 hover:underline">
+          <Link href="/login" className="text-blue-400 hover:underline">
             Login
-          </a>
+          </Link>
         </p>
       </div>
-    </div>
+    </main>
   );
 }
