@@ -79,7 +79,7 @@ export default function ReNimePage() {
           { role: "assistant", type: "scan", content: scanRes },
         ]);
       } else {
-        const res = await fetch("/api/renai", {
+        const res = await fetch("/api/aichixia", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
