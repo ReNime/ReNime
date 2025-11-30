@@ -1,15 +1,19 @@
+
 "use client";
 
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import { PiSparkleFill } from 'react-icons/pi';
-import { FaUser, FaSignOutAlt, FaSignInAlt, FaTachometerAlt } from 'react-icons/fa';
+import { FaUser, FaSignOutAlt, FaSignInAlt, FaTachometerAlt, FaUserShield } from 'react-icons/fa';
 
 const Navbar = ({ user }) => { 
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
+
+  // Check if user is admin
+  const isAdmin = user?.email && process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',').map(e => e.trim()).includes(user.email);
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
@@ -84,9 +88,15 @@ const Navbar = ({ user }) => {
                     <div className="px-4 py-3 border-b border-blue-500/20">
                       <p className="text-sm font-semibold text-white truncate">{user.name || 'User'}</p>
                       <p className="text-xs text-neutral-400 truncate">{user.email || ''}</p>
+                      {isAdmin && (
+                        <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded-full border border-purple-500/30">
+                          <FaUserShield className="text-[10px]" />
+                          Admin
+                        </span>
+                      )}
                     </div>
 
-                    {/* Profile Link */}
+                    {/* Dashboard Link */}
                     <Link 
                       href="/users/dashboard" 
                       className="flex items-center gap-3 px-4 py-3 text-neutral-300 hover:bg-blue-500/10 hover:text-blue-400 transition-colors"
@@ -95,6 +105,18 @@ const Navbar = ({ user }) => {
                       <FaTachometerAlt className="text-lg" />
                       <span className="font-medium">Dashboard</span>
                     </Link>
+
+                    {/* Admin Link - Only visible to admin */}
+                    {isAdmin && (
+                      <Link 
+                        href="/admin" 
+                        className="flex items-center gap-3 px-4 py-3 text-neutral-300 hover:bg-purple-500/10 hover:text-purple-400 transition-colors border-t border-blue-500/10"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        <FaUserShield className="text-lg" />
+                        <span className="font-medium">Admin Panel</span>
+                      </Link>
+                    )}
 
                     {/* Logout Link */}
                     <Link 
