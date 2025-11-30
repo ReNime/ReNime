@@ -10,42 +10,35 @@ import { IoClose } from "react-icons/io5";
 import { BsStars } from "react-icons/bs";
 
 const navItems = [
-  { href: "/", label: "Anime", icon: <FaHome size={22} /> },
-  { href: "/schedule", label: "Schedule", icon: <FaCalendarAlt size={22} /> },
-  ];
-
-{/*
-{ href: "/explore", label: "Explore", icon: <FaCompass size={22} /> },
+  { href: "/home", label: "Home", icon: <FaHome size={22} /> },
+  { href: "/upcoming", label: "Schedule", icon: <FaCalendarAlt size={22} /> },
+  { href: "/explore", label: "Explore", icon: <FaCompass size={22} /> },
   { href: "/manga", label: "Manga", icon: <FaBookOpen size={22} /> },
   { href: "/manhwa", label: "Manhwa", icon: <MdMenuBook size={22} /> },
   { href: "/light-novel", label: "Novels", icon: <GiBookshelf size={22} /> },
+];
 
-*/}
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 export default function BottomNav() {
   const router = useRouter();
   const [open, setOpen] = useState(true);
-  const [activeIndex, setActiveIndex] = useState(() =>
-    navItems.findIndex(
-      (it) =>
-        router.pathname === it.href ||
-        router.pathname.startsWith(it.href + "/")
-    )
-  );
+  const [activeIndex, setActiveIndex] = useState(0);
   const navRef = useRef(null);
   const controls = useAnimation();
   const [pressing, setPressing] = useState(false);
   const [sparkSeed] = useState(() => Math.random());
   const startDrag = useRef(null);
 
+  // Update active index safely
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const idx = navItems.findIndex(
       (it) =>
         router.pathname === it.href ||
         router.pathname.startsWith(it.href + "/")
     );
-    setActiveIndex(idx >= 0 ? idx : null);
+    setActiveIndex(idx >= 0 ? idx : 0);
   }, [router.pathname]);
 
   const handleNavClick = (index, href) => {
@@ -123,9 +116,7 @@ export default function BottomNav() {
     startDrag.current = null;
     if (!navRef.current) return;
     Array.from(navRef.current.querySelectorAll("[data-nav-item]")).forEach(
-      (el) => {
-        el.style.transform = "translateX(0px) translateY(0px)";
-      }
+      (el) => (el.style.transform = "translateX(0px) translateY(0px)")
     );
   };
 
@@ -166,6 +157,7 @@ export default function BottomNav() {
               <IoClose size={18} />
             </motion.button>
 
+            {/* nav */}
             <motion.nav
               key="nav"
               drag
@@ -204,9 +196,6 @@ export default function BottomNav() {
                           aria-label={item.label}
                           whileHover={{ scale: 1.12 }}
                           whileTap={{ scale: 0.96 }}
-                          onPointerDown={() =>
-                            controls.start({ scale: [1, 0.96, 1], transition: { duration: 0.24 } })
-                          }
                           onClick={() => handleNavClick(index, item.href)}
                           className={`w-full flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-1 transition-all duration-220 ${
                             isActive
