@@ -214,6 +214,14 @@ export default function AichixiaPage() {
                 </p>
               </div>
             </div>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Link
+                href="/"
+                className="relative group bg-slate-800/50 border border-blue-500/20 p-3 sm:p-3.5 rounded-2xl hover:shadow-2xl hover:shadow-red-500/40 hover:border-red-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <FaTimes className="text-lg sm:text-xl relative z-10 text-blue-300 group-hover:text-red-400 transition-colors" />
+              </Link>
             <button
               onClick={() => setScanOpen(true)}
               disabled={scanCooldown > 0}
@@ -226,7 +234,8 @@ export default function AichixiaPage() {
                 <LuScanLine className="text-lg sm:text-xl relative z-10" />
               )}
             </button>
-          </header>
+          </div>
+        </header>
 
           <section className="flex-1 overflow-y-auto py-6 space-y-5 scrollbar-thin scrollbar-thumb-blue-500/30 scrollbar-track-transparent px-1">
             {messages.map((msg, i) => (
@@ -306,7 +315,7 @@ export default function AichixiaPage() {
                                 Ep {r.episode || "?"}
                               </span>
                               <span className="text-xs px-2.5 py-1 bg-cyan-500/20 text-cyan-300 rounded-full border border-cyan-400/30">
-                                {typeof r.similarity === "number" ? (r.similarity * 100).toFixed(1) + "%" : "â€”"}
+                                {typeof r.similarity === "number" ? (r.similarity * 100).toFixed(1) + "%" : "—"}
                               </span>
                             </div>
                           </div>
