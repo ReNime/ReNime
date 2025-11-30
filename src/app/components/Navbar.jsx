@@ -13,7 +13,7 @@ const Navbar = ({ user }) => {
   const profileRef = useRef(null);
 
   // Check if user is admin
-  const isAdmin = user?.email && process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',').map(e => e.trim()).includes(user.email);
+  const isAdmin = user?.email && process.env.ADMIN_EMAILS?.split(',').map(e => e.trim()).includes(user.email);
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
