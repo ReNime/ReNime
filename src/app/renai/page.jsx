@@ -495,8 +495,8 @@ export default function AichixiaPage() {
                 </button>
               </motion.div>
             )}
-          </AnimatePresence>
-        </main>
-    </>
-  );
+         </AnimatePresence>
+       </main>
+     </>
+   );
 }
