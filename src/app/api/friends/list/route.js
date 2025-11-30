@@ -1,43 +1,56 @@
+
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import client from '@/app/libs/prisma';
 
-import { getServerSession } from 'next-auth';
-
-export async function GET(req) {
-
-  const session = await getServerSession();
-
-  const userId = session.user.id;
-
-  
-
-  const friendships = await client.friendship.findMany({
-
-    where: {
-
-      OR: [{ user1Id: userId }, { user2Id: userId }]
-
-    },
-
-    include: {
-
-      user1: true,
-
-      user2: true
-
+export async function GET(request) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-  });
+    const userId = session.user.id;
 
-  
+    const friendships = await client.friendship.findMany({
+      where: {
+        OR: [
+          { user1Id: userId },
+          { user2Id: userId }
+        ]
+      },
+      include: {
+        user1: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true
+          }
+        },
+        user2: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
 
-  const friends = friendships.map(f => 
+    const friends = friendships.map(friendship => 
+      friendship.user1Id === userId ? friendship.user2 : friendship.user1
+    );
 
-    f.user1Id === userId ? f.user2 : f.user1
-
-  );
-
-  
-
-  return Response.json({ friends });
-
+    return NextResponse.json({ friends });
+  } catch (error) {
+    console.error('List friends error:', error);
+    return NextResponse.json({ error: 'Failed to load friends' }, { status: 500 });
+  }
 }
