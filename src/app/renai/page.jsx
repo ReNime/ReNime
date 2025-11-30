@@ -37,25 +37,6 @@ import { useSession, signIn } from "next-auth/react";
 import { searchAnimeByFile } from "@/app/libs/traceMoe";
 import Head from "next/head";
 
-/*
-Interfaces retained as comments for reference:
-
-interface AnimeData {
-  id: number;
-  title: string;
-  coverImage: string;
-  score: number;
-  popularity: number;
-  url: string;
-}
-
-interface Message {
-  role: "user" | "assistant";
-  type?: "text" | "anime" | "scan" | "image";
-  content: string | AnimeData[] | any[];
-}
-*/
-
 export default function AichixiaPage() {
   const { data: session, status } = useSession();
   const isLoggedIn = status === "authenticated";
@@ -87,13 +68,10 @@ export default function AichixiaPage() {
   }, [scanCooldown]);
 
   const sendMessage = async () => {
-    // if not logged in, prompt to sign in
     if (!isLoggedIn) {
-      // if user is trying to send an image or text while not signed in, prompt sign in
       signIn();
       return;
     }
-
     if (!input.trim() && !pendingImage) return;
 
     let newMessages = [...messages];
@@ -101,17 +79,8 @@ export default function AichixiaPage() {
     if (pendingImage) {
       setScanCooldown(30);
       setScanOpen(false);
-
-      newMessages.push({
-        role: "user",
-        type: "image",
-        content: pendingImage,
-      });
-      newMessages.push({
-        role: "user",
-        type: "text",
-        content: "What is this anime?",
-      });
+      newMessages.push({ role: "user", type: "image", content: pendingImage });
+      newMessages.push({ role: "user", type: "text", content: "What is this anime?" });
     }
 
     if (input.trim()) {
@@ -124,16 +93,12 @@ export default function AichixiaPage() {
 
     try {
       if (pendingImage) {
-        // pendingImage is a data URL — convert to File and call trace.moe helper
         const res = await fetch(pendingImage);
         const blob = await res.blob();
         const file = new File([blob], "upload.jpg", { type: "image/jpeg" });
         const scanRes = await searchAnimeByFile(file);
 
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", type: "scan", content: scanRes },
-        ]);
+        setMessages((prev) => [...prev, { role: "assistant", type: "scan", content: scanRes }]);
       } else {
         const res = await fetch("/api/renai", {
           method: "POST",
@@ -142,25 +107,17 @@ export default function AichixiaPage() {
             message: input,
             history: messages.map((m) => ({
               role: m.role,
-              content:
-                typeof m.content === "string" ? m.content : JSON.stringify(m.content),
+              content: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
             })),
           }),
         });
         const data = await res.json();
         if (data.data && Array.isArray(data.data)) {
-          setMessages((prev) => [
-            ...prev,
-            { role: "assistant", type: "anime", content: data.data },
-          ]);
+          setMessages((prev) => [...prev, { role: "assistant", type: "anime", content: data.data }]);
         } else {
           setMessages((prev) => [
             ...prev,
-            {
-              role: "assistant",
-              type: "text",
-              content: data.reply || "⚠️ No valid response.",
-            },
+            { role: "assistant", type: "text", content: data.reply || "⚠️ No valid response." },
           ]);
         }
       }
@@ -168,11 +125,7 @@ export default function AichixiaPage() {
       console.error(err);
       setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          type: "text",
-          content: "❌ Error while connecting to Aichixia.",
-        },
+        { role: "assistant", type: "text", content: "❌ Error while connecting to Aichixia." },
       ]);
     } finally {
       setLoading(false);
@@ -204,10 +157,7 @@ export default function AichixiaPage() {
           content="ReNai is your AI assistant for anime, manga, manhwa, and light novels. Chat or identify anime from screenshots!"
         />
         <meta property="og:title" content="ReNai AI Assistant" />
-        <meta
-          property="og:description"
-          content="Chat or identify anime instantly with ReNai."
-        />
+        <meta property="og:description" content="Chat or identify anime instantly with ReNai." />
         <meta property="og:image" content="/images/favicon.ico" />
         <meta property="og:type" content="website" />
         <link rel="icon" href="/images/favicon.ico" />
@@ -218,6 +168,7 @@ export default function AichixiaPage() {
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none"></div>
 
         <div className="w-full max-w-6xl flex flex-col h-screen px-3 sm:px-6 lg:px-8 relative z-10">
+          {/* Header */}
           <header className="p-4 sm:p-5 border-b border-blue-500/20 bg-slate-900/40 backdrop-blur-2xl rounded-b-2xl shadow-2xl flex items-center justify-between sticky top-0 z-20 mt-2 sm:mt-4">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ring-2 ring-blue-400/50 overflow-hidden shadow-2xl shadow-blue-500/30 group">
@@ -247,6 +198,7 @@ export default function AichixiaPage() {
             </button>
           </header>
 
+          {/* Messages */}
           <section className="flex-1 overflow-y-auto py-6 space-y-5 scrollbar-thin scrollbar-thumb-blue-500/30 scrollbar-track-transparent px-1">
             {messages.map((msg, i) => (
               <motion.div
@@ -360,6 +312,7 @@ export default function AichixiaPage() {
             <div ref={messagesEndRef} />
           </section>
 
+          {/* Footer */}
           <footer className="p-3 sm:p-4 bg-slate-900/40 backdrop-blur-2xl sticky bottom-0 rounded-t-2xl border-t border-blue-500/20 mb-2 sm:mb-4 shadow-2xl">
             {!isLoggedIn ? (
               <button
@@ -397,107 +350,92 @@ export default function AichixiaPage() {
           </footer>
         </div>
 
+        {/* Scan Modal */}
         <AnimatePresence>
-  {scanOpen && (
-    <motion.div
-      className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={() => setScanOpen(false)}
-    >
-      <motion.div
-        className="bg-slate-900/95 rounded-3xl p-6 sm:p-10 w-full max-w-md text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
-        initial={{ scale: 0.8, opacity: 0, y: 50 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.8, opacity: 0, y: 50 }}
-        transition={{ type: "spring", bounce: 0.3 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/40">
-          <LuScanLine className="text-2xl text-white" />
-        </div>
-
-        <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-3 mt-4">
-          Upload Screenshot
-        </h2>
-        <p className="text-blue-300/70 text-sm sm:text-base mb-8 font-light">
-          ReNai will detect which anime it's from instantly!
-        </p>
-
-        {!isLoggedIn ? (
-          <button
-            onClick={() => signIn()}
-            className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
-          >
-            <LuScanLine className="text-xl" />
-            <span>Login to Scan</span>
-          </button>
-        ) : (
-          <label className="cursor-pointer inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95">
-            <LuScanLine className="text-xl" />
-            <span>Choose Image</span>
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileSelect}
-            />
-          </label>
-        )}
-
-        {pendingImage && (
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="mt-8 relative w-full flex justify-center"
-          >
-            <div className="relative w-56 h-56 border-2 border-blue-400/40 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/20">
-              <Image
-                src={pendingImage}
-                alt="preview"
-                fill
-                className="object-cover"
-                unoptimized={typeof pendingImage === "string" && pendingImage.startsWith("data:")}
-              />
-              <button
-                onClick={() => setPendingImage(null)}
-                className="absolute top-2 right-2 bg-red-500/80 backdrop-blur-xl rounded-full p-2 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg"
-              >
-                <FaTimes className="text-white text-sm" />
-              </button>
-            </div>
-          </motion.div>
-        )}
-
-        <div className="mt-8 flex justify-center gap-3">
-          <button
-            onClick={() => setScanOpen(false)}
-            className="px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
-          >
-            Cancel
-          </button>
-          {isLoggedIn && pendingImage && (
-            <button
-              onClick={sendMessage}
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold"
+          {scanOpen && (
+            <motion.div
+              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setScanOpen(false)}
             >
-              Scan Now
-            </button>
-          )}
-        </div>
+              <motion.div
+                className="bg-slate-900/95 rounded-3xl p-6 sm:p-10 w-full max-w-md text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
+                initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.8, opacity: 0, y: 50 }}
+                transition={{ type: "spring", bounce: 0.3 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/40">
+                  <LuScanLine className="text-2xl text-white" />
+                </div>
 
-        <button
-          onClick={() => setScanOpen(false)}
-          className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
-        >
-          <FaTimes className="text-xl" />
-        </button>
-      </motion.div>
-    </motion.div>
-  )}
-</AnimatePresence>
-</div>
-</main>
-</>
-);
+                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-3 mt-4">
+                  Upload Screenshot
+                </h2>
+                <p className="text-blue-300/70 text-sm sm:text-base mb-8 font-light">
+                  ReNai will detect which anime it's from instantly!
+                </p>
+
+                {!isLoggedIn ? (
+                  <button
+                    onClick={() => signIn()}
+                    className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
+                  >
+                    <LuScanLine className="text-xl" />
+                    <span>Login to Scan</span>
+                  </button>
+                ) : (
+                  <label className="cursor-pointer inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95">
+                    <LuScanLine className="text-xl" />
+                    <span>Choose Image</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+                  </label>
+                )}
+
+                {pendingImage && (
+                  <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="mt-8 relative w-full flex justify-center">
+                    <div className="relative w-56 h-56 border-2 border-blue-400/40 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/20">
+                      <Image src={pendingImage} alt="preview" fill className="object-cover" unoptimized={pendingImage.startsWith("data:")} />
+                      <button
+                        onClick={() => setPendingImage(null)}
+                        className="absolute top-2 right-2 bg-red-500/80 backdrop-blur-xl rounded-full p-2 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg"
+                      >
+                        <FaTimes className="text-white text-sm" />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                <div className="mt-8 flex justify-center gap-3">
+                  <button
+                    onClick={() => setScanOpen(false)}
+                    className="px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
+                  >
+                    Cancel
+                  </button>
+                  {isLoggedIn && pendingImage && (
+                    <button
+                      onClick={sendMessage}
+                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold"
+                    >
+                      Scan Now
+                    </button>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => setScanOpen(false)}
+                  className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
+                >
+                  <FaTimes className="text-xl" />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+      </main>
+    </>
+  );
+}
