@@ -398,106 +398,106 @@ export default function AichixiaPage() {
         </div>
 
         <AnimatePresence>
-          {scanOpen && (
-            <motion.div
-              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setScanOpen(false)}
-            >
-              <motion.div
-                className="bg-slate-900/95 rounded-3xl p-6 sm:p-10 w-full max-w-md text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
-                initial={{ scale: 0.8, opacity: 0, y: 50 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.8, opacity: 0, y: 50 }}
-                transition={{ type: "spring", bounce: 0.3 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/40">
-                  <LuScanLine className="text-2xl text-white" />
-                </div>
-
-                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-3 mt-4">
-                  Upload Screenshot
-                </h2>
-                <p className="text-blue-300/70 text-sm sm:text-base mb-8 font-light">
-                  ReNai will detect which anime it's from instantly!
-                </p>
-
-                {!isLoggedIn ? (
-                  <button
-                    onClick={() => signIn()}
-                    className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
-                  >
-                    <LuScanLine className="text-xl" />
-                    <span>Login to Scan</span>
-                  </button>
-                ) : (
-                  <label className="cursor-pointer inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95">
-                    <LuScanLine className="text-xl" />
-                    <span>Choose Image</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleFileSelect}
-                    />
-                  </label>
-                )}
-
-                {pendingImage && (
-                  <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="mt-8 relative w-full flex justify-center"
-                  >
-                    <div className="relative w-56 h-56 border-2 border-blue-400/40 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/20">
-                      <Image
-                        src={pendingImage}
-                        alt="preview"
-                        fill
-                        className="object-cover"
-                        unoptimized={typeof pendingImage === "string" && pendingImage.startsWith("data:")}
-                      />
-                      <button
-                        onClick={() => setPendingImage(null)}
-                        className="absolute top-2 right-2 bg-red-500/80 backdrop-blur-xl rounded-full p-2 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg"
-                      >
-                        <FaTimes className="text-white text-sm" />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-
-                <div className="mt-8 flex justify-center gap-3">
-                  <button
-                    onClick={() => setScanOpen(false)}
-                    className="px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
-                  >
-                    Cancel
-                  </button>
-                  {isLoggedIn && pendingImage && (
-                    <button
-                      onClick={sendMessage}
-                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold"
-                    >
-                      Scan Now
-                    </button>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => setScanOpen(false)}
-                  className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
-                >
-                  <FaTimes className="text-xl" />
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+  {scanOpen && (
+    <motion.div
+      className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={() => setScanOpen(false)}
+    >
+      <motion.div
+        className="bg-slate-900/95 rounded-3xl p-6 sm:p-10 w-full max-w-md text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
+        initial={{ scale: 0.8, opacity: 0, y: 50 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.8, opacity: 0, y: 50 }}
+        transition={{ type: "spring", bounce: 0.3 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/40">
+          <LuScanLine className="text-2xl text-white" />
         </div>
-      </main>
-    </>
-  );
-          }
+
+        <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-3 mt-4">
+          Upload Screenshot
+        </h2>
+        <p className="text-blue-300/70 text-sm sm:text-base mb-8 font-light">
+          ReNai will detect which anime it's from instantly!
+        </p>
+
+        {!isLoggedIn ? (
+          <button
+            onClick={() => signIn()}
+            className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
+          >
+            <LuScanLine className="text-xl" />
+            <span>Login to Scan</span>
+          </button>
+        ) : (
+          <label className="cursor-pointer inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95">
+            <LuScanLine className="text-xl" />
+            <span>Choose Image</span>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileSelect}
+            />
+          </label>
+        )}
+
+        {pendingImage && (
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="mt-8 relative w-full flex justify-center"
+          >
+            <div className="relative w-56 h-56 border-2 border-blue-400/40 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/20">
+              <Image
+                src={pendingImage}
+                alt="preview"
+                fill
+                className="object-cover"
+                unoptimized={typeof pendingImage === "string" && pendingImage.startsWith("data:")}
+              />
+              <button
+                onClick={() => setPendingImage(null)}
+                className="absolute top-2 right-2 bg-red-500/80 backdrop-blur-xl rounded-full p-2 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg"
+              >
+                <FaTimes className="text-white text-sm" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        <div className="mt-8 flex justify-center gap-3">
+          <button
+            onClick={() => setScanOpen(false)}
+            className="px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
+          >
+            Cancel
+          </button>
+          {isLoggedIn && pendingImage && (
+            <button
+              onClick={sendMessage}
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold"
+            >
+              Scan Now
+            </button>
+          )}
+        </div>
+
+        <button
+          onClick={() => setScanOpen(false)}
+          className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
+        >
+          <FaTimes className="text-xl" />
+        </button>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
+</div>
+</main>
+</>
+);
