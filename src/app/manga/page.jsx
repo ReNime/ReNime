@@ -13,7 +13,7 @@ function ApiWarningMessage({ sectionTitle }) {
     <div className="container mx-auto px-4 py-8">
       <div className="bg-yellow-900/20 border border-yellow-600/50 rounded-lg p-6 text-center">
         <p className="text-yellow-400 text-lg font-semibold">
-          âš ï¸ Unable to load {sectionTitle} manga
+          ⚠️ Unable to load {sectionTitle} manga
         </p>
         <p className="text-zinc-400 text-sm mt-2">
           Please try again later or check your connection.
@@ -40,26 +40,24 @@ function MangaListSkeleton() {
 }
 
 // Helper function to fetch and filter manga
-async function fetchAndFilterManga(baseUrl, endpoint, desiredLimit = 10) {
+async function fetchAndFilterManga(desiredLimit = 20) {
   let filteredManga = [];
-  let currentPage = 1;
-  let hasNextPage = true;
-  const maxPagesToFetch = 5;
+  let offset = 0;
+  const limit = 20; // MangaDex API limit per request
+  const maxRequests = 3; // Max 3 requests to get enough manga
+  let requestCount = 0;
 
-  while (
-    filteredManga.length < desiredLimit && 
-    hasNextPage && 
-    currentPage <= maxPagesToFetch
-  ) {
+  while (filteredManga.length < desiredLimit && requestCount < maxRequests) {
     try {
-      const response = await fetch(`${baseUrl}/${endpoint}?page=${currentPage}`, {
+      const url = `https://api.mangadex.org/manga?limit=${limit}&offset=${offset}&order[followedCount]=desc&includes[]=cover_art&contentRating[]=safe&contentRating[]=suggestive`;
+      
+      const response = await fetch(url, {
         next: { revalidate: 3600 } // Cache for 1 hour
       });
       
       if (!response.ok) {
-        console.error(`Failed to fetch ${endpoint} page ${currentPage}: Status ${response.status}`);
-        hasNextPage = false;
-        continue;
+        console.error(`Failed to fetch manga: Status ${response.status}`);
+        break;
       }
 
       const data = await response.json();
@@ -79,13 +77,16 @@ async function fetchAndFilterManga(baseUrl, endpoint, desiredLimit = 10) {
         }
       }
 
-      // Update pagination status
-      hasNextPage = data.pagination?.hasNext || false;
-      currentPage++;
+      // Update offset for next request
+      offset += limit;
+      requestCount++;
+
+      // Stop if no more data
+      if (mangaOnThisPage.length < limit) break;
 
     } catch (error) {
-      console.error(`Error processing ${endpoint} page ${currentPage}:`, error);
-      hasNextPage = false;
+      console.error(`Error processing manga request:`, error);
+      break;
     }
   }
 
@@ -94,41 +95,17 @@ async function fetchAndFilterManga(baseUrl, endpoint, desiredLimit = 10) {
 
 // Main Manga Page Component
 const MangaPage = async () => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.mangadex.org';
   const user = await AuthUserSession();
 
-  let mangaOngoing = [];
-  let mangaCompleted = [];
-  let ongoingFetchFailed = false;
-  let completedFetchFailed = false;
+  let mangaList = [];
+  let fetchFailed = false;
 
   try {
-    // Fetch ongoing and completed manga in parallel
-    const [ongoingResult, completedResult] = await Promise.allSettled([
-      fetchAndFilterManga(apiUrl, 'manga?status[]=ongoing&order[followedCount]=desc', 10),
-      fetchAndFilterManga(apiUrl, 'manga?status[]=completed&order[followedCount]=desc', 10)
-    ]);
-
-    if (ongoingResult.status === 'fulfilled') {
-      mangaOngoing = ongoingResult.value;
-      if (mangaOngoing.length === 0) ongoingFetchFailed = true;
-    } else {
-      console.error("Fetch ongoing manga failed:", ongoingResult.reason);
-      ongoingFetchFailed = true;
-    }
-
-    if (completedResult.status === 'fulfilled') {
-      mangaCompleted = completedResult.value;
-      if (mangaCompleted.length === 0) completedFetchFailed = true;
-    } else {
-      console.error("Fetch completed manga failed:", completedResult.reason);
-      completedFetchFailed = true;
-    }
-    
+    mangaList = await fetchAndFilterManga(20);
+    if (mangaList.length === 0) fetchFailed = true;
   } catch (error) {
-    console.error("Global error while fetching manga:", error);
-    ongoingFetchFailed = true;
-    completedFetchFailed = true;
+    console.error("Error while fetching manga:", error);
+    fetchFailed = true;
   }
 
   return (
@@ -137,23 +114,12 @@ const MangaPage = async () => {
       <HeroSection />
 
       <div className="container mx-auto px-4 py-8">
-        <Header title="Ongoing Manga" />
-        {ongoingFetchFailed ? (
-          <ApiWarningMessage sectionTitle="Ongoing" />
+        <Header title="Manga List" />
+        {fetchFailed ? (
+          <ApiWarningMessage sectionTitle="Manga" />
         ) : (
-          <MangaGrid mangaList={mangaOngoing} />
+          <MangaGrid mangaList={mangaList} />
         )}
-
-        <React.Suspense fallback={<MangaListSkeleton />}>
-          <div className="mt-12">
-            <Header title="Completed Manga" />
-            {completedFetchFailed ? (
-              <ApiWarningMessage sectionTitle="Completed" />
-            ) : (
-              <MangaGrid mangaList={mangaCompleted} />
-            )}
-          </div>
-        </React.Suspense>
       </div>
     </>
   );
