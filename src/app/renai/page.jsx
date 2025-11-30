@@ -140,7 +140,7 @@ export default function AichixiaPage() {
             {
               role: "assistant",
               type: "text",
-              content: data.reply || "âš ï¸ No valid response.",
+              content: data.reply || "⚠️ No valid response.",
             },
           ]);
         }
@@ -152,7 +152,7 @@ export default function AichixiaPage() {
         {
           role: "assistant",
           type: "text",
-          content: "âŒ Error while connecting to Aichixia.",
+          content: "❌ Error while connecting to ReNai.",
         },
       ]);
     } finally {
@@ -203,7 +203,7 @@ export default function AichixiaPage() {
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ring-2 ring-blue-400/50 overflow-hidden shadow-2xl shadow-blue-500/30 group">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-600/20 group-hover:scale-110 transition-transform duration-500"></div>
-                <Image src="/renai.png" alt="ReNai" fill className="object-cover relative z-10" />
+                <Image src="/renai.png" alt="ReNai" href="/" fill className="object-cover relative z-10" />
               </div>
               <div>
                 <h1 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-400 bg-clip-text text-transparent tracking-tight">
@@ -316,7 +316,7 @@ export default function AichixiaPage() {
                               className="text-sm text-cyan-400 hover:text-cyan-300 underline decoration-cyan-400/30 hover:decoration-cyan-300 underline-offset-4 mt-3 inline-flex items-center gap-1 group/link transition-all"
                             >
                               View Details
-                              <span className="group-hover/link:translate-x-1 transition-transform">â†’</span>
+                              <span className="group-hover/link:translate-x-1 transition-transform">→</span>
                             </Link>
                           )}
                         </div>
