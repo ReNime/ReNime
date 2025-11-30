@@ -1,30 +1,5 @@
 "use client";
 
-/**
- * @typedef {Object} AnimeData
- * @property {number} id - ID anime
- * @property {string} title - Judul anime
- * @property {string} coverImage - URL gambar cover anime
- * @property {number} score - Skor rating
- * @property {number} popularity - Peringkat popularitas anime
- * @property {string} url - URL menuju halaman anime
- */
-
-/**
- * @typedef {"user" | "assistant"} MessageRole
- */
-
-/**
- * @typedef {"text" | "anime" | "scan" | "image"} MessageType
- */
-
-/**
- * @typedef {Object} Message
- * @property {MessageRole} role - Pengirim pesan
- * @property {MessageType} [type] - Jenis pesan
- * @property {string | AnimeData[] | any[]} content - Isi pesan
- */
-
 import { useState, useRef, useEffect } from "react";
 import { FaPaperPlane, FaSpinner, FaTimes } from "react-icons/fa";
 import { LuScanLine } from "react-icons/lu";
