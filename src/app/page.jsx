@@ -149,6 +149,7 @@ const Home = async () => {
           <AnimeCompleted api={animeComplete} />
         )}
       </React.Suspense>
+      <BottomNav />
     </>
   );
 }
