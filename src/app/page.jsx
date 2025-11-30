@@ -129,6 +129,7 @@ const Home = async () => {
   return (
     <>
       <Navbar user={user} />
+      <BottomNav />
       <HeroSection />
 
       <Header title="Anime OnGoing" />
@@ -149,7 +150,6 @@ const Home = async () => {
           <AnimeCompleted api={animeComplete} />
         )}
       </React.Suspense>
-      <BottomNav />
     </>
   );
 }
