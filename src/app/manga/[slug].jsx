@@ -8,7 +8,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useFavorites } from '@/app/hooks/useFavorites'
 import { Heart, Share2 } from 'lucide-react'
-import ShareModal from '@/app/components/shared/ShareModal'
+import ShareModal from '@/app/components/ShareModal'
 import { motion, AnimatePresence } from 'framer-motion'
 
 function LoadingSkeleton() {
