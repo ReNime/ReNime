@@ -1,5 +1,30 @@
 "use client";
 
+/**
+ * @typedef {Object} AnimeData
+ * @property {number} id - ID anime
+ * @property {string} title - Judul anime
+ * @property {string} coverImage - URL gambar cover anime
+ * @property {number} score - Skor rating
+ * @property {number} popularity - Peringkat popularitas anime
+ * @property {string} url - URL menuju halaman anime
+ */
+
+/**
+ * @typedef {"user" | "assistant"} MessageRole
+ */
+
+/**
+ * @typedef {"text" | "anime" | "scan" | "image"} MessageType
+ */
+
+/**
+ * @typedef {Object} Message
+ * @property {MessageRole} role - Pengirim pesan
+ * @property {MessageType} [type] - Jenis pesan
+ * @property {string | AnimeData[] | any[]} content - Isi pesan
+ */
+
 import { useState, useRef, useEffect } from "react";
 import { FaPaperPlane, FaSpinner, FaTimes } from "react-icons/fa";
 import { LuScanLine } from "react-icons/lu";
@@ -43,10 +68,13 @@ export default function AichixiaPage() {
   }, [scanCooldown]);
 
   const sendMessage = async () => {
+    // if not logged in, prompt to sign in
     if (!isLoggedIn) {
+      // if user is trying to send an image or text while not signed in, prompt sign in
       signIn();
       return;
     }
+
     if (!input.trim() && !pendingImage) return;
 
     let newMessages = [...messages];
@@ -54,8 +82,17 @@ export default function AichixiaPage() {
     if (pendingImage) {
       setScanCooldown(30);
       setScanOpen(false);
-      newMessages.push({ role: "user", type: "image", content: pendingImage });
-      newMessages.push({ role: "user", type: "text", content: "What is this anime?" });
+
+      newMessages.push({
+        role: "user",
+        type: "image",
+        content: pendingImage,
+      });
+      newMessages.push({
+        role: "user",
+        type: "text",
+        content: "What is this anime?",
+      });
     }
 
     if (input.trim()) {
@@ -68,12 +105,16 @@ export default function AichixiaPage() {
 
     try {
       if (pendingImage) {
+        // pendingImage is a data URL â€” convert to File and call trace.moe helper
         const res = await fetch(pendingImage);
         const blob = await res.blob();
         const file = new File([blob], "upload.jpg", { type: "image/jpeg" });
         const scanRes = await searchAnimeByFile(file);
 
-        setMessages((prev) => [...prev, { role: "assistant", type: "scan", content: scanRes }]);
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", type: "scan", content: scanRes },
+        ]);
       } else {
         const res = await fetch("/api/renai", {
           method: "POST",
@@ -82,17 +123,25 @@ export default function AichixiaPage() {
             message: input,
             history: messages.map((m) => ({
               role: m.role,
-              content: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
+              content:
+                typeof m.content === "string" ? m.content : JSON.stringify(m.content),
             })),
           }),
         });
         const data = await res.json();
         if (data.data && Array.isArray(data.data)) {
-          setMessages((prev) => [...prev, { role: "assistant", type: "anime", content: data.data }]);
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", type: "anime", content: data.data },
+          ]);
         } else {
           setMessages((prev) => [
             ...prev,
-            { role: "assistant", type: "text", content: data.reply || "⚠️ No valid response." },
+            {
+              role: "assistant",
+              type: "text",
+              content: data.reply || "âš ï¸ No valid response.",
+            },
           ]);
         }
       }
@@ -100,7 +149,11 @@ export default function AichixiaPage() {
       console.error(err);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", type: "text", content: "❌ Error while connecting to Aichixia." },
+        {
+          role: "assistant",
+          type: "text",
+          content: "âŒ Error while connecting to Aichixia.",
+        },
       ]);
     } finally {
       setLoading(false);
@@ -132,7 +185,10 @@ export default function AichixiaPage() {
           content="ReNai is your AI assistant for anime, manga, manhwa, and light novels. Chat or identify anime from screenshots!"
         />
         <meta property="og:title" content="ReNai AI Assistant" />
-        <meta property="og:description" content="Chat or identify anime instantly with ReNai." />
+        <meta
+          property="og:description"
+          content="Chat or identify anime instantly with ReNai."
+        />
         <meta property="og:image" content="/images/favicon.ico" />
         <meta property="og:type" content="website" />
         <link rel="icon" href="/images/favicon.ico" />
@@ -143,7 +199,6 @@ export default function AichixiaPage() {
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none"></div>
 
         <div className="w-full max-w-6xl flex flex-col h-screen px-3 sm:px-6 lg:px-8 relative z-10">
-          {/* Header */}
           <header className="p-4 sm:p-5 border-b border-blue-500/20 bg-slate-900/40 backdrop-blur-2xl rounded-b-2xl shadow-2xl flex items-center justify-between sticky top-0 z-20 mt-2 sm:mt-4">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ring-2 ring-blue-400/50 overflow-hidden shadow-2xl shadow-blue-500/30 group">
@@ -173,7 +228,6 @@ export default function AichixiaPage() {
             </button>
           </header>
 
-          {/* Messages */}
           <section className="flex-1 overflow-y-auto py-6 space-y-5 scrollbar-thin scrollbar-thumb-blue-500/30 scrollbar-track-transparent px-1">
             {messages.map((msg, i) => (
               <motion.div
@@ -252,7 +306,7 @@ export default function AichixiaPage() {
                                 Ep {r.episode || "?"}
                               </span>
                               <span className="text-xs px-2.5 py-1 bg-cyan-500/20 text-cyan-300 rounded-full border border-cyan-400/30">
-                                {typeof r.similarity === "number" ? (r.similarity * 100).toFixed(1) + "%" : "—"}
+                                {typeof r.similarity === "number" ? (r.similarity * 100).toFixed(1) + "%" : "â€”"}
                               </span>
                             </div>
                           </div>
@@ -262,7 +316,7 @@ export default function AichixiaPage() {
                               className="text-sm text-cyan-400 hover:text-cyan-300 underline decoration-cyan-400/30 hover:decoration-cyan-300 underline-offset-4 mt-3 inline-flex items-center gap-1 group/link transition-all"
                             >
                               View Details
-                              <span className="group-hover/link:translate-x-1 transition-transform">→</span>
+                              <span className="group-hover/link:translate-x-1 transition-transform">â†’</span>
                             </Link>
                           )}
                         </div>
@@ -287,7 +341,6 @@ export default function AichixiaPage() {
             <div ref={messagesEndRef} />
           </section>
 
-          {/* Footer */}
           <footer className="p-3 sm:p-4 bg-slate-900/40 backdrop-blur-2xl sticky bottom-0 rounded-t-2xl border-t border-blue-500/20 mb-2 sm:mb-4 shadow-2xl">
             {!isLoggedIn ? (
               <button
@@ -325,7 +378,6 @@ export default function AichixiaPage() {
           </footer>
         </div>
 
-        {/* Scan Modal */}
         <AnimatePresence>
           {scanOpen && (
             <motion.div
@@ -366,14 +418,29 @@ export default function AichixiaPage() {
                   <label className="cursor-pointer inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95">
                     <LuScanLine className="text-xl" />
                     <span>Choose Image</span>
-                    <input type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleFileSelect}
+                    />
                   </label>
                 )}
 
                 {pendingImage && (
-                  <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="mt-8 relative w-full flex justify-center">
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="mt-8 relative w-full flex justify-center"
+                  >
                     <div className="relative w-56 h-56 border-2 border-blue-400/40 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/20">
-                      <Image src={pendingImage} alt="preview" fill className="object-cover" unoptimized={pendingImage.startsWith("data:")} />
+                      <Image
+                        src={pendingImage}
+                        alt="preview"
+                        fill
+                        className="object-cover"
+                        unoptimized={typeof pendingImage === "string" && pendingImage.startsWith("data:")}
+                      />
                       <button
                         onClick={() => setPendingImage(null)}
                         className="absolute top-2 right-2 bg-red-500/80 backdrop-blur-xl rounded-full p-2 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg"
@@ -408,9 +475,10 @@ export default function AichixiaPage() {
                   <FaTimes className="text-xl" />
                 </button>
               </motion.div>
-            )}
-          </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </>
   );
-}
+                                }
