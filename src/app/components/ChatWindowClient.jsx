@@ -1,7 +1,8 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FaComments, FaArrowLeft } from 'react-icons/fa';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,23 +13,76 @@ export default function ChatWindowClient({ friend, currentUser }) {
   const [isTyping, setIsTyping] = useState(false);
   const [friendTyping, setFriendTyping] = useState(false);
   const messagesEndRef = useRef(null);
+  const pollingIntervalRef = useRef(null);
+  const lastMessageIdRef = useRef(null);
 
-  useEffect(() => {
-    loadMessages();
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [friend.id]);
-
+  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Load messages on mount
+  useEffect(() => {
+    loadMessages();
+    startPolling();
+
+    return () => {
+      stopPolling();
+    };
+  }, [friend.id]);
+
+  // Start polling for new messages every 2 seconds
+  function startPolling() {
+    stopPolling(); // Clear any existing interval
+    pollingIntervalRef.current = setInterval(() => {
+      checkNewMessages();
+    }, 2000); // Poll every 2 seconds
+  }
+
+  function stopPolling() {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+  }
 
   async function loadMessages() {
     try {
       const res = await fetch(`/api/chat/messages?friendId=${friend.id}`);
       const data = await res.json();
-      setMessages(data.messages || []);
+      const loadedMessages = data.messages || [];
+      setMessages(loadedMessages);
+      
+      // Store the last message ID
+      if (loadedMessages.length > 0) {
+        lastMessageIdRef.current = loadedMessages[loadedMessages.length - 1].id;
+      }
     } catch (error) {
       console.error('Error loading messages:', error);
+    }
+  }
+
+  async function checkNewMessages() {
+    try {
+      const res = await fetch(`/api/chat/messages?friendId=${friend.id}&since=${lastMessageIdRef.current || ''}`);
+      const data = await res.json();
+      const newMessages = data.messages || [];
+
+      if (newMessages.length > 0) {
+        setMessages(prev => {
+          // Avoid duplicates by filtering out messages we already have
+          const existingIds = new Set(prev.map(m => m.id));
+          const uniqueNew = newMessages.filter(m => !existingIds.has(m.id));
+          
+          if (uniqueNew.length > 0) {
+            lastMessageIdRef.current = newMessages[newMessages.length - 1].id;
+            return [...prev, ...uniqueNew];
+          }
+          return prev;
+        });
+      }
+    } catch (error) {
+      console.error('Error checking new messages:', error);
     }
   }
 
@@ -36,17 +90,18 @@ export default function ChatWindowClient({ friend, currentUser }) {
     if (!newMessage.trim()) return;
 
     const tempMessage = {
-      id: Date.now(),
+      id: `temp-${Date.now()}`,
       senderId: currentUser.id,
       content: newMessage,
       createdAt: new Date(),
+      temp: true
     };
 
-    setMessages([...messages, tempMessage]);
+    setMessages(prev => [...prev, tempMessage]);
     setNewMessage('');
 
     try {
-      await fetch('/api/chat/send', {
+      const res = await fetch('/api/chat/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -54,10 +109,37 @@ export default function ChatWindowClient({ friend, currentUser }) {
           content: newMessage,
         }),
       });
+
+      const data = await res.json();
+      
+      // Replace temp message with real message
+      setMessages(prev => prev.map(msg => 
+        msg.id === tempMessage.id ? data.message : msg
+      ));
+
+      // Update last message ID
+      if (data.message) {
+        lastMessageIdRef.current = data.message.id;
+      }
+
+      // Check for new messages immediately after sending
+      setTimeout(checkNewMessages, 500);
     } catch (error) {
       console.error('Error sending message:', error);
+      // Remove temp message on error
+      setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id));
     }
   }
+
+  // Handle typing indicator (optional)
+  useEffect(() => {
+    let typingTimeout;
+    if (newMessage) {
+      setIsTyping(true);
+      typingTimeout = setTimeout(() => setIsTyping(false), 1000);
+    }
+    return () => clearTimeout(typingTimeout);
+  }, [newMessage]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 text-white p-4 sm:p-6 lg:p-8">
@@ -75,43 +157,48 @@ export default function ChatWindowClient({ friend, currentUser }) {
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-white text-lg">{friend.name}</h3>
-              <p className="text-xs text-green-400">● Online</p>
+              <p className="text-xs text-green-400">â— Online</p>
             </div>
           </div>
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
-            {messages.map((msg) => {
-              const isMe = msg.senderId === currentUser.id;
-              
-              return (
-                <motion.div
-                  key={msg.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[75%] sm:max-w-[70%] px-4 py-3 rounded-2xl shadow-lg ${
-                      isMe
-                        ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-br-sm'
-                        : 'bg-slate-800/90 text-slate-100 border border-slate-700/50 rounded-bl-sm'
-                    }`}
+            <AnimatePresence initial={false}>
+              {messages.map((msg) => {
+                const isMe = msg.senderId === currentUser.id;
+                
+                return (
+                  <motion.div
+                    key={msg.id}
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
                   >
-                    <p className="text-sm sm:text-base break-words">{msg.content}</p>
-                    <p className={`text-xs mt-1 ${isMe ? 'text-blue-100/70' : 'text-slate-400'}`}>
-                      {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  </div>
-                </motion.div>
-              );
-            })}
+                    <div
+                      className={`max-w-[75%] sm:max-w-[70%] px-4 py-3 rounded-2xl shadow-lg ${
+                        isMe
+                          ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-br-sm'
+                          : 'bg-slate-800/90 text-slate-100 border border-slate-700/50 rounded-bl-sm'
+                      } ${msg.temp ? 'opacity-70' : 'opacity-100'}`}
+                    >
+                      <p className="text-sm sm:text-base break-words">{msg.content}</p>
+                      <p className={`text-xs mt-1 ${isMe ? 'text-blue-100/70' : 'text-slate-400'}`}>
+                        {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
 
             {/* Typing Indicator */}
             {friendTyping && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 className="flex justify-start"
               >
                 <div className="px-4 py-3 bg-slate-800/90 border border-slate-700/50 rounded-2xl rounded-bl-sm shadow-lg">
@@ -140,7 +227,8 @@ export default function ChatWindowClient({ friend, currentUser }) {
               />
               <button
                 onClick={sendMessage}
-                className="px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all"
+                disabled={!newMessage.trim()}
+                className="px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FaComments className="text-lg" />
               </button>
@@ -150,4 +238,4 @@ export default function ChatWindowClient({ friend, currentUser }) {
       </div>
     </div>
   );
-}
+                }
