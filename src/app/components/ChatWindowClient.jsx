@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -34,12 +35,12 @@ export default function ChatWindowClient({ friend, currentUser }) {
     };
   }, [friend.id]);
 
-  // Start polling for new messages every 0.7 seconds
+  // Start polling for new messages every 1 second
   function startPolling() {
     stopPolling(); // Clear any existing interval
     pollingIntervalRef.current = setInterval(() => {
       checkNewMessages();
-    }, 700); // Poll every 0.7 seconds
+    }, 1000); // Poll every 1 second
   }
 
   function stopPolling() {
@@ -54,7 +55,7 @@ export default function ChatWindowClient({ friend, currentUser }) {
     stopTypingCheck();
     typingCheckIntervalRef.current = setInterval(() => {
       checkFriendTyping();
-    }, 500); // Check every 0.5 seconds
+    }, 900); // Check every 0.9 seconds
   }
 
   function stopTypingCheck() {
@@ -208,53 +209,17 @@ export default function ChatWindowClient({ friend, currentUser }) {
   }, [newMessage]);
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 text-white overflow-hidden">
-      <div className="flex h-screen">
-        {/* Left Sidebar - Friends List */}
-        <div className="w-80 bg-slate-900/60 backdrop-blur-xl border-r border-blue-500/20 flex flex-col">
-          {/* Sidebar Header */}
-          <div className="p-4 border-b border-blue-500/20 flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 text-white p-4 sm:p-6 lg:p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex flex-col h-[calc(100vh-200px)] bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-blue-500/20 overflow-hidden shadow-2xl">
+          {/* Chat Header */}
+          <div className="p-4 sm:p-6 border-b border-blue-500/20 flex items-center gap-3 sm:gap-4">
             <Link href="/friends">
-              <button className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors">
-                <FaArrowLeft />
-                <span className="font-semibold">Back to Friends</span>
+              <button className="p-2 hover:bg-blue-500/10 rounded-xl transition-all">
+                <FaArrowLeft className="text-blue-400" />
               </button>
             </Link>
-          </div>
-
-          {/* Current Chat User */}
-          <div className="p-4 bg-blue-500/10 border-b border-blue-500/20">
-            <div className="flex items-center gap-3">
-              <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-blue-500/50">
-                <Image src={friend.image || '/default-avatar.png'} alt={friend.name} fill className="object-cover" />
-                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-slate-900"></div>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-white">{friend.name}</h3>
-                <p className="text-xs text-green-400">● Online</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Friend Info */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            <div className="bg-slate-800/40 rounded-xl p-4 border border-blue-500/10">
-              <h4 className="text-sm font-semibold text-blue-300 mb-2">About</h4>
-              <p className="text-xs text-slate-400">{friend.email}</p>
-            </div>
-
-            <div className="bg-slate-800/40 rounded-xl p-4 border border-blue-500/10">
-              <h4 className="text-sm font-semibold text-blue-300 mb-2">Shared Activity</h4>
-              <p className="text-xs text-slate-400">Friends since {new Date().toLocaleDateString()}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Side - Chat Messages */}
-        <div className="flex-1 flex flex-col">
-          {/* Chat Header */}
-          <div className="p-4 sm:p-6 border-b border-blue-500/20 bg-slate-900/40 backdrop-blur-xl flex items-center gap-3 sm:gap-4">
-            <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-500/50">
+            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-blue-500/50">
               <Image src={friend.image || '/default-avatar.png'} alt={friend.name} fill className="object-cover" />
             </div>
             <div className="flex-1">
@@ -321,7 +286,7 @@ export default function ChatWindowClient({ friend, currentUser }) {
           </div>
 
           {/* Input */}
-          <div className="p-4 sm:p-6 border-t border-blue-500/20 bg-slate-900/40 backdrop-blur-xl">
+          <div className="p-4 sm:p-6 border-t border-blue-500/20">
             <div className="flex gap-2 sm:gap-3">
               <input
                 type="text"
@@ -344,4 +309,4 @@ export default function ChatWindowClient({ friend, currentUser }) {
       </div>
     </div>
   );
-        }
+                    }
