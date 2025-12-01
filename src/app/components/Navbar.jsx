@@ -10,10 +10,29 @@ import { FaUser, FaSignOutAlt, FaSignInAlt, FaTachometerAlt, FaUserShield } from
 const Navbar = ({ user }) => { 
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const profileRef = useRef(null);
 
   // Check if user is admin
-  const isAdmin = user?.email && process.env.ADMIN_EMAILS?.split(',').map(e => e.trim()).includes(user.email);
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user?.email) {
+        setIsAdmin(false);
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/admin/check');
+        const data = await res.json();
+        setIsAdmin(data.isAdmin || false);
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdmin();
+  }, [user]);
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
@@ -109,12 +128,12 @@ const Navbar = ({ user }) => {
                     {/* Admin Link - Only visible to admin */}
                     {isAdmin && (
                       <Link 
-                        href="/admin" 
+                        href="/admin/dashboard" 
                         className="flex items-center gap-3 px-4 py-3 text-neutral-300 hover:bg-purple-500/10 hover:text-purple-400 transition-colors border-t border-blue-500/10"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         <FaUserShield className="text-lg" />
-                        <span className="font-medium">Admin Panel</span>
+                        <span className="font-medium">Admin Dashboard</span>
                       </Link>
                     )}
 
