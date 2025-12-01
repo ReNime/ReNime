@@ -15,6 +15,8 @@ export default function ChatWindowClient({ friend, currentUser }) {
   const messagesEndRef = useRef(null);
   const pollingIntervalRef = useRef(null);
   const lastMessageIdRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+  const typingCheckIntervalRef = useRef(null);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -31,12 +33,12 @@ export default function ChatWindowClient({ friend, currentUser }) {
     };
   }, [friend.id]);
 
-  // Start polling for new messages every 2 seconds
+  // Start polling for new messages every 1 second
   function startPolling() {
     stopPolling(); // Clear any existing interval
     pollingIntervalRef.current = setInterval(() => {
       checkNewMessages();
-    }, 2000); // Poll every 2 seconds
+    }, 1000); // Poll every 1 second
   }
 
   function stopPolling() {
@@ -238,4 +240,4 @@ export default function ChatWindowClient({ friend, currentUser }) {
       </div>
     </div>
   );
-                }
+}
