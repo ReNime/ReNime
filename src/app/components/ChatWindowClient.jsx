@@ -27,24 +27,41 @@ export default function ChatWindowClient({ friend, currentUser }) {
   useEffect(() => {
     loadMessages();
     startPolling();
+    startTypingCheck();
 
     return () => {
       stopPolling();
+      stopTypingCheck();
     };
   }, [friend.id]);
 
-  // Start polling for new messages every 1 second
+  // Start polling for new messages every 2 seconds
   function startPolling() {
     stopPolling(); // Clear any existing interval
     pollingIntervalRef.current = setInterval(() => {
       checkNewMessages();
-    }, 1000); // Poll every 1 second
+    }, 2000); // Poll every 2 seconds
   }
 
   function stopPolling() {
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
       pollingIntervalRef.current = null;
+    }
+  }
+
+  // Start checking for friend typing status
+  function startTypingCheck() {
+    stopTypingCheck();
+    typingCheckIntervalRef.current = setInterval(() => {
+      checkFriendTyping();
+    }, 1500); // Check every 1.5 seconds
+  }
+
+  function stopTypingCheck() {
+    if (typingCheckIntervalRef.current) {
+      clearInterval(typingCheckIntervalRef.current);
+      typingCheckIntervalRef.current = null;
     }
   }
 
@@ -85,6 +102,31 @@ export default function ChatWindowClient({ friend, currentUser }) {
       }
     } catch (error) {
       console.error('Error checking new messages:', error);
+    }
+  }
+
+  async function checkFriendTyping() {
+    try {
+      const res = await fetch(`/api/chat/typing?friendId=${friend.id}`);
+      const data = await res.json();
+      setFriendTyping(data.isTyping || false);
+    } catch (error) {
+      console.error('Error checking typing status:', error);
+    }
+  }
+
+  async function updateTypingStatus(typing) {
+    try {
+      await fetch('/api/chat/typing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          friendId: friend.id,
+          isTyping: typing
+        })
+      });
+    } catch (error) {
+      console.error('Error updating typing status:', error);
     }
   }
 
@@ -133,14 +175,37 @@ export default function ChatWindowClient({ friend, currentUser }) {
     }
   }
 
-  // Handle typing indicator (optional)
+  // Handle typing indicator
   useEffect(() => {
-    let typingTimeout;
-    if (newMessage) {
-      setIsTyping(true);
-      typingTimeout = setTimeout(() => setIsTyping(false), 1000);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
     }
-    return () => clearTimeout(typingTimeout);
+
+    if (newMessage.trim()) {
+      // User is typing
+      if (!isTyping) {
+        setIsTyping(true);
+        updateTypingStatus(true);
+      }
+
+      // Set timeout to stop typing after 3 seconds of inactivity
+      typingTimeoutRef.current = setTimeout(() => {
+        setIsTyping(false);
+        updateTypingStatus(false);
+      }, 3000);
+    } else {
+      // User stopped typing
+      if (isTyping) {
+        setIsTyping(false);
+        updateTypingStatus(false);
+      }
+    }
+
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
   }, [newMessage]);
 
   return (
@@ -159,7 +224,7 @@ export default function ChatWindowClient({ friend, currentUser }) {
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-white text-lg">{friend.name}</h3>
-              <p className="text-xs text-green-400">â— Online</p>
+              <p className="text-xs text-green-400">● Online</p>
             </div>
           </div>
 
@@ -196,22 +261,26 @@ export default function ChatWindowClient({ friend, currentUser }) {
             </AnimatePresence>
 
             {/* Typing Indicator */}
-            {friendTyping && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex justify-start"
-              >
-                <div className="px-4 py-3 bg-slate-800/90 border border-slate-700/50 rounded-2xl rounded-bl-sm shadow-lg">
-                  <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+            <AnimatePresence>
+              {friendTyping && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex justify-start"
+                >
+                  <div className="flex items-center gap-2 px-4 py-3 bg-slate-800/90 border border-slate-700/50 rounded-2xl rounded-bl-sm shadow-lg">
+                    <div className="flex gap-1">
+                      <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                      <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                      <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                    </div>
+                    <span className="text-xs text-slate-400 ml-1">{friend.name} is typing...</span>
                   </div>
-                </div>
-              </motion.div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <div ref={messagesEndRef} />
           </div>
@@ -240,4 +309,4 @@ export default function ChatWindowClient({ friend, currentUser }) {
       </div>
     </div>
   );
-}
+                    }
