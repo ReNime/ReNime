@@ -14,6 +14,7 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url);
     const friendId = searchParams.get('friendId');
+    const sinceId = searchParams.get('since'); // For polling: get messages after this ID
 
     if (!friendId) {
       return NextResponse.json({ error: 'Friend ID required' }, { status: 400 });
@@ -21,30 +22,42 @@ export async function GET(request) {
 
     const userId = session.user.id;
 
+    // Build the query conditions
+    const whereCondition = {
+      OR: [
+        { senderId: userId, receiverId: friendId },
+        { senderId: friendId, receiverId: userId }
+      ]
+    };
+
+    // If polling for new messages, only get messages after the last known ID
+    if (sinceId) {
+      whereCondition.id = {
+        gt: sinceId
+      };
+    }
+
     const messages = await client.message.findMany({
-      where: {
-        OR: [
-          { senderId: userId, receiverId: friendId },
-          { senderId: friendId, receiverId: userId }
-        ]
-      },
+      where: whereCondition,
       orderBy: {
         createdAt: 'asc'
       },
-      take: 100 // Limit to last 100 messages
+      take: sinceId ? 50 : 100 // Limit: 50 for polling, 100 for initial load
     });
 
-    // Mark messages as read
-    await client.message.updateMany({
-      where: {
-        senderId: friendId,
-        receiverId: userId,
-        read: false
-      },
-      data: {
-        read: true
-      }
-    });
+    // Mark messages as read (only unread messages from friend)
+    if (!sinceId || messages.length > 0) {
+      await client.message.updateMany({
+        where: {
+          senderId: friendId,
+          receiverId: userId,
+          read: false
+        },
+        data: {
+          read: true
+        }
+      });
+    }
 
     return NextResponse.json({ messages });
   } catch (error) {
