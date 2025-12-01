@@ -35,12 +35,12 @@ export default function ChatWindowClient({ friend, currentUser }) {
     };
   }, [friend.id]);
 
-  // Start polling for new messages every 2 seconds
+  // Start polling for new messages every 1 second
   function startPolling() {
     stopPolling(); // Clear any existing interval
     pollingIntervalRef.current = setInterval(() => {
       checkNewMessages();
-    }, 2000); // Poll every 2 seconds
+    }, 1000); // Poll every 1 second
   }
 
   function stopPolling() {
@@ -55,7 +55,7 @@ export default function ChatWindowClient({ friend, currentUser }) {
     stopTypingCheck();
     typingCheckIntervalRef.current = setInterval(() => {
       checkFriendTyping();
-    }, 1500); // Check every 1.5 seconds
+    }, 900); // Check every 0.9 seconds
   }
 
   function stopTypingCheck() {
