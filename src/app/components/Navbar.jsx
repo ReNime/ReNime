@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -12,6 +11,7 @@ const Navbar = ({ user }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const profileRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
   // Check if user is admin
   useEffect(() => {
@@ -34,17 +34,40 @@ const Navbar = ({ user }) => {
     checkAdmin();
   }, [user]);
 
-  // Close profile dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Close profile dropdown if clicked outside
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setIsProfileOpen(false);
+      }
+      
+      // Close mobile menu if clicked outside
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        // Check if click is not on hamburger button
+        const hamburgerButton = event.target.closest('[aria-label="Toggle menu"]');
+        if (!hamburgerButton) {
+          setIsOpen(false);
+        }
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Close mobile menu when profile is opened, and vice versa
+  useEffect(() => {
+    if (isProfileOpen) {
+      setIsOpen(false);
+    }
+  }, [isProfileOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsProfileOpen(false);
+    }
+  }, [isOpen]);
 
   const navLinks = [
     { href: "/populer", name: "Populer" },
@@ -192,11 +215,14 @@ const Navbar = ({ user }) => {
       </div>
 
       {/* === Menu Dropdown Mobile === */}
-      <div className={`
-        md:hidden absolute top-full left-0 right-0 bg-[#0F0F18] 
-        transition-all duration-300 ease-in-out overflow-hidden
-        ${isOpen ? 'max-h-screen shadow-lg' : 'max-h-0'}
-      `}>
+      <div 
+        ref={mobileMenuRef}
+        className={`
+          md:hidden absolute top-full left-0 right-0 bg-[#0F0F18] 
+          transition-all duration-300 ease-in-out overflow-hidden
+          ${isOpen ? 'max-h-screen shadow-lg' : 'max-h-0'}
+        `}
+      >
         <ul className="flex flex-col p-4">
           {navLinks.map((link) => (
             <li key={link.href} className="w-full">
