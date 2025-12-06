@@ -1,30 +1,82 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  /* LANGSUNG ATUR WARNA DARK MODE DI SINI */
-  --background: #0F0F18;       /* Latar belakang utama Anda */
-  --foreground: #ededed;       /* Teks putih Anda */
-  
-  /* Ini adalah warna lain dari desain Anda yang kita tambahkan sebelumnya */
-  --background-secondary: #2E2F40; 
-  --background-hero: #252736;
-  --foreground-secondary: #a1a1aa;
-  --border-color: #3f3f46;
-  --color-accent: #63b9db;
-  --color-accent-2: #3b82f6;
+  --bg-primary: #020617;
+  --bg-secondary: #0f172a;
+  --bg-tertiary: #1e293b;
+  --accent-from: #3b82f6;
+  --accent-via: #2563eb;
+  --accent-to: #06b6d4;
+  --text-primary: #ffffff;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --border-color: rgba(59, 130, 246, 0.2);
+  --shadow-color: rgba(59, 130, 246, 0.3);
 }
 
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+[data-theme="light"] {
+  --bg-primary: #fff7ed;
+  --bg-secondary: #ffedd5;
+  --bg-tertiary: #fed7aa;
+  --accent-from: #f97316;
+  --accent-via: #ea580c;
+  --accent-to: #fb923c;
+  --text-primary: #1c1917;
+  --text-secondary: #44403c;
+  --text-tertiary: #78716c;
+  --border-color: rgba(249, 115, 22, 0.2);
+  --shadow-color: rgba(249, 115, 22, 0.3);
 }
 
 body {
-  /* Sekarang body akan SELALU menggunakan var(--background) gelap */
-  background: var(--background);
-  color: var(--foreground);
-  /* font-family akan diambil dari layout.js Anda */
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.theme-button {
+  background: linear-gradient(to bottom right, var(--accent-from), var(--accent-to));
+  border-color: var(--border-color);
+}
+
+.theme-button:hover {
+  box-shadow: 0 0 40px var(--shadow-color);
+}
+
+.theme-icon {
+  color: var(--text-primary);
+}
+
+.bg-theme-primary {
+  background-color: var(--bg-primary);
+}
+
+.bg-theme-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.bg-theme-tertiary {
+  background-color: var(--bg-tertiary);
+}
+
+.text-theme-primary {
+  color: var(--text-primary);
+}
+
+.text-theme-secondary {
+  color: var(--text-secondary);
+}
+
+.text-theme-tertiary {
+  color: var(--text-tertiary);
+}
+
+.border-theme {
+  border-color: var(--border-color);
+}
+
+.gradient-theme {
+  background: linear-gradient(to bottom right, var(--accent-from), var(--accent-via), var(--accent-to));
 }
