@@ -36,7 +36,6 @@ async function getSampleAnimeForGenre(slug) {
     }
     
     const result = await response.json();
-    // Return first anime poster
     return result.animes?.[0]?.poster || null;
   } catch (error) {
     return null;
@@ -59,7 +58,7 @@ export default async function GenresPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-neutral-900 text-white">
+    <div className="min-h-screen bg-theme-primary text-theme-primary">
       <div className="container mx-auto px-4 py-8">
         <Navigation />
         <ResponsiveBreadcrumb crumbs={breadcrumbs} />
@@ -67,8 +66,8 @@ export default async function GenresPage() {
 
         {allGenres.length > 0 ? (
           <>
-            <p className="text-neutral-400 mb-6">
-              Total {allGenres.length} genre tersedia
+            <p className="text-theme-tertiary mb-6">
+              Total <span className="font-semibold text-theme-secondary">{allGenres.length}</span> genre tersedia
             </p>
 
             {/* Genre Grid */}
@@ -77,7 +76,8 @@ export default async function GenresPage() {
                 <Link
                   key={genre.slug}
                   href={`/genre/${genre.slug}`}
-                  className="group relative bg-neutral-800 rounded-lg overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-600/30 h-32 md:h-40"
+                  className="group relative rounded-lg overflow-hidden transition-all duration-300 transform hover:scale-105 h-32 md:h-40 border border-theme"
+                  style={{ boxShadow: '0 4px 6px var(--shadow-theme)' }}
                 >
                   {/* Background Image */}
                   {genre.image ? (
@@ -89,11 +89,26 @@ export default async function GenresPage() {
                         className="object-cover"
                         sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
                       />
-                      {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30 group-hover:from-blue-900/90 group-hover:via-blue-800/60 transition-all duration-300"></div>
+                      {/* Base Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30"></div>
+                      
+                      {/* Hover Overlay with Theme Colors */}
+                      <div 
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        style={{
+                          background: 'linear-gradient(to top, var(--accent-from), var(--accent-via), transparent)'
+                        }}
+                      ></div>
                     </>
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-900 group-hover:from-blue-700 group-hover:to-blue-900 transition-all duration-300"></div>
+                    <div className="absolute inset-0 bg-theme-tertiary transition-all duration-300">
+                      <div 
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        style={{
+                          background: 'linear-gradient(to bottom right, var(--accent-from), var(--accent-to))'
+                        }}
+                      ></div>
+                    </div>
                   )}
 
                   {/* Content */}
@@ -101,7 +116,7 @@ export default async function GenresPage() {
                     <h3 className="text-sm md:text-base font-bold text-white text-center drop-shadow-lg">
                       {genre.name}
                     </h3>
-                    <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="mt-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                       <svg 
                         xmlns="http://www.w3.org/2000/svg" 
                         className="h-5 w-5 text-white mx-auto drop-shadow-lg" 
@@ -118,13 +133,27 @@ export default async function GenresPage() {
                       </svg>
                     </div>
                   </div>
+
+                  {/* Border Glow Effect on Hover */}
+                  <div 
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-lg"
+                    style={{
+                      boxShadow: '0 0 30px var(--shadow-theme)'
+                    }}
+                  ></div>
                 </Link>
               ))}
             </div>
           </>
         ) : (
           <div className="flex justify-center items-center min-h-[50vh]">
-            <p className="text-neutral-400">Gagal memuat data genre.</p>
+            <div className="text-center">
+              <div 
+                className="w-16 h-16 border-4 border-theme rounded-full animate-spin mx-auto mb-4"
+                style={{ borderTopColor: 'var(--accent-from)' }}
+              ></div>
+              <p className="text-theme-tertiary">Gagal memuat data genre.</p>
+            </div>
           </div>
         )}
       </div>
