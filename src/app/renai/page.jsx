@@ -39,7 +39,7 @@ const personaConfig = {
   },
 };
 
-export default function AichixiaPage() {
+export default function RenaiPage() {
   const { data: session, status } = useSession();
   const isLoggedIn = status === "authenticated";
 
@@ -141,7 +141,7 @@ export default function AichixiaPage() {
             {
               role: "assistant",
               type: "text",
-              content: data.reply || "⚠️ No valid response.",
+              content: data.reply || "âš ï¸ No valid response.",
             },
           ]);
         }
@@ -153,7 +153,7 @@ export default function AichixiaPage() {
         {
           role: "assistant",
           type: "text",
-          content: "❌ Error while connecting to Aichixia.",
+          content: "âŒ Error while connecting to Renai.",
         },
       ]);
     } finally {
@@ -206,64 +206,76 @@ export default function AichixiaPage() {
                 </p>
               </div>
             </div>
-            <div className="relative">
-              <button
-                onClick={() => setShowMenu(!showMenu)}
-                className="relative group bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 p-3 sm:p-3.5 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                <FaEllipsisV className="text-lg sm:text-xl relative z-10" />
-              </button>
+            
+            {/* Right side buttons */}
+            <div className="flex items-center gap-2">
+              {/* Close button */}
+              <Link href="/">
+                <button className="relative group bg-slate-800/50 border border-blue-500/20 p-3 sm:p-3.5 rounded-2xl hover:shadow-2xl hover:shadow-red-500/40 hover:border-red-500/40 transition-all duration-300 hover:scale-105 active:scale-95">
+                  <FaTimes className="text-lg sm:text-xl text-blue-300 group-hover:text-red-400 transition-colors" />
+                </button>
+              </Link>
 
-              <AnimatePresence>
-                {showMenu && (
-                  <>
-                    <motion.div 
-                      className="fixed inset-0 z-30" 
-                      onClick={() => setShowMenu(false)}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    />
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                      className="absolute right-0 mt-2 w-56 bg-slate-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-blue-500/30 overflow-hidden z-40"
-                    >
-                      <button
-                        onClick={() => {
-                          setShowMenu(false);
-                          setScanOpen(true);
-                        }}
-                        disabled={scanCooldown > 0}
-                        className="w-full px-4 py-3 text-left hover:bg-blue-500/10 transition-all flex items-center gap-3 border-b border-blue-500/20 disabled:opacity-50"
-                      >
-                        <LuScanLine className="text-xl text-cyan-400" />
-                        <div className="flex-1">
-                          <div className="font-semibold text-blue-100 text-sm">Scan Anime</div>
-                          {scanCooldown > 0 && (
-                            <div className="text-xs text-blue-300/70">Cooldown: {scanCooldown}s</div>
-                          )}
-                        </div>
-                      </button>
+              {/* Menu button */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="relative group bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 p-3 sm:p-3.5 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95"
+                >
+                  <FaEllipsisV className="text-lg sm:text-xl relative z-10" />
+                </button>
 
-                      <button
-                        onClick={() => {
-                          setShowMenu(false);
-                          setShowPersonaMenu(true);
-                        }}
-                        className="w-full px-4 py-3 text-left hover:bg-blue-500/10 transition-all flex items-center gap-3"
+                <AnimatePresence>
+                  {showMenu && (
+                    <>
+                      <motion.div 
+                        className="fixed inset-0 z-30" 
+                        onClick={() => setShowMenu(false)}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      />
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                        className="absolute right-0 mt-2 w-56 bg-slate-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-blue-500/30 overflow-hidden z-40"
                       >
-                        <PersonaIcon className="text-xl text-white-400" />
-                        <div className="flex-1">
-                          <div className="font-semibold text-blue-100 text-sm">Change Persona</div>
-                          <div className="text-xs text-blue-300/70">{personaConfig[persona].name}</div>
-                        </div>
-                      </button>
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
+                        <button
+                          onClick={() => {
+                            setShowMenu(false);
+                            setScanOpen(true);
+                          }}
+                          disabled={scanCooldown > 0}
+                          className="w-full px-4 py-3 text-left hover:bg-blue-500/10 transition-all flex items-center gap-3 border-b border-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <LuScanLine className="text-xl text-cyan-400" />
+                          <div className="flex-1">
+                            <div className="font-semibold text-blue-100 text-sm">Scan Anime</div>
+                            {scanCooldown > 0 && (
+                              <div className="text-xs text-blue-300/70">Cooldown: {scanCooldown}s</div>
+                            )}
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setShowMenu(false);
+                            setShowPersonaMenu(true);
+                          }}
+                          className="w-full px-4 py-3 text-left hover:bg-blue-500/10 transition-all flex items-center gap-3"
+                        >
+                          <PersonaIcon className="text-xl text-pink-400" />
+                          <div className="flex-1">
+                            <div className="font-semibold text-blue-100 text-sm">Change Persona</div>
+                            <div className="text-xs text-blue-300/70">{personaConfig[persona].name}</div>
+                          </div>
+                        </button>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </header>
 
@@ -286,6 +298,76 @@ export default function AichixiaPage() {
                     </ReactMarkdown>
                   </div>
                 )}
+
+                {msg.type === "image" && typeof msg.content === "string" && (
+                  <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-3xl overflow-hidden border-2 border-blue-400/30 shadow-2xl shadow-blue-500/20"
+                  >
+                    <Image
+                      src={msg.content}
+                      alt="preview"
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </motion.div>
+                )}
+
+                {msg.type === "scan" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 w-full">
+                    {(Array.isArray(msg.content) ? msg.content : []).map((r, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className="group bg-slate-800/50 border border-blue-500/20 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-400/40 transition-all duration-300 flex flex-col backdrop-blur-xl"
+                      >
+                        <div className="relative overflow-hidden aspect-video">
+                          {r.video ? (
+                            <video
+                              src={r.video}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              controls
+                              playsInline
+                              preload="metadata"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-black/20 flex items-center justify-center text-sm text-blue-300">
+                              No preview
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-5 flex-1 flex flex-col justify-between">
+                          <div>
+                            <h3 className="font-bold text-blue-100 text-sm sm:text-base line-clamp-2 group-hover:text-cyan-300 transition-colors">
+                              {r.title?.romaji || r.title?.english || "Unknown"}
+                            </h3>
+                            <div className="flex items-center gap-3 mt-2 flex-wrap">
+                              <span className="text-xs px-2.5 py-1 bg-blue-500/20 text-blue-300 rounded-full border border-blue-400/30">
+                                Ep {r.episode || "?"}
+                              </span>
+                              <span className="text-xs px-2.5 py-1 bg-cyan-500/20 text-cyan-300 rounded-full border border-cyan-400/30">
+                                {typeof r.similarity === "number" ? (r.similarity * 100).toFixed(1) + "%" : "â€”"}
+                              </span>
+                            </div>
+                          </div>
+                          {r.anilist && (
+                            <Link
+                              href={`/anime/${r.anilist}`}
+                              className="text-sm text-cyan-400 hover:text-cyan-300 underline decoration-cyan-400/30 hover:decoration-cyan-300 underline-offset-4 mt-3 inline-flex items-center gap-1 group/link transition-all"
+                            >
+                              View Details
+                              <span className="group-hover/link:translate-x-1 transition-transform">â†’</span>
+                            </Link>
+                          )}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </motion.div>
             ))}
 
@@ -303,32 +385,202 @@ export default function AichixiaPage() {
             {!isLoggedIn ? (
               <button
                 onClick={() => signIn()}
-                className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl font-bold"
+                className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl font-bold hover:shadow-lg hover:shadow-blue-500/50 transition-all"
               >
                 <FaPaperPlane />
-                <span>Login to access</span>
+                <span>Login to access Renai</span>
               </button>
             ) : (
               <div className="flex gap-2 items-center">
                 <input
                   type="text"
-                  placeholder="Ask me anything..."
-                  className="flex-1 px-4 py-3 rounded-2xl bg-slate-800/50 border border-blue-500/20 text-white focus:outline-none"
+                  placeholder="Ask me anything about anime..."
+                  className="flex-1 px-4 py-3 rounded-2xl bg-slate-800/50 border border-blue-500/20 text-white placeholder-blue-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400/50"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
+                  disabled={loading}
                 />
                 <button
                   onClick={sendMessage}
-                  className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500"
+                  disabled={loading}
+                  className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/50 transition-all disabled:opacity-50"
                 >
-                  <FaPaperPlane className="text-white" />
+                  {loading ? (
+                    <FaSpinner className="animate-spin text-white" />
+                  ) : (
+                    <FaPaperPlane className="text-white" />
+                  )}
                 </button>
               </div>
             )}
           </footer>
         </div>
+
+        {/* Scan Modal */}
+        <AnimatePresence>
+          {scanOpen && (
+            <motion.div
+              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setScanOpen(false)}
+            >
+              <motion.div
+                className="bg-slate-900/95 rounded-3xl p-6 sm:p-10 w-full max-w-md text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
+                initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.8, opacity: 0, y: 50 }}
+                transition={{ type: "spring", bounce: 0.3 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-3 mt-4">
+                  Upload Screenshot
+                </h2>
+                <p className="text-blue-300/70 text-sm sm:text-base mb-8 font-light">
+                  Renai will detect which anime it's from instantly!
+                </p>
+
+                {!isLoggedIn ? (
+                  <button
+                    onClick={() => signIn()}
+                    className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
+                  >
+                    <LuScanLine className="text-xl" />
+                    <span>Login to Scan</span>
+                  </button>
+                ) : (
+                  <label className="cursor-pointer inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:shadow-2xl hover:shadow-blue-500/40 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95">
+                    <LuScanLine className="text-xl" />
+                    <span>Choose Image</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleFileSelect}
+                    />
+                  </label>
+                )}
+
+                {pendingImage && (
+                  <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="mt-8 relative w-full flex justify-center"
+                  >
+                    <div className="relative w-56 h-56 border-2 border-blue-400/40 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/20">
+                      <Image
+                        src={pendingImage}
+                        alt="preview"
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                      <button
+                        onClick={() => setPendingImage(null)}
+                        className="absolute top-2 right-2 bg-red-500/80 backdrop-blur-xl rounded-full p-2 hover:bg-red-600 transition-all hover:scale-110 active:scale-95 shadow-lg"
+                      >
+                        <FaTimes className="text-white text-sm" />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                <div className="mt-8 flex justify-center gap-3">
+                  <button
+                    onClick={() => setScanOpen(false)}
+                    className="px-6 py-3 bg-slate-700/50 hover:bg-slate-700/70 rounded-2xl text-blue-200 transition-all hover:scale-105 active:scale-95 font-semibold backdrop-blur-xl border border-blue-500/20"
+                  >
+                    Cancel
+                  </button>
+                  {isLoggedIn && pendingImage && (
+                    <button
+                      onClick={sendMessage}
+                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 active:scale-95 font-semibold"
+                    >
+                      Scan Now
+                    </button>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => setScanOpen(false)}
+                  className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
+                >
+                  <FaTimes className="text-xl" />
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Persona Menu Modal */}
+        <AnimatePresence>
+          {showPersonaMenu && (
+            <motion.div
+              className="fixed inset-0 bg-black/80 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowPersonaMenu(false)}
+            >
+              <motion.div
+                className="bg-slate-900/95 rounded-3xl p-6 sm:p-8 w-full max-w-md text-center shadow-2xl border border-blue-500/30 relative backdrop-blur-2xl"
+                initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.8, opacity: 0, y: 50 }}
+                transition={{ type: "spring", bounce: 0.3 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-pink-300 to-purple-300 bg-clip-text mb-6">
+                  Choose Persona
+                </h2>
+
+                <div className="space-y-3">
+                  {Object.keys(personaConfig).map((p) => {
+                    const Icon = personaConfig[p].icon;
+                    return (
+                      <button
+                        key={p}
+                        onClick={() => {
+                          setPersona(p);
+                          setShowPersonaMenu(false);
+                        }}
+                        className={`w-full px-5 py-4 rounded-2xl text-left hover:bg-blue-500/10 transition-all flex items-center gap-4 border-2 ${
+                          persona === p
+                            ? "border-pink-400/50 bg-pink-500/10"
+                            : "border-blue-500/20"
+                        }`}
+                      >
+                        <Icon className="text-2xl" />
+                        <div className="flex-1">
+                          <div className="font-bold text-blue-100 text-sm sm:text-base">
+                            {personaConfig[p].name}
+                          </div>
+                          <div className="text-xs text-blue-300/70">
+                            {personaConfig[p].description}
+                          </div>
+                        </div>
+                        {persona === p && (
+                          <div className="w-2 h-2 rounded-full bg-pink-400 animate-pulse" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={() => setShowPersonaMenu(false)}
+                  className="absolute top-4 right-4 text-blue-300 hover:text-white transition-all hover:rotate-90 duration-300"
+                >
+                  <FaTimes className="text-xl" />
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </>
   );
-}
+                                                                          }
