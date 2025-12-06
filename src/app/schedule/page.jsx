@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Navigation from '@/app/components/Navigation';
 import ResponsiveBreadcrumb from '@/app/components/ResponsiveBreadcrumb';
 import AnimeCard from '@/app/components/AnimeCard';
@@ -33,8 +34,27 @@ async function fetchSchedule() {
 }
 
 export default function SchedulePage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Get current day from today
+  const getCurrentDay = () => {
+    const days = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', "jum'at", 'sabtu'];
+    const today = new Date().getDay();
+    return days[today];
+  };
+
+  // Get initial day from URL or default to today
+  const getInitialDay = () => {
+    const dayParam = searchParams.get('day');
+    if (dayParam && DAYS.some(d => d.key === dayParam)) {
+      return dayParam;
+    }
+    return getCurrentDay();
+  };
+
   const [schedule, setSchedule] = useState({});
-  const [activeDay, setActiveDay] = useState('minggu');
+  const [activeDay, setActiveDay] = useState(getInitialDay());
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -47,32 +67,56 @@ export default function SchedulePage() {
     loadSchedule();
   }, []);
 
+  // Update URL when day changes
+  const handleDayChange = (day) => {
+    setActiveDay(day);
+    router.push(`/schedule?day=${day}`, { scroll: false });
+  };
+
   const breadcrumbs = [
     { title: 'Schedule', href: '/schedule' }
   ];
 
   const currentAnimes = schedule[activeDay] || [];
+  const currentDayLabel = DAYS.find(d => d.key === activeDay)?.label;
 
   return (
-    <div className="min-h-screen bg-neutral-900 text-white">
+    <div className="min-h-screen bg-theme-primary text-theme-primary">
       <div className="container mx-auto px-4 py-8">
         <ResponsiveBreadcrumb crumbs={breadcrumbs} />
         <Header title="Jadwal Anime" />
 
+        {/* Current Day Indicator */}
+        <div className="mb-4 flex items-center gap-2">
+          <div className="px-3 py-1 rounded-full text-xs font-semibold text-theme-primary"
+               style={{ background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))' }}>
+            Hari Ini: {DAYS.find(d => d.key === getCurrentDay())?.label}
+          </div>
+        </div>
+
         {/* Tab Navigation */}
-        <div className="mb-8 overflow-x-auto">
+        <div className="mb-8 overflow-x-auto scrollbar-hide">
           <div className="flex space-x-2 min-w-max pb-2">
             {DAYS.map((day) => (
               <button
                 key={day.key}
-                onClick={() => setActiveDay(day.key)}
-                className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 whitespace-nowrap ${
-                  activeDay === day.key
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
-                }`}
+                onClick={() => handleDayChange(day.key)}
+                className={`
+                  px-4 py-2 rounded-lg font-semibold transition-all duration-300 whitespace-nowrap
+                  ${activeDay === day.key
+                    ? 'text-theme-primary shadow-lg scale-105'
+                    : 'bg-theme-tertiary text-theme-secondary hover:bg-theme-secondary hover:text-theme-primary'
+                  }
+                `}
+                style={activeDay === day.key ? {
+                  background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))',
+                  boxShadow: '0 0 20px var(--shadow-theme)'
+                } : {}}
               >
                 {day.label}
+                {day.key === getCurrentDay() && (
+                  <span className="ml-1 text-xs">â€¢</span>
+                )}
               </button>
             ))}
           </div>
@@ -82,23 +126,24 @@ export default function SchedulePage() {
         {isLoading ? (
           <div className="flex justify-center items-center min-h-[50vh]">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
-              <p className="text-neutral-400">Memuat jadwal...</p>
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-theme mx-auto mb-4"
+                   style={{ borderTopColor: 'var(--accent-from)' }}></div>
+              <p className="text-theme-tertiary">Memuat jadwal...</p>
             </div>
           </div>
         ) : currentAnimes.length > 0 ? (
           <>
-            <div className="mb-4">
-              <h2 className="text-xl md:text-2xl font-bold text-blue-500">
-                {DAYS.find(d => d.key === activeDay)?.label}
-                <span className="text-neutral-400 text-base ml-2">
-                  ({currentAnimes.length} anime)
-                </span>
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-xl md:text-2xl font-bold gradient-theme-text">
+                {currentDayLabel}
               </h2>
+              <span className="text-theme-tertiary text-sm md:text-base">
+                {currentAnimes.length} anime
+              </span>
             </div>
 
             {/* Anime Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {currentAnimes.map((anime, index) => (
                 <AnimeCard
                   key={anime.slug || index}
@@ -115,9 +160,25 @@ export default function SchedulePage() {
           </>
         ) : (
           <div className="flex justify-center items-center min-h-[50vh]">
-            <div className="text-center">
-              <p className="text-neutral-400 text-lg">
+            <div className="text-center p-8 rounded-xl bg-theme-secondary border border-theme">
+              <svg 
+                className="w-16 h-16 mx-auto mb-4 text-theme-tertiary" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" 
+                />
+              </svg>
+              <p className="text-theme-secondary text-lg font-medium mb-2">
                 Tidak ada anime untuk hari ini
+              </p>
+              <p className="text-theme-tertiary text-sm">
+                Coba pilih hari lain untuk melihat jadwal
               </p>
             </div>
           </div>
