@@ -1,8 +1,17 @@
-/*@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
+  /* DARK MODE (Default - Blue Theme) */
+  --background: #0F0F18;
+  --foreground: #ededed;
+  --background-secondary: #2E2F40;
+  --background-hero: #252736;
+  --foreground-secondary: #a1a1aa;
+  --border-color: #3f3f46;
+  --color-accent: #63b9db;
+  --color-accent-2: #3b82f6;
+  
+  /* Theme system variables */
   --bg-primary: #020617;
   --bg-secondary: #0f172a;
   --bg-tertiary: #1e293b;
@@ -12,11 +21,22 @@
   --text-primary: #ffffff;
   --text-secondary: #cbd5e1;
   --text-tertiary: #94a3b8;
-  --border-color: rgba(59, 130, 246, 0.2);
-  --shadow-color: rgba(59, 130, 246, 0.3);
+  --border-theme: rgba(59, 130, 246, 0.2);
+  --shadow-theme: rgba(59, 130, 246, 0.3);
 }
 
+/* LIGHT MODE (Orange Theme) */
 [data-theme="light"] {
+  --background: #fff7ed;
+  --foreground: #1c1917;
+  --background-secondary: #ffedd5;
+  --background-hero: #fed7aa;
+  --foreground-secondary: #78716c;
+  --border-color: #fdba74;
+  --color-accent: #f97316;
+  --color-accent-2: #ea580c;
+  
+  /* Theme system variables for light mode */
   --bg-primary: #fff7ed;
   --bg-secondary: #ffedd5;
   --bg-tertiary: #fed7aa;
@@ -26,29 +46,28 @@
   --text-primary: #1c1917;
   --text-secondary: #44403c;
   --text-tertiary: #78716c;
-  --border-color: rgba(249, 115, 22, 0.2);
-  --shadow-color: rgba(249, 115, 22, 0.3);
+  --border-theme: rgba(249, 115, 22, 0.2);
+  --shadow-theme: rgba(249, 115, 22, 0.3);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: var(--background);
+  color: var(--foreground);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.theme-button {
-  background: linear-gradient(to bottom right, var(--accent-from), var(--accent-to));
-  border-color: var(--border-color);
-}
+/* ============================================
+   THEME UTILITY CLASSES
+   ============================================ */
 
-.theme-button:hover {
-  box-shadow: 0 0 40px var(--shadow-color);
-}
-
-.theme-icon {
-  color: var(--text-primary);
-}
-
+/* Background colors */
 .bg-theme-primary {
   background-color: var(--bg-primary);
 }
@@ -61,6 +80,7 @@ body {
   background-color: var(--bg-tertiary);
 }
 
+/* Text colors */
 .text-theme-primary {
   color: var(--text-primary);
 }
@@ -73,41 +93,163 @@ body {
   color: var(--text-tertiary);
 }
 
+/* Border */
 .border-theme {
-  border-color: var(--border-color);
+  border-color: var(--border-theme);
 }
 
+/* Gradient backgrounds */
 .gradient-theme {
   background: linear-gradient(to bottom right, var(--accent-from), var(--accent-via), var(--accent-to));
 }
-*/
-@import "tailwindcss";
 
-:root {
-  /* LANGSUNG ATUR WARNA DARK MODE DI SINI */
-  --background: #0F0F18;       /* Latar belakang utama Anda */
-  --foreground: #ededed;       /* Teks putih Anda */
-  
-  /* Ini adalah warna lain dari desain Anda yang kita tambahkan sebelumnya */
-  --background-secondary: #2E2F40; 
-  --background-hero: #252736;
-  --foreground-secondary: #a1a1aa;
-  --border-color: #3f3f46;
-  --color-accent: #63b9db;
-  --color-accent-2: #3b82f6;
+.gradient-theme-text {
+  background: linear-gradient(to right, var(--accent-from), var(--accent-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Theme button styling */
+.theme-button {
+  background: linear-gradient(to bottom right, var(--accent-from), var(--accent-to));
+  border-color: var(--border-theme);
+  transition: all 0.3s ease;
 }
 
-body {
-  /* Sekarang body akan SELALU menggunakan var(--background) gelap */
-  background: var(--background);
-  color: var(--foreground);
-  /* font-family akan diambil dari layout.js Anda */
+.theme-button:hover {
+  box-shadow: 0 0 40px var(--shadow-theme);
 }
+
+.theme-icon {
+  color: var(--text-primary);
+}
+
+/* Card styling */
+.card-theme {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-theme);
+  box-shadow: 0 4px 6px var(--shadow-theme);
+  transition: all 0.3s ease;
+}
+
+.card-theme:hover {
+  box-shadow: 0 8px 16px var(--shadow-theme);
+  border-color: var(--accent-from);
+}
+
+/* Input styling */
+.input-theme {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-theme);
+  color: var(--text-primary);
+}
+
+.input-theme:focus {
+  outline: none;
+  border-color: var(--accent-from);
+  box-shadow: 0 0 0 3px var(--border-theme);
+}
+
+.input-theme::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Button primary */
+.btn-theme-primary {
+  background: linear-gradient(to right, var(--accent-from), var(--accent-to));
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.btn-theme-primary:hover {
+  box-shadow: 0 0 20px var(--shadow-theme);
+  transform: translateY(-2px);
+}
+
+/* Button secondary */
+.btn-theme-secondary {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-theme);
+  transition: all 0.3s ease;
+}
+
+.btn-theme-secondary:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--accent-from);
+}
+
+/* Navbar styling */
+.navbar-theme {
+  background-color: rgba(var(--bg-secondary), 0.8);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-theme);
+}
+
+/* Link styling */
+.link-theme {
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.link-theme:hover {
+  color: var(--accent-from);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-from);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-via);
+}
+
+/* Selection styling */
+::selection {
+  background-color: var(--accent-from);
+  color: var(--text-primary);
+}
+
+/* Smooth transitions for theme switching */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}
+
+/* Prevent transition on specific elements */
+.no-theme-transition,
+.no-theme-transition * {
+  transition: none !important;
+}
+
+/* Dark mode specific adjustments */
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Light mode specific adjustments */
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Image adjustments for light mode */
+[data-theme="light"] img {
+  opacity: 0.9;
+}
+
+[data-theme="light"] img:hover {
+  opacity: 1;
+  }
