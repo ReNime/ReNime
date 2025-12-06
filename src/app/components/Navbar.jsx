@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -81,9 +80,12 @@ const Navbar = ({ user }) => {
             <li key={link.href}>
               <Link 
                 href={link.href} 
-                className="text-theme-secondary hover:text-theme-primary transition-colors duration-200 font-medium text-md"
+                className="link-theme text-md font-medium relative group"
               >
                 {link.name}
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full" 
+                      style={{ background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))' }}
+                ></span>
               </Link>
             </li>
           ))}
@@ -95,7 +97,11 @@ const Navbar = ({ user }) => {
           <ThemeSwitcher />
 
           {/* Sparkle Icon */}
-          <Link href="/renai" className="text-theme-primary animate-pulse hover:scale-110 transition-transform">
+          <Link 
+            href="/renai" 
+            className="text-theme-primary animate-pulse hover:scale-110 transition-transform duration-300 hover:drop-shadow-lg"
+            style={{ filter: 'drop-shadow(0 0 8px var(--accent-from))' }}
+          >
             <PiSparkleFill size={28} />
           </Link>
 
@@ -103,7 +109,11 @@ const Navbar = ({ user }) => {
           <div className="relative" ref={profileRef}>
             <button 
               onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="w-10 h-10 rounded-full overflow-hidden border-2 border-theme hover:border-theme transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-theme"
+              className="w-10 h-10 rounded-full overflow-hidden border-2 border-theme hover:scale-105 focus:outline-none transition-all duration-300"
+              style={{ 
+                boxShadow: isProfileOpen ? '0 0 0 3px var(--border-theme)' : 'none',
+                borderColor: isProfileOpen ? 'var(--accent-from)' : 'var(--border-theme)'
+              }}
             >
               {user?.image ? (
                 <Image 
@@ -114,7 +124,7 @@ const Navbar = ({ user }) => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br bg-theme-tertiary flex items-center justify-center">
+                <div className="w-full h-full bg-theme-tertiary flex items-center justify-center">
                   <FaUser className="text-theme-secondary text-lg" />
                 </div>
               )}
@@ -122,14 +132,18 @@ const Navbar = ({ user }) => {
 
             {/* Profile Dropdown Menu */}
             {isProfileOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-theme-secondary backdrop-blur-xl border border-theme rounded-xl shadow-2xl overflow-hidden">
+              <div className="absolute right-0 mt-2 w-48 bg-theme-secondary backdrop-blur-xl border border-theme rounded-xl shadow-2xl overflow-hidden animate-fadeIn">
                 {user ? (
                   <>
-                    <div className="px-4 py-3 border-b border-theme">
+                    <div className="px-4 py-3 border-b border-theme bg-theme-tertiary/30">
                       <p className="text-sm font-semibold text-theme-primary truncate">{user.name || 'User'}</p>
                       <p className="text-xs text-theme-tertiary truncate">{user.email || ''}</p>
                       {isAdmin && (
-                        <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded-full border border-purple-500/30">
+                        <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 text-xs rounded-full font-medium"
+                              style={{ 
+                                background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))',
+                                color: 'var(--text-primary)'
+                              }}>
                           <FaUserShield className="text-[10px]" />
                           Admin
                         </span>
@@ -138,7 +152,7 @@ const Navbar = ({ user }) => {
 
                     <Link 
                       href="/users/dashboard" 
-                      className="flex items-center gap-3 px-4 py-3 text-theme-secondary hover:bg-theme-tertiary transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 text-theme-secondary hover:bg-theme-tertiary transition-all duration-200"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       <FaTachometerAlt className="text-lg" />
@@ -148,7 +162,7 @@ const Navbar = ({ user }) => {
                     {isAdmin && (
                       <Link 
                         href="/admin/dashboard" 
-                        className="flex items-center gap-3 px-4 py-3 text-theme-secondary hover:bg-purple-500/10 transition-colors border-t border-theme"
+                        className="flex items-center gap-3 px-4 py-3 text-theme-secondary hover:bg-theme-tertiary transition-all duration-200 border-t border-theme"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         <FaUserShield className="text-lg" />
@@ -158,7 +172,7 @@ const Navbar = ({ user }) => {
 
                     <Link 
                       href="/api/auth/signout" 
-                      className="flex items-center gap-3 px-4 py-3 text-theme-secondary hover:bg-red-500/10 transition-colors border-t border-theme"
+                      className="flex items-center gap-3 px-4 py-3 text-theme-secondary hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 border-t border-theme"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       <FaSignOutAlt className="text-lg" />
@@ -168,7 +182,7 @@ const Navbar = ({ user }) => {
                 ) : (
                   <Link 
                     href="/api/auth/signin" 
-                    className="flex items-center gap-3 px-4 py-3 text-theme-secondary hover:bg-theme-tertiary transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 text-theme-secondary hover:bg-theme-tertiary transition-all duration-200"
                     onClick={() => setIsProfileOpen(false)}
                   >
                     <FaSignInAlt className="text-lg" />
@@ -185,7 +199,7 @@ const Navbar = ({ user }) => {
           <button 
             onClick={() => setIsOpen(!isOpen)} 
             aria-label="Toggle menu"
-            className="text-theme-primary focus:outline-none"
+            className="text-theme-primary focus:outline-none hover:scale-105 transition-transform duration-200"
           >
             <svg 
               className="w-10 h-10" 
@@ -207,16 +221,16 @@ const Navbar = ({ user }) => {
       {/* Mobile Dropdown Menu */}
       <div 
         ref={mobileMenuRef}
-        className={`md:hidden absolute top-full left-0 right-0 bg-theme-secondary transition-all duration-300 overflow-hidden ${
-          isOpen ? 'max-h-screen shadow-lg' : 'max-h-0'
+        className={`md:hidden absolute top-full left-0 right-0 bg-theme-secondary border-b border-theme backdrop-blur-xl transition-all duration-300 overflow-hidden ${
+          isOpen ? 'max-h-screen shadow-2xl opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <ul className="flex flex-col p-4">
+        <ul className="flex flex-col p-4 space-y-1">
           {navLinks.map((link) => (
             <li key={link.href} className="w-full">
               <Link 
                 href={link.href} 
-                className="block py-3 px-2 text-theme-secondary hover:bg-theme-tertiary rounded-md transition-colors"
+                className="block py-3 px-4 text-theme-secondary hover:bg-theme-tertiary hover:text-theme-primary rounded-lg transition-all duration-200 font-medium"
                 onClick={() => setIsOpen(false)}
               >
                 {link.name}
