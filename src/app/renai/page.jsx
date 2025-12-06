@@ -202,8 +202,8 @@ export default function Chat() {
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             <div className="relative flex-shrink-0">
               <img
-                src="https://aichiow.vercel.app/aichixia.png"
-                alt="Aichixia"
+                src="https://www.renime.xyz/images/favicon_io/favicon.ico"
+                alt="Renai"
                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-sky-400 dark:border-sky-500 shadow-md"
               />
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 sm:w-4 sm:h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800 flex items-center justify-center">
@@ -314,8 +314,8 @@ export default function Chat() {
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center px-3 sm:px-4">
             <img
-              src="https://aichiow.vercel.app/aichixia.png"
-              alt="Aichixia"
+              src="https://www.renime.xyz/images/favicon_io/favicon.ico"
+              alt="Renai"
               className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-sky-400 dark:border-sky-500 shadow-lg mb-4 sm:mb-6 animate-bounce"
             />
 
@@ -364,7 +364,7 @@ export default function Chat() {
             >
               {!isUser && (
                 <img
-                  src="https://i.ibb.co.com/3mgC9SXS/renai-1.png"
+                  src="https://www.renime.xyz/renai.png"
                   alt="Renai"
                   className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 border-sky-400 dark:border-sky-500"
                 />
@@ -413,7 +413,7 @@ export default function Chat() {
         {typing && (
           <div className="flex gap-2 sm:gap-3 justify-start">
             <img
-              src="https://i.ibb.co.com/3mgC9SXS/renai-1.png"
+              src="https://renime.xyz/renai.png"
               alt="Renai"
               className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 border-sky-400 dark:border-sky-500"
             />
