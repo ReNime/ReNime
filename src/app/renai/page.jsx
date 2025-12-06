@@ -104,7 +104,7 @@ export default function Chat() {
     }
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch("/api/renai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
