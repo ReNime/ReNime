@@ -1,148 +1,156 @@
 // app/page.js
+
 import AnimeCompleted from "@/app/components/AnimeCompleted";
 import AnimeOngoing from "@/app/components/AnimeOngoing";
 import BottomNav from "@/app/components/BottomNav";
 import Header from "@/app/components/Header";
 import HeroSection from "@/app/components/HeroSection";
-import React from "react";
-import Navbar from "./components/Navbar";
-import { AuthUserSession } from "./libs/auth-libs";
+import React from 'react';
+import Navbar from "./components/Navbar"; 
+import { AuthUserSession } from "./libs/auth-libs"; 
 
-// Helper fetch function (unchanged)
+// ... (Komponen ApiWarningMessage dan AnimeListSkeleton Anda tidak berubah) ...
+function ApiWarningMessage({ sectionTitle }) {
+  // ... (tidak berubah)
+}
+function AnimeListSkeleton() {
+  // ... (tidak berubah)
+}
+// -----------------------------------------------------------------
+
+
+// --- FUNGSI HELPER BARU ---
+// Fungsi ini akan fetch dan filter data secara berulang
+// sampai jumlah 'desiredLimit' tercapai atau data habis.
 async function fetchAndFilterAnime(baseUrl, endpoint, desiredLimit = 10) {
-  let filteredAnimes = [];
+  let filteredAnimes = []; // Array untuk menampung hasil
   let currentPage = 1;
   let hasNextPage = true;
-  const validTypes = ["TV", "Movie", "Spesial"];
-  const maxPagesToFetch = 5;
+  const validTypes = ['TV', 'Movie', 'Spesial']; // Tipe yang kita inginkan
+
+  // Kita batasi 5 halaman fetch per section
+  // agar server tidak looping selamanya jika ada error
+  const maxPagesToFetch = 5; 
 
   while (
-    filteredAnimes.length < desiredLimit &&
-    hasNextPage &&
+    filteredAnimes.length < desiredLimit && 
+    hasNextPage && 
     currentPage <= maxPagesToFetch
   ) {
     try {
       const response = await fetch(`${baseUrl}/${endpoint}?page=${currentPage}`);
-      if (!response.ok) break;
+      
+      if (!response.ok) {
+        console.error(`Gagal fetch ${endpoint} page ${currentPage}: Status ${response.status}`);
+        hasNextPage = false; // Hentikan loop jika halaman gagal di-fetch
+        continue; // Lanjut ke iterasi loop berikutnya (yang akan gagal)
+      }
 
       const data = await response.json();
-      const validAnimes = (data.animes || []).filter((anime) =>
+      const animesOnThisPage = data.animes || [];
+
+      // Filter anime di halaman ini
+      const validAnimes = animesOnThisPage.filter(anime => 
         validTypes.includes(anime.type)
       );
 
+      // Tambahkan hasil filter ke array utama
+      // Kita gunakan 'push' dan 'slice' di akhir agar lebih efisien
       for (const anime of validAnimes) {
         if (filteredAnimes.length < desiredLimit) {
           filteredAnimes.push(anime);
+        } else {
+          break; // Hentikan jika 'desiredLimit' sudah tercapai
         }
       }
 
+      // Perbarui status pagination
       hasNextPage = data.pagination?.hasNext || false;
       currentPage++;
-    } catch (err) {
-      console.error(err);
-      break;
+
+    } catch (error) {
+      console.error(`Error saat processing ${endpoint} page ${currentPage}:`, error);
+      hasNextPage = false; // Hentikan loop jika ada error parsing JSON, dll.
     }
   }
+
+  // Kembalikan array yang sudah terisi dan terpotong
   return filteredAnimes;
 }
+// --- AKHIR FUNGSI HELPER BARU ---
 
-// Skeleton & Warning components (unchanged)
-function ApiWarningMessage({ sectionTitle }) {
-  return (
-    <div className="p-4 text-theme-secondary bg-theme-secondary border border-theme rounded-lg mt-4">
-      ⚠️ Data for {sectionTitle} could not be loaded.
-    </div>
-  );
-}
 
-function AnimeListSkeleton() {
-  return (
-    <div className="p-4 animate-pulse bg-theme-secondary rounded-lg border border-theme">
-      <div className="h-6 bg-theme-tertiary rounded mb-2"></div>
-      <div className="h-6 bg-theme-tertiary rounded w-2/3"></div>
-    </div>
-  );
-}
-
-// ===============================
-//         HOME PAGE
-// ===============================
-
+// Komponen Home Anda (sudah async)
 const Home = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const user = await AuthUserSession();
 
   let animeOngoing = [];
   let animeComplete = [];
-
   let ongoingFetchFailed = false;
   let completedFetchFailed = false;
 
+  // MODIFIKASI: Gunakan Promise.allSettled dengan fungsi helper baru
+  // Ini akan fetch 'ongoing' dan 'completed' secara paralel,
+  // dan masing-masing akan melakukan looping fetch internal jika diperlukan.
   try {
     const [ongoingResult, completedResult] = await Promise.allSettled([
-      fetchAndFilterAnime(apiUrl, "ongoing", 10),
-      fetchAndFilterAnime(apiUrl, "completed", 10),
+      fetchAndFilterAnime(apiUrl, 'ongoing', 10), // Ambil 10 item TV/Movie
+      fetchAndFilterAnime(apiUrl, 'completed', 10) // Ambil 10 item TV/Movie
     ]);
 
-    if (ongoingResult.status === "fulfilled") {
+    if (ongoingResult.status === 'fulfilled') {
       animeOngoing = ongoingResult.value;
-      if (animeOngoing.length === 0) ongoingFetchFailed = true;
+      // Anggap gagal hanya jika hasil fetch = 0
+      if (animeOngoing.length === 0) ongoingFetchFailed = true; 
     } else {
+      console.error("Fetch ongoing gagal:", ongoingResult.reason);
       ongoingFetchFailed = true;
     }
 
-    if (completedResult.status === "fulfilled") {
+    if (completedResult.status === 'fulfilled') {
       animeComplete = completedResult.value;
-      if (animeComplete.length === 0) completedFetchFailed = true;
+      // Anggap gagal hanya jika hasil fetch = 0
+      if (animeComplete.length === 0) completedFetchFailed = true; 
     } else {
+      console.error("Fetch completed gagal:", completedResult.reason);
       completedFetchFailed = true;
     }
-  } catch (err) {
+    
+  } catch (error) {
+    console.error("Error global saat fetch di Home:", error);
     ongoingFetchFailed = true;
     completedFetchFailed = true;
   }
+  // -----------------------------------------------------------------
 
+
+  // 4. Render halaman. 
   return (
-    <div className="bg-theme-primary text-theme-primary min-h-screen transition-all">
-
-      {/* Navbar */}
+    <>
       <Navbar user={user} />
+      <HeroSection />
 
-      {/* Hero Section */}
-      <div className="bg-theme-secondary border-b border-theme shadow-lg">
-        <HeroSection />
-      </div>
+      <Header title="Anime OnGoing" />
+      {/* Jika fetch 0 item (walau sukses), tampilkan warning.
+        Jika fetch gagal (error), tampilkan warning.
+      */}
+      {ongoingFetchFailed ? (
+        <ApiWarningMessage sectionTitle="OnGoing" />
+      ) : (
+        <AnimeOngoing api={animeOngoing} />
+      )}
 
-      {/* Anime Ongoing */}
-      <div className="px-4">
-        <Header title="Anime OnGoing" />
-
-        {ongoingFetchFailed ? (
-          <ApiWarningMessage sectionTitle="OnGoing" />
-        ) : (
-          <AnimeOngoing api={animeOngoing} />
-        )}
-      </div>
-
-      {/* Anime Completed */}
-      <div className="px-4 mt-6">
+      <React.Suspense fallback={<AnimeListSkeleton />}>
         <Header title="Anime Completed" />
-
-        <React.Suspense fallback={<AnimeListSkeleton />}>
-          {completedFetchFailed ? (
-            <ApiWarningMessage sectionTitle="Completed" />
-          ) : (
-            <AnimeCompleted api={animeComplete} />
-          )}
-        </React.Suspense>
-      </div>
-
-      {/* Bottom Nav */}
-      <div className="mt-10">
-        <BottomNav />
-      </div>
-    </div>
+        {completedFetchFailed ? (
+          <ApiWarningMessage sectionTitle="Completed" />
+        ) : (
+          <AnimeCompleted api={animeComplete} />
+        )}
+      </React.Suspense>
+    </>
   );
-};
+}
 
 export default Home;
