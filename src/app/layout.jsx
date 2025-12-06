@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { ThemeProvider } from '@/app/context/ThemeContext';
 import "./globals.css";
 import NextAuthProvider from "./components/NextAuthProvider";
 
@@ -35,9 +36,11 @@ export default function RootLayout({ children }) {
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <ThemeProvider>
         <NextAuthProvider>
           {children}
         </NextAuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
