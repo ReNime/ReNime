@@ -1,6 +1,5 @@
 "use client";
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import React from 'react';
 
 /**
@@ -10,18 +9,32 @@ import React from 'react';
  * @param {boolean} props.hasNextPage - Apakah ada halaman selanjutnya
  */
 const PaginationControls = ({ currentPage, hasNextPage }) => {
+  const router = useRouter();
   const pathname = usePathname(); 
   
   const prevPage = currentPage - 1;
   const nextPage = currentPage + 1;
   
-  const baseStyle = "px-6 py-2.5 rounded-full font-semibold transition-all duration-300 border border-theme";
+  const baseStyle = "px-6 py-2.5 rounded-full font-semibold transition-all duration-300 border border-theme cursor-pointer";
   
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      router.push(`${pathname}?page=${prevPage}`);
+    }
+  };
+
+  const handleNext = () => {
+    if (hasNextPage) {
+      router.push(`${pathname}?page=${nextPage}`);
+    }
+  };
+
   return (
     <div className="flex justify-center items-center gap-6 my-12">
       {/* Previous Button */}
-      <Link
-        href={`${pathname}?page=${prevPage}`}
+      <button
+        onClick={handlePrevious}
+        disabled={currentPage <= 1}
         className={`
           ${baseStyle} 
           ${currentPage <= 1 
@@ -34,11 +47,9 @@ const PaginationControls = ({ currentPage, hasNextPage }) => {
           boxShadow: '0 0 20px var(--shadow-theme)'
         } : {}}
         aria-disabled={currentPage <= 1}
-        tabIndex={currentPage <= 1 ? -1 : undefined}
-        onClick={(e) => { if (currentPage <= 1) e.preventDefault(); }}
       >
-        « Previous
-      </Link>
+        Â« Previous
+      </button>
 
       {/* Current Page Display */}
       <div className="flex items-center gap-2">
@@ -57,8 +68,9 @@ const PaginationControls = ({ currentPage, hasNextPage }) => {
       </div>
 
       {/* Next Button */}
-      <Link
-        href={`${pathname}?page=${nextPage}`}
+      <button
+        onClick={handleNext}
+        disabled={!hasNextPage}
         className={`
           ${baseStyle} 
           ${!hasNextPage 
@@ -71,11 +83,9 @@ const PaginationControls = ({ currentPage, hasNextPage }) => {
           boxShadow: '0 0 20px var(--shadow-theme)'
         } : {}}
         aria-disabled={!hasNextPage}
-        tabIndex={!hasNextPage ? -1 : undefined}
-        onClick={(e) => { if (!hasNextPage) e.preventDefault(); }}
       >
-        Next »
-      </Link>
+        Next Â»
+      </button>
     </div>
   );
 }
