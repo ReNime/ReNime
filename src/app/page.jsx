@@ -146,20 +146,30 @@ const Home = async () => {
       <HeroSection />
 
       <div className="container mx-auto px-4">
-        <Header title="Anime OnGoing" />
-        {ongoingFetchFailed ? (
-          <ApiWarningMessage sectionTitle="OnGoing" />
-        ) : (
-          <AnimeOngoing api={animeOngoing} />
-        )}
-
-        <React.Suspense fallback={<AnimeListSkeleton />}>
-          <Header title="Anime Completed" />
-          {completedFetchFailed ? (
-            <ApiWarningMessage sectionTitle="Completed" />
+        {/* Anime Ongoing Section with Themed Title */}
+        <div className="mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold mb-6">
+            <span className="gradient-theme-text">Anime OnGoing</span>
+          </h2>
+          {ongoingFetchFailed ? (
+            <ApiWarningMessage sectionTitle="OnGoing" />
           ) : (
-            <AnimeCompleted api={animeComplete} />
+            <AnimeOngoing api={animeOngoing} />
           )}
+        </div>
+
+        {/* Anime Completed Section with Themed Title */}
+        <React.Suspense fallback={<AnimeListSkeleton />}>
+          <div className="mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold mb-6">
+              <span className="gradient-theme-text">Anime Completed</span>
+            </h2>
+            {completedFetchFailed ? (
+              <ApiWarningMessage sectionTitle="Completed" />
+            ) : (
+              <AnimeCompleted api={animeComplete} />
+            )}
+          </div>
         </React.Suspense>
       </div>
     </div>
