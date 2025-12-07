@@ -18,40 +18,29 @@ export default function DetailAnimePage({ params }) {
   // FETCH FIX (HEADER WAJIB)
   // ==========================
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch(`${apiUrl}/detail/${slug}`, {
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
-            "Accept": "application/json",
-            "Referer": "https://www.google.com/",
-          },
-          cache: "no-store",
-        });
+  useEffect(() => {
+  async function load() {
+    try {
+      const res = await fetch(`/api/animasu/detail/${slug}`, {
+        cache: "no-store",
+      });
 
-        if (!res.ok) {
-          throw new Error("Gagal mengambil data anime utama (API baru)");
-        }
+      const data = await res.json();
 
-        // IMPORTANT: kalau API balas HTML → JSON gagal
-        const text = await res.text();
-
-        try {
-          const json = JSON.parse(text);
-          setAnime(json.detail);
-        } catch (e) {
-          console.error("API tidak mengembalikan JSON:", text);
-          throw new Error("API tidak mengembalikan JSON (kena anti-bot)");
-        }
-
-      } catch (err) {
-        console.error("Error fetching:", err);
-        setError(err.message);
+      if (data.error) {
+        throw new Error(data.message);
       }
-    }
 
-    load();
-  }, [apiUrl, slug]);
+      setAnime(data);
+
+    } catch (err) {
+      console.error("Error fetching:", err);
+      setError(err.message);
+    }
+  }
+
+  load();
+}, [slug]);
 
 
   // ==========================
@@ -76,13 +65,13 @@ export default function DetailAnimePage({ params }) {
   // ==========================
   // LOADING
   // ==========================
-  if (!anime) {
-    return (
-      <div className="min-h-screen bg-neutral-900 text-white flex justify-center items-center text-xl">
-        Loading...
-      </div>
-    );
-  }
+ // if (!anime) {
+ //   return (
+  //    <div className="min-h-screen bg-neutral-900 text-white flex justify-center items-center text-xl">
+  //      Loading...
+  //    </div>
+   // );
+  //}
 
   // ==========================
   // DATA READY
