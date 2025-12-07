@@ -1,4 +1,5 @@
 // app/page.js
+"use client";
 
 import AnimeCompleted from "@/app/components/AnimeCompleted";
 import AnimeOngoing from "@/app/components/AnimeOngoing";
