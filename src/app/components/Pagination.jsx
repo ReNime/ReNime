@@ -1,5 +1,7 @@
 "use client";
-import { useRouter, usePathname } from 'next/navigation';
+
+import Link from 'next/link'; // 1. Gunakan Link dari Next.js
+import { usePathname } from 'next/navigation'; // 2. Impor hook usePathname
 import React from 'react';
 
 /**
@@ -9,83 +11,47 @@ import React from 'react';
  * @param {boolean} props.hasNextPage - Apakah ada halaman selanjutnya
  */
 const PaginationControls = ({ currentPage, hasNextPage }) => {
-  const router = useRouter();
+  // 3. Dapatkan path URL saat ini (cth: "/populer" atau "/movies")
   const pathname = usePathname(); 
   
   const prevPage = currentPage - 1;
   const nextPage = currentPage + 1;
-  
-  const baseStyle = "px-6 py-2.5 rounded-full font-semibold transition-all duration-300 border border-theme cursor-pointer";
-  
-  const handlePrevious = () => {
-    if (currentPage > 1) {
-      router.push(`${pathname}?page=${prevPage}`);
-    }
-  };
 
-  const handleNext = () => {
-    if (hasNextPage) {
-      router.push(`${pathname}?page=${nextPage}`);
-    }
-  };
+  const baseStyle = "px-6 py-2 rounded-full font-semibold transition-colors";
+  const activeStyle = "bg-theme-tertiary text-theme-tertiary hover:bg-primary";
+  const disabledStyle = "bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60";
 
   return (
     <div className="flex justify-center items-center gap-6 my-12">
-      {/* Previous Button */}
-      <button
-        onClick={handlePrevious}
-        disabled={currentPage <= 1}
-        className={`
-          ${baseStyle} 
-          ${currentPage <= 1 
-            ? 'bg-theme-tertiary text-theme-tertiary cursor-not-allowed opacity-50' 
-            : 'text-theme-primary hover:scale-105 hover:shadow-lg'
-          }
-        `}
-        style={currentPage > 1 ? {
-          background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))',
-          boxShadow: '0 0 20px var(--shadow-theme)'
-        } : {}}
+      {/* Tombol Previous */}
+      <Link
+        // 4. Buat URL secara dinamis menggunakan pathname
+        href={`${pathname}?page=${prevPage}`}
+        className={`${baseStyle} ${currentPage <= 1 ? disabledStyle : activeStyle}`}
         aria-disabled={currentPage <= 1}
+        tabIndex={currentPage <= 1 ? -1 : undefined}
+        // Trik Anda untuk mencegah klik pada Link sudah bagus
+        onClick={(e) => { if (currentPage <= 1) e.preventDefault(); }}
       >
-        Â« Previous
-      </button>
+        « Previous
+      </Link>
 
-      {/* Current Page Display */}
-      <div className="flex items-center gap-2">
-        <span className="font-bold text-lg text-theme-primary">
-          Halaman
-        </span>
-        <span 
-          className="font-bold text-xl px-3 py-1 rounded-lg text-theme-primary"
-          style={{
-            background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))',
-            boxShadow: '0 0 15px var(--shadow-theme)'
-          }}
-        >
-          {currentPage}
-        </span>
-      </div>
+      {/* Tampilan Halaman */}
+      <span className="font-bold text-lg text-white">
+        Halaman {currentPage}
+      </span>
 
-      {/* Next Button */}
-      <button
-        onClick={handleNext}
-        disabled={!hasNextPage}
-        className={`
-          ${baseStyle} 
-          ${!hasNextPage 
-            ? 'bg-theme-tertiary text-theme-tertiary cursor-not-allowed opacity-50' 
-            : 'text-theme-primary hover:scale-105 hover:shadow-lg'
-          }
-        `}
-        style={hasNextPage ? {
-          background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))',
-          boxShadow: '0 0 20px var(--shadow-theme)'
-        } : {}}
+      {/* Tombol Next */}
+      <Link
+        // 4. Buat URL secara dinamis menggunakan pathname
+        href={`${pathname}?page=${nextPage}`}
+        className={`${baseStyle} ${!hasNextPage ? disabledStyle : activeStyle}`}
         aria-disabled={!hasNextPage}
+        tabIndex={!hasNextPage ? -1 : undefined}
+        onClick={(e) => { if (!hasNextPage) e.preventDefault(); }}
       >
-        Next Â»
-      </button>
+        Next »
+      </Link>
     </div>
   );
 }
