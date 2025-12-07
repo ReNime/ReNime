@@ -67,16 +67,25 @@ async function fetchAndFilterAnime(baseUrl, endpoint, desiredLimit = 10) {
     currentPage <= maxPagesToFetch
   ) {
     try {
-      const response = await fetch(`${baseUrl}/${endpoint}?page=${currentPage}`);
+      const response = await fetch(`${baseUrl}/${endpoint}?page=${currentPage}`, {
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       
       if (!response.ok) {
         console.error(`Gagal fetch ${endpoint} page ${currentPage}: Status ${response.status}`);
-        hasNextPage = false;
-        continue;
+        break;
       }
 
       const data = await response.json();
       const animesOnThisPage = data.animes || [];
+
+      // If no animes on this page, stop
+      if (animesOnThisPage.length === 0) {
+        break;
+      }
 
       const validAnimes = animesOnThisPage.filter(anime => 
         validTypes.includes(anime.type)
@@ -93,13 +102,43 @@ async function fetchAndFilterAnime(baseUrl, endpoint, desiredLimit = 10) {
       hasNextPage = data.pagination?.hasNext || false;
       currentPage++;
 
+      // If we have enough, stop
+      if (filteredAnimes.length >= desiredLimit) {
+        break;
+      }
+
     } catch (error) {
       console.error(`Error saat processing ${endpoint} page ${currentPage}:`, error);
-      hasNextPage = false;
+      break;
     }
   }
 
   return filteredAnimes;
+}
+
+// Simple fetch without filtering (fallback)
+async function fetchAnimeSimple(baseUrl, endpoint, limit = 10) {
+  try {
+    const response = await fetch(`${baseUrl}/${endpoint}?page=1`, {
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const animes = data.animes || [];
+    
+    // Return first 'limit' items
+    return animes.slice(0, limit);
+  } catch (error) {
+    console.error(`Error fetching ${endpoint}:`, error);
+    return [];
+  }
 }
 
 // Home Component
@@ -112,32 +151,48 @@ const Home = async () => {
   let ongoingFetchFailed = false;
   let completedFetchFailed = false;
 
-  try {
-    const [ongoingResult, completedResult] = await Promise.allSettled([
-      fetchAndFilterAnime(apiUrl, 'ongoing', 10),
-      fetchAndFilterAnime(apiUrl, 'completed', 10)
-    ]);
-
-    if (ongoingResult.status === 'fulfilled') {
-      animeOngoing = ongoingResult.value;
-      if (animeOngoing.length === 0) ongoingFetchFailed = true; 
-    } else {
-      console.error("Fetch ongoing gagal:", ongoingResult.reason);
-      ongoingFetchFailed = true;
-    }
-
-    if (completedResult.status === 'fulfilled') {
-      animeComplete = completedResult.value;
-      if (animeComplete.length === 0) completedFetchFailed = true; 
-    } else {
-      console.error("Fetch completed gagal:", completedResult.reason);
-      completedFetchFailed = true;
-    }
-    
-  } catch (error) {
-    console.error("Error global saat fetch di Home:", error);
+  // Check if API URL is configured
+  if (!apiUrl) {
+    console.error("NEXT_PUBLIC_API_URL is not configured");
     ongoingFetchFailed = true;
     completedFetchFailed = true;
+  } else {
+    try {
+      // Try filtered fetch first
+      const [ongoingResult, completedResult] = await Promise.allSettled([
+        fetchAndFilterAnime(apiUrl, 'ongoing', 10),
+        fetchAndFilterAnime(apiUrl, 'completed', 10)
+      ]);
+
+      // Handle ongoing results
+      if (ongoingResult.status === 'fulfilled' && ongoingResult.value.length > 0) {
+        animeOngoing = ongoingResult.value;
+      } else {
+        // Fallback to simple fetch
+        console.log("Trying simple fetch for ongoing...");
+        animeOngoing = await fetchAnimeSimple(apiUrl, 'ongoing', 10);
+        if (animeOngoing.length === 0) {
+          ongoingFetchFailed = true;
+        }
+      }
+
+      // Handle completed results
+      if (completedResult.status === 'fulfilled' && completedResult.value.length > 0) {
+        animeComplete = completedResult.value;
+      } else {
+        // Fallback to simple fetch
+        console.log("Trying simple fetch for completed...");
+        animeComplete = await fetchAnimeSimple(apiUrl, 'completed', 10);
+        if (animeComplete.length === 0) {
+          completedFetchFailed = true;
+        }
+      }
+      
+    } catch (error) {
+      console.error("Error global saat fetch di Home:", error);
+      ongoingFetchFailed = true;
+      completedFetchFailed = true;
+    }
   }
 
   return (
