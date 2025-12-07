@@ -1,9 +1,41 @@
-import React from 'react'
+"use client"
+import React, { useEffect, useState } from 'react'
 import SearchInput from './SearchInput'
 import Link from 'next/link'
 import Image from 'next/image'
 
 const HeroSection = () => {
+  const [currentTheme, setCurrentTheme] = useState('dark')
+
+  useEffect(() => {
+    // Check initial theme
+    const theme = document.documentElement.getAttribute('data-theme') || 'dark'
+    setCurrentTheme(theme)
+
+    // Create observer to watch for theme changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          const newTheme = document.documentElement.getAttribute('data-theme') || 'dark'
+          setCurrentTheme(newTheme)
+        }
+      })
+    })
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    })
+
+    return () => observer.disconnect()
+  }, [])
+
+  // Define images for each theme
+  const heroImages = {
+    dark: '/images/20251129_055905.jpg', // Your dark theme image
+    light: '/images/20251208_002307.jpg' // Your light theme image (you need to add this)
+  }
+
   return (
     <div className="flex items-center justify-center bg-theme-primary p-4">
       <div className="w-full max-w-5xl bg-theme-secondary lg:h-[500px] rounded-2xl overflow-hidden 
@@ -35,17 +67,22 @@ const HeroSection = () => {
           </div>
         </div>
         
-        {/* Image (lg:order-2) */}
+        {/* Image (lg:order-2) - Changes based on theme */}
         <div className="relative h-[300px] lg:h-auto order-1 lg:order-2">
           <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[var(--bg-secondary)] to-transparent z-10"></div>
-          <Image
-            width={500}
-            height={500}
-            src="/images/a2349fcb-ccf0-4e13-8e42-2b4abff06f41.png"
-            alt="Anime Character"
-            className="absolute inset-0 w-full h-full object-cover"
-            priority={true}
-          />
+          
+          {/* Image with smooth transition */}
+          <div className="absolute inset-0 w-full h-full transition-opacity duration-500">
+            <Image
+              width={500}
+              height={500}
+              src={heroImages[currentTheme]}
+              alt="Anime Character"
+              className="w-full h-full object-cover"
+              priority={true}
+              key={currentTheme} // Force re-render on theme change
+            />
+          </div>
         </div>
       </div>
     </div>
