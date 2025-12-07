@@ -15,21 +15,37 @@ export default function DetailAnimePage({ params }) {
   const router = useRouter();
 
   // ==========================
-  // FETCH VIA CLIENT (FIX SSR)
+  // FETCH FIX (HEADER WAJIB)
   // ==========================
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`${apiUrl}/detail/${slug}`);
+        const res = await fetch(`${apiUrl}/detail/${slug}`, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+            "Accept": "application/json",
+            "Referer": "https://www.google.com/",
+          },
+          cache: "no-store",
+        });
 
         if (!res.ok) {
           throw new Error("Gagal mengambil data anime utama (API baru)");
         }
 
-        const result = await res.json();
-        setAnime(result.detail);
+        // IMPORTANT: kalau API balas HTML → JSON gagal
+        const text = await res.text();
+
+        try {
+          const json = JSON.parse(text);
+          setAnime(json.detail);
+        } catch (e) {
+          console.error("API tidak mengembalikan JSON:", text);
+          throw new Error("API tidak mengembalikan JSON (kena anti-bot)");
+        }
+
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching:", err);
         setError(err.message);
       }
     }
@@ -37,18 +53,16 @@ export default function DetailAnimePage({ params }) {
     load();
   }, [apiUrl, slug]);
 
+
   // ==========================
-  // ERROR HANDLING
+  // ERROR
   // ==========================
   if (error) {
     return (
       <div className="min-h-screen bg-neutral-900 text-white flex flex-col justify-center items-center text-center">
-        <h1 className="text-2xl font-bold text-red-500">
-          Anime Tidak Ditemukan
-        </h1>
+        <h1 className="text-2xl font-bold text-red-500">Anime Tidak Ditemukan</h1>
         <p className="text-neutral-400 mt-2">{error}</p>
 
-        {/* FIX: Ganti Navigation() */}
         <button
           onClick={() => router.back()}
           className="mt-4 bg-neutral-700 px-4 py-2 rounded-lg hover:bg-neutral-600"
@@ -59,6 +73,9 @@ export default function DetailAnimePage({ params }) {
     );
   }
 
+  // ==========================
+  // LOADING
+  // ==========================
   if (!anime) {
     return (
       <div className="min-h-screen bg-neutral-900 text-white flex justify-center items-center text-xl">
@@ -68,7 +85,7 @@ export default function DetailAnimePage({ params }) {
   }
 
   // ==========================
-  // Extract info
+  // DATA READY
   // ==========================
   const duration = anime.duration || "N/A";
   const producer = anime.author || "N/A";
@@ -78,7 +95,6 @@ export default function DetailAnimePage({ params }) {
   const japaneseTitle = anime.synonym || "N/A";
   const status = anime.status || "N/A";
 
-  // Query string for history
   const queryString = new URLSearchParams({
     slug: slug,
     title: anime.title,
@@ -88,7 +104,7 @@ export default function DetailAnimePage({ params }) {
   const breadcrumbs = [{ title: anime.title, href: `/detail/${slug}` }];
 
   // ==========================
-  // PAGE UI
+  // PAGE UI (TIDAK DIUBAH)
   // ==========================
   return (
     <div className="relative min-h-screen bg-neutral-900 text-white">
@@ -121,7 +137,6 @@ export default function DetailAnimePage({ params }) {
               </span>
             </div>
 
-            {/* WATCH + DOWNLOAD */}
             <div className="flex space-x-4 mb-6">
               <Link
                 href={`/watch/${anime.episodes?.[0]?.slug || ""}?${queryString}`}
@@ -144,7 +159,6 @@ export default function DetailAnimePage({ params }) {
               {anime.synopsis || "Tidak ada sinopsis tersedia."}
             </p>
 
-            {/* INFO GRID */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm text-neutral-400">
               <div>
                 <span className="font-semibold text-white block">Japanese</span>
@@ -159,9 +173,7 @@ export default function DetailAnimePage({ params }) {
                 {season}
               </div>
               <div>
-                <span className="font-semibold text-white block">
-                  Release Date
-                </span>
+                <span className="font-semibold text-white block">Release Date</span>
                 {releaseDate}
               </div>
               <div>
@@ -174,7 +186,6 @@ export default function DetailAnimePage({ params }) {
               </div>
             </div>
 
-            {/* Genres */}
             <div className="mt-4">
               <span className="font-semibold text-white block mb-2">Genres</span>
               <div className="flex flex-wrap gap-2">
@@ -214,9 +225,7 @@ export default function DetailAnimePage({ params }) {
                   <h3 className="text-sm font-semibold line-clamp-1">
                     {episode.name}
                   </h3>
-                  <p className="text-xs text-neutral-400">
-                    {duration || "N/A"}
-                  </p>
+                  <p className="text-xs text-neutral-400">{duration || "N/A"}</p>
                 </div>
               </Link>
             ))
