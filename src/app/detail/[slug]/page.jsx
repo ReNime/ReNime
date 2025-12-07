@@ -8,44 +8,35 @@ import { useRouter } from "next/navigation";
 
 export default function DetailAnimePage({ params }) {
   const { slug } = params;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const router = useRouter();
 
   const [anime, setAnime] = useState(null);
   const [error, setError] = useState("");
-  const router = useRouter();
 
-  // ==========================
-  // FETCH FIX (HEADER WAJIB)
-  // ==========================
   useEffect(() => {
-  useEffect(() => {
-  async function load() {
-    try {
-      const res = await fetch(`/api/animasu/detail/${slug}`, {
-        cache: "no-store",
-      });
+    async function load() {
+      try {
+        const res = await fetch(`/api/animasu/detail/${slug}`, {
+          cache: "no-store",
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (data.error) {
-        throw new Error(data.message);
+        if (data.error) {
+          throw new Error(data.message);
+        }
+
+        setAnime(data);
+      } catch (err) {
+        console.error("Error fetching:", err);
+        setError(err.message);
       }
-
-      setAnime(data);
-
-    } catch (err) {
-      console.error("Error fetching:", err);
-      setError(err.message);
     }
-  }
 
-  load();
-}, [slug]);
+    load();
+  }, [slug]);
 
-
-  // ==========================
-  // ERROR
-  // ==========================
+  // =============== ERROR UI ====================
   if (error) {
     return (
       <div className="min-h-screen bg-neutral-900 text-white flex flex-col justify-center items-center text-center">
@@ -62,20 +53,15 @@ export default function DetailAnimePage({ params }) {
     );
   }
 
-  // ==========================
-  // LOADING
-  // ==========================
- // if (!anime) {
- //   return (
-  //    <div className="min-h-screen bg-neutral-900 text-white flex justify-center items-center text-xl">
-  //      Loading...
-  //    </div>
-   // );
-  //}
+  // =============== LOADING ====================
+  if (!anime) {
+    return (
+      <div className="min-h-screen bg-neutral-900 text-white flex justify-center items-center text-xl">
+        Loading...
+      </div>
+    );
+  }
 
-  // ==========================
-  // DATA READY
-  // ==========================
   const duration = anime.duration || "N/A";
   const producer = anime.author || "N/A";
   const season = anime.season || "N/A";
@@ -92,9 +78,7 @@ export default function DetailAnimePage({ params }) {
 
   const breadcrumbs = [{ title: anime.title, href: `/detail/${slug}` }];
 
-  // ==========================
-  // PAGE UI (TIDAK DIUBAH)
-  // ==========================
+  // =============== PAGE UI ====================
   return (
     <div className="relative min-h-screen bg-neutral-900 text-white">
       <div
@@ -120,11 +104,9 @@ export default function DetailAnimePage({ params }) {
           <div className="md:w-2/3">
             <h1 className="text-4xl font-bold mb-4">{anime.title}</h1>
 
-            <div className="flex items-center space-x-4 mb-4">
-              <span className="text-neutral-400">
-                {status} • {duration}
-              </span>
-            </div>
+            <span className="text-neutral-400 mb-4 block">
+              {status} • {duration}
+            </span>
 
             <div className="flex space-x-4 mb-6">
               <Link
@@ -214,7 +196,7 @@ export default function DetailAnimePage({ params }) {
                   <h3 className="text-sm font-semibold line-clamp-1">
                     {episode.name}
                   </h3>
-                  <p className="text-xs text-neutral-400">{duration || "N/A"}</p>
+                  <p className="text-xs text-neutral-400">{duration}</p>
                 </div>
               </Link>
             ))
