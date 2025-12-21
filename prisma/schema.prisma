@@ -116,16 +116,23 @@ model Comment {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  // Optional: for nested replies
+
+  // Nested replies (self-relation)
   parentId  String?
-  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  parent    Comment? @relation(
+    "CommentReplies",
+    fields: [parentId],
+    references: [id],
+    onDelete: NoAction,
+    onUpdate: NoAction
+  )
   replies   Comment[] @relation("CommentReplies")
 
   @@index([episodeId])
   @@index([userId])
   @@index([parentId])
 }
+
 
 model VerificationToken {
   identifier String
