@@ -117,15 +117,9 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  parentId  String?
-  parent    Comment? @relation(
-    "CommentReplies",
-    fields: [parentId],
-    references: [id],
-    onDelete: Restrict,
-    onUpdate: Restrict
-  )
-  replies   Comment[] @relation("CommentReplies")
+  parentId String?
+  parent   Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  replies  Comment[] @relation("CommentReplies")
 
   @@index([episodeId])
   @@index([userId])
