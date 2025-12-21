@@ -117,22 +117,14 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Nested replies (self-relation)
   parentId  String?
-  parent    Comment? @relation(
-    "CommentReplies",
-    fields: [parentId],
-    references: [id],
-    onDelete: NoAction,
-    onUpdate: NoAction
-  )
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   replies   Comment[] @relation("CommentReplies")
 
   @@index([episodeId])
   @@index([userId])
   @@index([parentId])
 }
-
 
 model VerificationToken {
   identifier String
