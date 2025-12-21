@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { ChevronLeftIcon, ChevronRightIcon, PlayCircleIcon, ArrowDownTrayIcon } from '@heroicons/react/24/solid';
 import ResponsiveBreadcrumb from '@/app/components/ResponsiveBreadcrumb';
+import CommentSection from '@/app/components/CommentSection';
 
 // Skeleton Component
 function WatchPageSkeleton() {
@@ -326,7 +327,7 @@ function WatchPageContent({ params, episodeSlug }) {
 
         {/* Download Section */}
         {downloadLinks.length > 0 && (
-          <div className="bg-theme-secondary border border-theme rounded-lg p-6">
+          <div className="bg-theme-secondary border border-theme rounded-lg p-6 mb-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <ArrowDownTrayIcon className="h-6 w-6" style={{ color: 'var(--accent-from)' }} />
               <span className="gradient-theme-text">Download Episode</span>
@@ -348,6 +349,9 @@ function WatchPageContent({ params, episodeSlug }) {
             </div>
           </div>
         )}
+
+        {/* Comment Section */}
+        {episodeSlug && <CommentSection episodeId={episodeSlug} />}
       </div>
     </div>
   );
@@ -363,4 +367,4 @@ export default function WatchPage({ params }) {
       <WatchPageContent params={params} episodeSlug={episodeSlug} />
     </React.Suspense>
   );
-        }
+}
