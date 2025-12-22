@@ -3,13 +3,17 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/route'; // Adjust path if needed
-import prisma from '@/app/libs/prisma'; // Use your prisma instance
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 // GET - Fetch comments for an episode
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const episodeId = searchParams.get('episodeId');
+
+    console.log('[GET Comments] EpisodeId:', episodeId);
 
     if (!episodeId) {
       return NextResponse.json(
@@ -21,7 +25,7 @@ export async function GET(request) {
     const comments = await prisma.comment.findMany({
       where: {
         episodeId,
-        parentId: null, // Only get top-level comments
+        parentId: null,
       },
       include: {
         user: {
@@ -51,9 +55,11 @@ export async function GET(request) {
       },
     });
 
-    return NextResponse.json({ comments });
+    console.log('[GET Comments] Found comments:', comments.length);
+
+    return NextResponse.json({ comments }, { status: 200 });
   } catch (error) {
-    console.error('Error fetching comments:', error);
+    console.error('[GET Comments] Error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch comments', details: error.message }, 
       { status: 500 }
@@ -63,12 +69,14 @@ export async function GET(request) {
 
 // POST - Create a new comment
 export async function POST(request) {
+  console.log('[POST Comment] Starting...');
+  
   try {
     const session = await getServerSession(authOptions);
-
-    console.log('Session:', session); // Debug log
+    console.log('[POST Comment] Session:', session ? 'Found' : 'Not found');
 
     if (!session || !session.user) {
+      console.log('[POST Comment] Unauthorized - No session');
       return NextResponse.json(
         { error: 'Unauthorized - Please login' }, 
         { status: 401 }
@@ -78,9 +86,10 @@ export async function POST(request) {
     const body = await request.json();
     const { content, episodeId, parentId } = body;
 
-    console.log('Request body:', { content, episodeId, parentId }); // Debug log
+    console.log('[POST Comment] Data:', { content: content?.substring(0, 50), episodeId, parentId });
 
     if (!content || !episodeId) {
+      console.log('[POST Comment] Missing required fields');
       return NextResponse.json(
         { error: 'Content and episode ID required' }, 
         { status: 400 }
@@ -94,7 +103,6 @@ export async function POST(request) {
       );
     }
 
-    // Optional: Add max length validation
     if (content.length > 1000) {
       return NextResponse.json(
         { error: 'Comment too long (max 1000 characters)' }, 
@@ -102,13 +110,15 @@ export async function POST(request) {
       );
     }
 
-    // Make sure we have user ID
     if (!session.user.id) {
+      console.log('[POST Comment] No user ID in session');
       return NextResponse.json(
         { error: 'User ID not found in session' }, 
         { status: 400 }
       );
     }
+
+    console.log('[POST Comment] Creating comment for user:', session.user.id);
 
     const comment = await prisma.comment.create({
       data: {
@@ -128,11 +138,11 @@ export async function POST(request) {
       },
     });
 
-    console.log('Comment created:', comment); // Debug log
+    console.log('[POST Comment] Comment created:', comment.id);
 
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {
-    console.error('Error creating comment:', error);
+    console.error('[POST Comment] Error:', error);
     return NextResponse.json(
       { error: 'Failed to create comment', details: error.message }, 
       { status: 500 }
@@ -142,6 +152,8 @@ export async function POST(request) {
 
 // DELETE - Delete a comment
 export async function DELETE(request) {
+  console.log('[DELETE Comment] Starting...');
+  
   try {
     const session = await getServerSession(authOptions);
 
@@ -154,6 +166,8 @@ export async function DELETE(request) {
 
     const { searchParams } = new URL(request.url);
     const commentId = searchParams.get('commentId');
+
+    console.log('[DELETE Comment] CommentId:', commentId);
 
     if (!commentId) {
       return NextResponse.json(
@@ -173,7 +187,6 @@ export async function DELETE(request) {
       );
     }
 
-    // Check if user owns the comment
     if (comment.userId !== session.user.id) {
       return NextResponse.json(
         { error: 'Forbidden' }, 
@@ -185,12 +198,14 @@ export async function DELETE(request) {
       where: { id: commentId },
     });
 
-    return NextResponse.json({ success: true });
+    console.log('[DELETE Comment] Comment deleted:', commentId);
+
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.error('Error deleting comment:', error);
+    console.error('[DELETE Comment] Error:', error);
     return NextResponse.json(
       { error: 'Failed to delete comment', details: error.message }, 
       { status: 500 }
     );
   }
-      }
+}
