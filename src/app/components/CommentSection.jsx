@@ -18,10 +18,16 @@ function CommentItem({ comment, onReply, onDelete, currentUserId, depth = 0 }) {
     if (!replyContent.trim()) return;
 
     setIsSubmitting(true);
-    await onReply(comment.id, replyContent);
-    setReplyContent('');
-    setShowReplyForm(false);
-    setIsSubmitting(false);
+    try {
+      await onReply(comment.id, replyContent);
+      setReplyContent('');
+      setShowReplyForm(false);
+    } catch (error) {
+      console.error('Error submitting reply:', error);
+      alert('Gagal mengirim balasan. Silakan coba lagi.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const formatDate = (dateString) => {
@@ -43,18 +49,18 @@ function CommentItem({ comment, onReply, onDelete, currentUserId, depth = 0 }) {
     <div className={`${depth > 0 ? 'ml-8 mt-3' : ''}`}>
       <div className="bg-theme-tertiary rounded-lg p-4 border border-theme">
         <div className="flex items-start gap-3">
-          {comment.user.image ? (
-            <img src={comment.user.image} alt={comment.user.name} className="w-10 h-10 rounded-full" />
+          {comment.user?.image ? (
+            <img src={comment.user.image} alt={comment.user.name || 'User'} className="w-10 h-10 rounded-full" />
           ) : (
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
                  style={{ background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))' }}>
-              {comment.user.name?.charAt(0).toUpperCase() || 'U'}
+              {comment.user?.name?.charAt(0).toUpperCase() || 'U'}
             </div>
           )}
           
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-semibold text-theme-primary">{comment.user.name}</span>
+              <span className="font-semibold text-theme-primary">{comment.user?.name || 'Anonymous'}</span>
               <span className="text-xs text-theme-tertiary">{formatDate(comment.createdAt)}</span>
             </div>
             
@@ -139,25 +145,33 @@ function CommentItem({ comment, onReply, onDelete, currentUserId, depth = 0 }) {
 }
 
 export default function CommentSection({ episodeId }) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchComments();
+    if (episodeId) {
+      fetchComments();
+    }
   }, [episodeId]);
 
   const fetchComments = async () => {
     try {
+      setError(null);
       const response = await fetch(`/api/comments?episodeId=${episodeId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setComments(data.comments);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch comments');
       }
+      
+      const data = await response.json();
+      setComments(data.comments || []);
     } catch (error) {
       console.error('Error fetching comments:', error);
+      setError('Gagal memuat komentar');
     } finally {
       setIsLoading(false);
     }
@@ -165,43 +179,80 @@ export default function CommentSection({ episodeId }) {
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
-    if (!newComment.trim() || !session) return;
+    
+    if (!newComment.trim()) {
+      alert('Komentar tidak boleh kosong');
+      return;
+    }
+    
+    if (!session) {
+      alert('Anda harus login terlebih dahulu');
+      return;
+    }
 
     setIsSubmitting(true);
+    setError(null);
+
     try {
       const response = await fetch('/api/comments', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newComment, episodeId }),
+        headers: { 
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          content: newComment.trim(), 
+          episodeId: episodeId 
+        }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setComments([data.comment, ...comments]);
-        setNewComment('');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to post comment');
       }
+
+      // Add new comment to the list
+      setComments([data.comment, ...comments]);
+      setNewComment('');
+      
+      // Show success message
+      console.log('Comment posted successfully');
     } catch (error) {
       console.error('Error posting comment:', error);
+      setError(error.message || 'Gagal mengirim komentar');
+      alert(`Gagal mengirim komentar: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleReply = async (parentId, content) => {
-    if (!session) return;
+    if (!session) {
+      alert('Anda harus login terlebih dahulu');
+      return;
+    }
 
     try {
       const response = await fetch('/api/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, episodeId, parentId }),
+        body: JSON.stringify({ 
+          content: content.trim(), 
+          episodeId: episodeId, 
+          parentId: parentId 
+        }),
       });
 
-      if (response.ok) {
-        await fetchComments();
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to post reply');
       }
+
+      // Refresh comments to show the new reply
+      await fetchComments();
     } catch (error) {
       console.error('Error posting reply:', error);
+      throw error;
     }
   };
 
@@ -213,11 +264,16 @@ export default function CommentSection({ episodeId }) {
         method: 'DELETE',
       });
 
-      if (response.ok) {
-        await fetchComments();
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete comment');
       }
+
+      // Refresh comments
+      await fetchComments();
     } catch (error) {
       console.error('Error deleting comment:', error);
+      alert('Gagal menghapus komentar');
     }
   };
 
@@ -228,7 +284,11 @@ export default function CommentSection({ episodeId }) {
         <span className="gradient-theme-text">Komentar ({comments.length})</span>
       </h2>
 
-      {session ? (
+      {status === 'loading' ? (
+        <div className="bg-theme-tertiary rounded-lg p-4 mb-6 animate-pulse">
+          <div className="h-20 bg-theme-primary rounded"></div>
+        </div>
+      ) : session ? (
         <form onSubmit={handleSubmitComment} className="mb-6">
           <textarea
             value={newComment}
@@ -239,6 +299,9 @@ export default function CommentSection({ episodeId }) {
             rows="3"
             disabled={isSubmitting}
           />
+          {error && (
+            <p className="text-red-500 text-sm mt-2">{error}</p>
+          )}
           <button
             type="submit"
             disabled={isSubmitting || !newComment.trim()}
@@ -251,7 +314,7 @@ export default function CommentSection({ episodeId }) {
       ) : (
         <div className="bg-theme-tertiary rounded-lg p-4 mb-6 border-l-4" style={{ borderColor: 'var(--accent-from)' }}>
           <p className="text-theme-secondary">
-            <Link href="/login" className="font-semibold hover:underline" style={{ color: 'var(--accent-from)' }}>
+            <Link href="/api/auth/signin" className="font-semibold hover:underline" style={{ color: 'var(--accent-from)' }}>
               Login
             </Link>
             {' '}untuk berkomentar
@@ -273,6 +336,10 @@ export default function CommentSection({ episodeId }) {
               </div>
             </div>
           ))}
+        </div>
+      ) : error && comments.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-red-500">{error}</p>
         </div>
       ) : comments.length === 0 ? (
         <div className="text-center py-8">
