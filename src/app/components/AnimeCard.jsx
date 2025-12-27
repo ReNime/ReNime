@@ -35,7 +35,8 @@ const AnimeCard = ({ title, image, slug, episode, statusOrDay, type, priority = 
 
           {/* Badge Episode (bottom left corner) */}
           {episode && (
-            <div className="absolute bottom-2 left-2 z-10 rounded-full bg-theme-tertiary/90 backdrop-blur-sm px-2.5 py-1 text-xs font-semibold text-theme-primary border border-theme shadow-md">
+      {/*<div className="absolute bottom-2 left-2 z-10 rounded-full bg-theme-tertiary/90 backdrop-blur-sm px-2.5 py-1 text-xs font-semibold text-theme-primary border border-theme shadow-md">*/}
+      <div className="absolute bottom-2 left-2 z-10 rounded-full bg-theme-tertiary/90 px-2.5 py-1 text-xs text-theme-primary font-semibold text-white">
               {episode.replace('Episode ', 'Eps ')}
             </div>
           )}
