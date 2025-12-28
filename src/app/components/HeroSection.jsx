@@ -66,13 +66,33 @@ const HeroSection = () => {
             </Link>
           </div>
         </div>
-        
+
         {/* Image (lg:order-2) - Changes based on theme */}
-        <div className="relative h-[300px] lg:h-auto order-1 lg:order-2">
+<div className="relative h-[300px] lg:h-auto order-1 lg:order-2 flex items-center justify-center">
+  
+  {/* Optional gradient overlay */}
+  <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[var(--bg-secondary)] to-transparent z-10"></div>
+
+  {/* Centered Circular Image */}
+  <div className="relative z-20 w-48 h-48 lg:w-72 lg:h-72 rounded-full overflow-hidden transition-all duration-500">
+    <Image
+      src={heroImages[currentTheme]}
+      alt="Anime Character"
+      fill
+      className="object-cover"
+      priority
+      key={currentTheme}
+    />
+  </div>
+
+</div>
+
+        {/* Image (lg:order-2) - Changes based on theme */}
+        {/*<div className="relative h-[300px] lg:h-auto order-1 lg:order-2">
           <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[var(--bg-secondary)] to-transparent z-10"></div>
-          
+          */}
           {/* Image with smooth transition */}
-          <div className="absolute inset-0 w-full h-full transition-opacity duration-500">
+        {/*<div className="absolute inset-0 w-full h-full transition-opacity duration-500">
             <Image
               width={500}
               height={500}
@@ -83,7 +103,7 @@ const HeroSection = () => {
               key={currentTheme} // Force re-render on theme change
             />
           </div>
-        </div>
+        </div>*/}
       </div>
     </div>
   )
