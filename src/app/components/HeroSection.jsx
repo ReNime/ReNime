@@ -34,7 +34,7 @@ const HeroSection = () => {
 
   return (
     <div className="flex items-center justify-center bg-theme-primary p-4">
-      <div className="grid w-full max-w-5xl grid-cols-1 overflow-hidden rounded-2xl bg-theme-secondary shadow-2xl lg:grid-cols-2 lg:h-[500px]">
+      <div className="grid w-full max-w-5xl grid-cols-1 overflow-hidden rounded-2xl bg-transparent lg:grid-cols-2 lg:h-[500px]">
 
         {/* TEXT */}
         <div className="order-2 flex flex-col justify-center p-6 lg:order-1 lg:p-12">
