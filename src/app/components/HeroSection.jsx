@@ -34,7 +34,7 @@ const HeroSection = () => {
 
   return (
     <div className="flex items-center justify-center bg-theme-primary p-4">
-      {/*<div className="grid w-full max-w-5xl grid-cols-1 overflow-hidden rounded-2xl bg-theme-secondary shadow-2xl lg:grid-cols-2 lg:h-[500px]">*/}
+      <div className="grid w-full max-w-5xl grid-cols-1 overflow-hidden rounded-2xl bg-theme-secondary shadow-2xl lg:grid-cols-2 lg:h-[500px]">
 
         {/* TEXT */}
         <div className="relative order-2 flex flex-col justify-center bg-gradient-to-b from-[var(--bg-secondary)] to-[var(--bg-primary)] p-6 lg:order-1 lg:p-12">
@@ -60,7 +60,7 @@ const HeroSection = () => {
 
         {/* IMAGE */}
         <div className="relative order-1 flex items-center justify-center lg:order-2">
-          <div className="absolute inset-y-0 left-0 z-10 w-1/3 bg-gradient-to-r from-[var(--bg-secondary)] to-transparent" />
+          {/*<div className="absolute inset-y-0 left-0 z-10 w-1/3 bg-gradient-to-r from-[var(--bg-secondary)] to-transparent" />*/}
 
           <div className="relative z-20 h-48 w-48 overflow-hidden rounded-full transition-all duration-500 lg:h-72 lg:w-72">
             <Image
@@ -72,10 +72,10 @@ const HeroSection = () => {
               priority
             />
           </div>
-        </div>
+          {/*</div>*/}
 
       </div>
-    {/*</div>*/}
+    </div>
   )
 }
 
