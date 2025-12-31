@@ -56,7 +56,7 @@ const HeroSection = () => {
               Anime A - Z
             </Link>
           </div>
-          {/*</div>*/}
+          </div>
 
         {/* IMAGE */}
         <div className="relative order-1 flex items-center justify-center lg:order-2">
@@ -75,7 +75,7 @@ const HeroSection = () => {
         </div>
 
       </div>
-    </div>
+    {/*</div>*/}
   )
 }
 
