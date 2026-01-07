@@ -155,11 +155,11 @@ const Home = async () => {
           {ongoingFetchFailed ? (
             <ApiWarningMessage sectionTitle="OnGoing" />
           ) : (
-      {/*<AnimeOngoing api={animeOngoing} />*/}
-      <AnimeOngoingClient
+      <AnimeOngoing api={animeOngoing} />
+      {/*<AnimeOngoingClient
   initialData={animeOngoing}
   apiUrl={apiUrl}
-/>
+/>*/}
           )}
         </div>
 
