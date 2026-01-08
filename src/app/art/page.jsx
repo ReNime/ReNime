@@ -5,7 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
-/* ===== React Icons ===== */
+/* ===== Components ===== */
+import Header from '@/app/components/Header'
+import PaginationControls from '../components/Pagination'
+import Navigation from '../components/Navigation'
+import BreadcrumbNavigation from '../components/BreadcrumbNavigation'
+
+/* ===== Icons ===== */
 import {
   FiArrowLeft,
   FiSearch,
@@ -52,7 +58,6 @@ export default function FanartPage() {
 
   const [activeFilter, setActiveFilter] = useState('safe')
   const [activeSort, setActiveSort] = useState('score')
-  const [showFilterMenu, setShowFilterMenu] = useState(false)
 
   const [favorites, setFavorites] = useState(new Set())
   const [selectedImage, setSelectedImage] = useState(null)
@@ -144,9 +149,7 @@ export default function FanartPage() {
     searchTimeoutRef.current = setTimeout(() => {
       if (searchInput !== searchQuery) {
         setSearchQuery(searchInput)
-        router.push(
-          searchInput ? `/art?tags=${searchInput}` : '/art'
-        )
+        router.push(searchInput ? `/art?tags=${searchInput}` : '/art')
       }
     }, 500)
   }, [searchInput, searchQuery, router])
@@ -180,6 +183,19 @@ export default function FanartPage() {
   /* ================= Render ================= */
   return (
     <main className="min-h-screen bg-black text-white">
+      <Header />
+
+      <div className="px-4 pt-4">
+        <BreadcrumbNavigation />
+      </div>
+
+      <Navigation
+        activeFilter={activeFilter}
+        setActiveFilter={setActiveFilter}
+        activeSort={activeSort}
+        setActiveSort={setActiveSort}
+      />
+
       {loading && (
         <div className="flex justify-center items-center h-screen">
           <FiLoader className="animate-spin w-8 h-8" />
@@ -187,41 +203,51 @@ export default function FanartPage() {
       )}
 
       {!loading && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-          {images.map(post => (
-            <div
-              key={post.id}
-              className="relative group cursor-pointer"
-              onClick={() => setSelectedImage(post)}
-            >
-              <Image
-                src={`/api/image-proxy?url=${encodeURIComponent(
-                  post.preview_file_url
-                )}`}
-                alt=""
-                fill
-                className="object-cover rounded-xl"
-                unoptimized
-              />
-
-              <button
-                onClick={e => {
-                  e.stopPropagation()
-                  toggleFavorite(post.id)
-                }}
-                className="absolute top-2 right-2"
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+            {images.map(post => (
+              <div
+                key={post.id}
+                className="relative group cursor-pointer"
+                onClick={() => setSelectedImage(post)}
               >
-                <FiHeart
-                  className={
-                    favorites.has(post.id)
-                      ? 'text-red-500 fill-red-500'
-                      : 'text-white'
-                  }
+                <Image
+                  src={`/api/image-proxy?url=${encodeURIComponent(
+                    post.preview_file_url
+                  )}`}
+                  alt=""
+                  fill
+                  className="object-cover rounded-xl"
+                  unoptimized
                 />
-              </button>
-            </div>
-          ))}
-        </div>
+
+                <button
+                  onClick={e => {
+                    e.stopPropagation()
+                    toggleFavorite(post.id)
+                  }}
+                  className="absolute top-2 right-2"
+                >
+                  <FiHeart
+                    className={
+                      favorites.has(post.id)
+                        ? 'text-red-500 fill-red-500'
+                        : 'text-white'
+                    }
+                  />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <PaginationControls
+            page={page}
+            hasMore={hasMore}
+            loading={loadingMore}
+            onNext={() => fetchImages(page + 1)}
+            onPrev={() => page > 1 && fetchImages(page - 1, true)}
+          />
+        </>
       )}
 
       <AnimatePresence>
