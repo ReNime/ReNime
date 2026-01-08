@@ -7,29 +7,11 @@ import Image from 'next/image'
 import AgeGate from '@/app/components/AgeGate'
 
 import {
-  FiArrowLeft,
   FiSearch,
-  FiFilter,
-  FiShare2,
-  FiDownload,
-  FiExternalLink,
   FiX,
-  FiChevronUp,
-  FiChevronDown,
   FiLoader,
-  FiHeart,
-  FiGrid,
-  FiList
+  FiHeart
 } from 'react-icons/fi'
-
-import {
-  FaFire,
-  FaStar,
-  FaClock,
-  FaRandom,
-  FaHashtag,
-  FaImage
-} from 'react-icons/fa'
 
 import { LuSparkles } from 'react-icons/lu'
 
@@ -48,27 +30,22 @@ export default function FanartPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchInput, setSearchInput] = useState('')
 
-  const [activeFilter, setActiveFilter] = useState('safe')
-  const [activeSort, setActiveSort] = useState('score')
-  const [viewMode, setViewMode] = useState('feed')
-
   const [favorites, setFavorites] = useState(new Set())
   const [selectedImage, setSelectedImage] = useState(null)
 
-  const containerRef = useRef(null)
   const loadMoreTriggerRef = useRef(null)
 
   const trendingTags = [
-  'hatsune_miku',
-  'genshin_impact',
-  'wuthering_waves',
-  'original',
-  'fate/grand_order',
-  'blue_archive',
-  'touhou',
-  'vtuber',
-  'arknights'
-]
+    'hatsune_miku',
+    'genshin_impact',
+    'wuthering_waves',
+    'original',
+    'fate/grand_order',
+    'blue_archive',
+    'touhou',
+    'vtuber',
+    'arknights'
+  ]
 
   /* ================= Favorites ================= */
   useEffect(() => {
@@ -85,61 +62,49 @@ export default function FanartPage() {
     })
   }
 
+  /* ================= Debounced Search ================= */
   useEffect(() => {
-  const t = setTimeout(() => {
-    if (searchInput !== searchQuery) {
-      setSearchQuery(searchInput)
-      if (searchInput) {
-        router.replace(`/art?tags=${searchInput}`)
-      } else {
-        router.replace('/art')
+    const t = setTimeout(() => {
+      if (searchInput !== searchQuery) {
+        setSearchQuery(searchInput)
+        if (searchInput) {
+          router.replace(`/art?tags=${searchInput}`)
+        } else {
+          router.replace('/art')
+        }
       }
-    }
-  }, 500)
+    }, 500)
 
-  return () => clearTimeout(t)
-}, [searchInput])
+    return () => clearTimeout(t)
+  }, [searchInput])
 
-
-  /* ================= Fetch Images ================= */
+  /* ================= Fetch Pixiv Images ================= */
   const fetchImages = useCallback(async (pageNum, reset = false) => {
     reset ? setLoading(true) : setLoadingMore(true)
 
     try {
-      const sortMap = {
-        score: 'order:score',
-        new: 'order:id',
-        random: 'order:random'
-      }
-
-      let tags = sortMap[activeSort]
-      if (searchQuery) tags = `${searchQuery} ${tags}`
-
       const params = new URLSearchParams({
-        tags,
-        rating: activeFilter,
-        limit: viewMode === 'grid' ? '30' : '20'
+        q: searchQuery || 'anime',
+        page: pageNum.toString()
       })
 
-      if (activeSort !== 'random') {
-        params.set('page', pageNum.toString())
-      }
-
-      const res = await fetch(`/api/danbooru?${params}`)
+      const res = await fetch(`/api/pixiv?${params}`)
       const data = await res.json()
 
       if (data.success) {
-        setImages(prev => (reset ? data.data : [...prev, ...data.data]))
+        setImages(prev =>
+          reset ? data.data : [...prev, ...data.data]
+        )
         setHasMore(data.hasMore)
         setPage(pageNum)
       }
     } catch (e) {
-      console.error(e)
+      console.error('Pixiv fetch error:', e)
     } finally {
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [searchQuery, activeFilter, activeSort, viewMode])
+  }, [searchQuery])
 
   /* ================= Initial Load ================= */
   useEffect(() => {
@@ -151,9 +116,10 @@ export default function FanartPage() {
     fetchImages(1, true)
   }, [])
 
+  /* ================= Refetch on Search ================= */
   useEffect(() => {
     fetchImages(1, true)
-  }, [searchQuery, activeFilter, activeSort, viewMode])
+  }, [searchQuery])
 
   /* ================= Infinite Scroll ================= */
   useEffect(() => {
@@ -176,55 +142,54 @@ export default function FanartPage() {
   return (
     <main className="min-h-screen bg-black text-white pt-28 px-4">
       <AgeGate />
-      {/* SEARCH + TRENDING */}
-<div className="max-w-5xl mx-auto mb-6 space-y-3">
-  {/* Search */}
-  <div className="relative">
-    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-    <input
-      type="text"
-      value={searchInput}
-      onChange={(e) => setSearchInput(e.target.value)}
-      placeholder="Search tags (e.g. miku, genshin_impact)"
-      className="w-full pl-10 pr-10 py-3 bg-zinc-900 border border-white/10 rounded-xl outline-none focus:border-white/30"
-    />
-    {searchInput && (
-      <button
-        onClick={() => {
-          setSearchInput('')
-          setSearchQuery('')
-          router.replace('/art')
-        }}
-        className="absolute right-3 top-1/2 -translate-y-1/2"
-      >
-        <FiX />
-      </button>
-    )}
-  </div>
 
-  {/* Trending Tags */}
-  <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-    {trendingTags.map(tag => (
-      <button
-        key={tag}
-        onClick={() => {
-          setSearchInput(tag)
-          setSearchQuery(tag)
-          router.replace(`/art?tags=${tag}`)
-        }}
-        className={`px-4 py-2 rounded-full text-sm whitespace-nowrap flex items-center gap-2 transition
-          ${
-            searchQuery === tag
-              ? 'bg-white/20'
-              : 'bg-white/5 hover:bg-white/10 border border-white/10'
-          }`}
-      >
-        <LuSparkles className="w-3 h-3" />
-        {tag.replace(/_/g, ' ')}
-      </button>
-    ))}
-  </div>
-</div>
+      {/* SEARCH + TRENDING */}
+      <div className="max-w-5xl mx-auto mb-6 space-y-3">
+        <div className="relative">
+          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Search on Pixiv (e.g. miku, genshin)"
+            className="w-full pl-10 pr-10 py-3 bg-zinc-900 border border-white/10 rounded-xl outline-none focus:border-white/30"
+          />
+          {searchInput && (
+            <button
+              onClick={() => {
+                setSearchInput('')
+                setSearchQuery('')
+                router.replace('/art')
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2"
+            >
+              <FiX />
+            </button>
+          )}
+        </div>
+
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+          {trendingTags.map(tag => (
+            <button
+              key={tag}
+              onClick={() => {
+                setSearchInput(tag)
+                setSearchQuery(tag)
+                router.replace(`/art?tags=${tag}`)
+              }}
+              className={`px-4 py-2 rounded-full text-sm whitespace-nowrap flex items-center gap-2 transition
+                ${
+                  searchQuery === tag
+                    ? 'bg-white/20'
+                    : 'bg-white/5 hover:bg-white/10 border border-white/10'
+                }`}
+            >
+              <LuSparkles className="w-3 h-3" />
+              {tag.replace(/_/g, ' ')}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {loading && (
         <div className="flex justify-center items-center h-[60vh]">
@@ -247,8 +212,8 @@ export default function FanartPage() {
               onClick={() => setSelectedImage(post)}
             >
               <Image
-                src={`/api/image-proxy?url=${encodeURIComponent(post.preview_file_url)}`}
-                alt=""
+                src={`/api/image-proxy?url=${encodeURIComponent(post.preview_url)}`}
+                alt={post.title || ''}
                 fill
                 className="object-cover rounded-xl"
                 unoptimized
@@ -288,8 +253,8 @@ export default function FanartPage() {
             className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
           >
             <Image
-              src={`/api/image-proxy?url=${encodeURIComponent(selectedImage.file_url)}`}
-              alt=""
+              src={`/api/image-proxy?url=${encodeURIComponent(selectedImage.original_url)}`}
+              alt={selectedImage.title || ''}
               fill
               className="object-contain"
               unoptimized
