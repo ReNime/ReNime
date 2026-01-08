@@ -1,64 +1,52 @@
-import { NextResponse } from 'next/server'
+import PixivApi from 'pixiv-api-client'
 
-const Pixiv = require('pixiv-app-api')
+export const runtime = 'nodejs'
 
-let pixiv = null
-let lastLogin = 0
+const pixiv = new PixivApi()
 
-async function getPixivClient() {
-  const now = Date.now()
+let initialized = false
 
-  if (!pixiv || now - lastLogin > 30 * 60 * 1000) {
-    pixiv = new Pixiv()
-    await pixiv.login(
-      process.env.PIXIV_USERNAME,
-      process.env.PIXIV_PASSWORD
-    )
-    lastLogin = now
-  }
-
-  return pixiv
+async function initPixiv() {
+  if (initialized) return
+  await pixiv.refreshLogin(process.env.PIXIV_REFRESH_TOKEN)
+  initialized = true
 }
 
 export async function GET(req) {
   try {
-    const { searchParams } = new URL(req.url)
+    await initPixiv()
 
-    const q = searchParams.get('q') || 'miku'
+    const { searchParams } = new URL(req.url)
+    const q = searchParams.get('q') || 'original'
     const page = Number(searchParams.get('page') || 1)
 
-    const client = await getPixivClient()
-
-    const result = await client.searchIllust(q, {
-      search_target: 'partial_match_for_tags',
-      sort: 'date_desc'
+    const res = await pixiv.searchIllust(q, {
+      searchTarget: 'partial_match_for_tags',
+      sort: 'date_desc',
+      filter: 'for_ios',
+      offset: (page - 1) * 30
     })
 
-    const perPage = 20
-    const start = (page - 1) * perPage
-    const slice = result.illusts.slice(start, start + perPage)
-
-    const data = slice.map(illust => ({
-      id: illust.id,
-      title: illust.title,
-      preview_url:
-        illust.image_urls.square_medium ||
-        illust.image_urls.medium,
-      original_url:
-        illust.meta_single_page?.original_image_url ||
-        illust.meta_pages?.[0]?.image_urls?.original
+    const data = res.illusts.map(i => ({
+      id: i.id,
+      title: i.title,
+      width: i.width,
+      height: i.height,
+      preview_file_url: i.image_urls.medium,
+      file_url: i.meta_single_page?.original_image_url
+        || i.meta_pages?.[0]?.image_urls.original
     }))
 
-    return NextResponse.json({
+    return Response.json({
       success: true,
       data,
-      hasMore: start + perPage < result.illusts.length
+      hasMore: res.illusts.length === 30
     })
-  } catch (err) {
-    console.error('PIXIV REAL ERROR:', err)
-    return NextResponse.json(
-      { success: false, error: err.message },
-      { status: 500 }
-    )
+  } catch (e) {
+    console.error(e)
+    return Response.json({
+      success: false,
+      error: e.message
+    }, { status: 500 })
   }
 }
