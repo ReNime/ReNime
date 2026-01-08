@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
+import AgeGate from '@/components/AgeGate'
 
 import {
   FiArrowLeft,
@@ -146,6 +147,7 @@ export default function FanartPage() {
   /* ================= Render ================= */
   return (
     <main className="min-h-screen bg-black text-white pt-28 px-4">
+      <AgeGate />
       {loading && (
         <div className="flex justify-center items-center h-[60vh]">
           <FiLoader className="animate-spin w-8 h-8" />
