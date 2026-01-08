@@ -2,7 +2,6 @@
 
 import AnimeCompleted from "@/app/components/AnimeCompleted";
 import AnimeOngoing from "@/app/components/AnimeOngoing";
-import AnimeOngoingClient from "@/app/components/AnimeOngoingClient";
 import BottomNav from "@/app/components/BottomNav";
 import Header from "@/app/components/Header";
 import HeroSection from "@/app/components/HeroSection";
@@ -155,11 +154,7 @@ const Home = async () => {
           {ongoingFetchFailed ? (
             <ApiWarningMessage sectionTitle="OnGoing" />
           ) : (
-      <AnimeOngoing api={animeOngoing} />
-      {/*<AnimeOngoingClient
-  initialData={animeOngoing}
-  apiUrl={apiUrl}
-/>*/}
+            <AnimeOngoing api={animeOngoing} />
           )}
         </div>
 
