@@ -148,7 +148,7 @@ const Home = async () => {
       <div className="container mx-auto px-4">
         {/* Anime Ongoing Section with Themed Title */}
         <div className="mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold mb-6">
+          <h2 className="text-2xl md:text-3xl text-center font-bold mb-6">
             <span className="gradient-theme-text">Anime OnGoing</span>
           </h2>
           {ongoingFetchFailed ? (
@@ -161,7 +161,7 @@ const Home = async () => {
         {/* Anime Completed Section with Themed Title */}
         <React.Suspense fallback={<AnimeListSkeleton />}>
           <div className="mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold mb-6">
+            <h2 className="text-2xl md:text-3xl text-center font-bold mb-6">
               <span className="gradient-theme-text">Anime Completed</span>
             </h2>
             {completedFetchFailed ? (
