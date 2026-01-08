@@ -59,10 +59,13 @@ export async function GET(req) {
       hasMore: end < result.illusts.length
     })
   } catch (err) {
-    console.error('PIXIV API ERROR:', err)
-    return NextResponse.json(
-      { success: false, error: 'Pixiv fetch failed' },
-      { status: 500 }
-    )
-  }
+  console.error('PIXIV REAL ERROR:', err)
+  return NextResponse.json(
+    {
+      success: false,
+      error: err?.message || String(err)
+    },
+    { status: 500 }
+  )
+}
 }
