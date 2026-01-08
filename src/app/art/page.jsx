@@ -58,6 +58,18 @@ export default function FanartPage() {
   const containerRef = useRef(null)
   const loadMoreTriggerRef = useRef(null)
 
+  const trendingTags = [
+  'hatsune_miku',
+  'genshin_impact',
+  'wuthering_waves',
+  'original',
+  'fate/grand_order',
+  'blue_archive',
+  'touhou',
+  'vtuber',
+  'arknights'
+]
+
   /* ================= Favorites ================= */
   useEffect(() => {
     const stored = localStorage.getItem('fanart_favorites')
@@ -72,6 +84,22 @@ export default function FanartPage() {
       return next
     })
   }
+
+  useEffect(() => {
+  const t = setTimeout(() => {
+    if (searchInput !== searchQuery) {
+      setSearchQuery(searchInput)
+      if (searchInput) {
+        router.replace(`/art?tags=${searchInput}`)
+      } else {
+        router.replace('/art')
+      }
+    }
+  }, 500)
+
+  return () => clearTimeout(t)
+}, [searchInput])
+
 
   /* ================= Fetch Images ================= */
   const fetchImages = useCallback(async (pageNum, reset = false) => {
@@ -148,6 +176,56 @@ export default function FanartPage() {
   return (
     <main className="min-h-screen bg-black text-white pt-28 px-4">
       <AgeGate />
+      {/* SEARCH + TRENDING */}
+<div className="max-w-5xl mx-auto mb-6 space-y-3">
+  {/* Search */}
+  <div className="relative">
+    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+    <input
+      type="text"
+      value={searchInput}
+      onChange={(e) => setSearchInput(e.target.value)}
+      placeholder="Search tags (e.g. miku, genshin_impact)"
+      className="w-full pl-10 pr-10 py-3 bg-zinc-900 border border-white/10 rounded-xl outline-none focus:border-white/30"
+    />
+    {searchInput && (
+      <button
+        onClick={() => {
+          setSearchInput('')
+          setSearchQuery('')
+          router.replace('/art')
+        }}
+        className="absolute right-3 top-1/2 -translate-y-1/2"
+      >
+        <FiX />
+      </button>
+    )}
+  </div>
+
+  {/* Trending Tags */}
+  <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+    {trendingTags.map(tag => (
+      <button
+        key={tag}
+        onClick={() => {
+          setSearchInput(tag)
+          setSearchQuery(tag)
+          router.replace(`/art?tags=${tag}`)
+        }}
+        className={`px-4 py-2 rounded-full text-sm whitespace-nowrap flex items-center gap-2 transition
+          ${
+            searchQuery === tag
+              ? 'bg-white/20'
+              : 'bg-white/5 hover:bg-white/10 border border-white/10'
+          }`}
+      >
+        <LuSparkles className="w-3 h-3" />
+        {tag.replace(/_/g, ' ')}
+      </button>
+    ))}
+  </div>
+</div>
+
       {loading && (
         <div className="flex justify-center items-center h-[60vh]">
           <FiLoader className="animate-spin w-8 h-8" />
