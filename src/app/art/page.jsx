@@ -6,13 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import AgeGate from '@/app/components/AgeGate'
 
-import {
-  FiSearch,
-  FiX,
-  FiLoader,
-  FiHeart
-} from 'react-icons/fi'
-
+import { FiSearch, FiX, FiLoader, FiHeart } from 'react-icons/fi'
 import { LuSparkles } from 'react-icons/lu'
 
 export const dynamic = 'force-dynamic'
@@ -78,26 +72,29 @@ export default function FanartPage() {
     return () => clearTimeout(t)
   }, [searchInput])
 
-  /* ================= Fetch Pixiv Images ================= */
+  /* ================= Fetch Pixiv ================= */
   const fetchImages = useCallback(async (pageNum, reset = false) => {
     reset ? setLoading(true) : setLoadingMore(true)
 
     try {
-      const params = new URLSearchParams({
-        q: searchQuery || 'anime',
-        page: pageNum.toString()
-      })
-
       const res = await fetch(
-  `/api/pixiv?q=${encodeURIComponent(searchQuery || 'original')}&page=${pageNum}`
-)
+        `/api/pixiv?q=${encodeURIComponent(searchQuery || 'original')}&page=${pageNum}`
+      )
+
       const data = await res.json()
 
       if (data.success) {
-        setImages(prev =>
-          reset ? data.data : [...prev, ...data.data]
-        )
-        setHasMore(data.hasMore)
+        const mapped = data.illusts.map(i => ({
+          id: i.id,
+          title: i.title,
+          preview_url: i.image_urls?.medium,
+          original_url:
+            i.meta_single_page?.original_image_url ||
+            i.image_urls?.large
+        }))
+
+        setImages(prev => (reset ? mapped : [...prev, ...mapped]))
+        setHasMore(Boolean(data.next_url))
         setPage(pageNum)
       }
     } catch (e) {
@@ -153,7 +150,7 @@ export default function FanartPage() {
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search on Pixiv (e.g. miku, genshin)"
+            placeholder="Search Pixiv (miku, genshin, etc)"
             className="w-full pl-10 pr-10 py-3 bg-zinc-900 border border-white/10 rounded-xl outline-none focus:border-white/30"
           />
           {searchInput && (
@@ -179,7 +176,7 @@ export default function FanartPage() {
                 setSearchQuery(tag)
                 router.replace(`/art?tags=${tag}`)
               }}
-              className={`px-4 py-2 rounded-full text-sm whitespace-nowrap flex items-center gap-2 transition
+              className={`px-4 py-2 rounded-full text-sm whitespace-nowrap flex items-center gap-2
                 ${
                   searchQuery === tag
                     ? 'bg-white/20'
@@ -200,9 +197,7 @@ export default function FanartPage() {
       )}
 
       {!loading && images.length === 0 && (
-        <div className="text-center text-gray-400">
-          No results found
-        </div>
+        <div className="text-center text-gray-400">No results</div>
       )}
 
       {!loading && (
@@ -210,14 +205,14 @@ export default function FanartPage() {
           {images.map(post => (
             <div
               key={post.id}
-              className="relative group cursor-pointer aspect-[3/4] w-full overflow-hidden rounded-xl bg-zinc-900"
+              className="relative group cursor-pointer aspect-[3/4] overflow-hidden rounded-xl bg-zinc-900"
               onClick={() => setSelectedImage(post)}
             >
               <Image
                 src={`/api/image-proxy?url=${encodeURIComponent(post.preview_url)}`}
                 alt={post.title || ''}
                 fill
-                className="object-cover rounded-xl"
+                className="object-cover"
                 unoptimized
               />
 
