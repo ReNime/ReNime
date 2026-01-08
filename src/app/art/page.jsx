@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
-import AgeGate from '@/components/AgeGate'
+import AgeGate from '@/app/components/AgeGate'
 
 import {
   FiArrowLeft,
