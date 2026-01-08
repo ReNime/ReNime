@@ -1,10 +1,11 @@
-"use client"
+'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import Head from 'next/head'
+
+/* ===== React Icons ===== */
 import {
   FiArrowLeft,
   FiSearch,
@@ -20,6 +21,7 @@ import {
   FiGrid,
   FiList
 } from 'react-icons/fi'
+
 import {
   FaFire,
   FaStar,
@@ -28,7 +30,10 @@ import {
   FaHashtag,
   FaImage
 } from 'react-icons/fa'
+
 import { LuSparkles } from 'react-icons/lu'
+
+export const dynamic = 'force-dynamic'
 
 export default function FanartPage() {
   const router = useRouter()
@@ -49,32 +54,13 @@ export default function FanartPage() {
   const [activeSort, setActiveSort] = useState('score')
   const [showFilterMenu, setShowFilterMenu] = useState(false)
 
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [showActions, setShowActions] = useState(null)
-  const [imageLoaded, setImageLoaded] = useState({})
-  const [viewMode, setViewMode] = useState('feed')
   const [favorites, setFavorites] = useState(new Set())
-  const [showScrollTop, setShowScrollTop] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
 
-  const observerRef = useRef(null)
-  const loadMoreObserverRef = useRef(null)
   const searchTimeoutRef = useRef(null)
   const autocompleteTimeoutRef = useRef(null)
-  const containerRef = useRef(null)
-  const loadMoreTriggerRef = useRef(null)
 
-  const trendingTags = [
-    'hatsune_miku',
-    'genshin_impact',
-    'original',
-    'fate/grand_order',
-    'blue_archive',
-    'touhou',
-    'vtuber',
-    'arknights'
-  ]
-
+  /* ================= Favorites ================= */
   useEffect(() => {
     const stored = localStorage.getItem('fanart_favorites')
     if (stored) setFavorites(new Set(JSON.parse(stored)))
@@ -89,6 +75,7 @@ export default function FanartPage() {
     })
   }
 
+  /* ================= Autocomplete ================= */
   const fetchAutocomplete = useCallback(async (query) => {
     if (query.trim().length < 2) {
       setSuggestions([])
@@ -107,60 +94,62 @@ export default function FanartPage() {
     }
   }, [])
 
-  const fetchImages = useCallback(async (pageNum, reset = false) => {
-    reset ? setLoading(true) : setLoadingMore(true)
+  /* ================= Fetch Images ================= */
+  const fetchImages = useCallback(
+    async (pageNum, reset = false) => {
+      reset ? setLoading(true) : setLoadingMore(true)
 
-    try {
-      const sortMap = {
-        score: 'order:score',
-        new: 'order:id',
-        random: 'order:random'
+      try {
+        const sortMap = {
+          score: 'order:score',
+          new: 'order:id',
+          random: 'order:random'
+        }
+
+        let tags = sortMap[activeSort]
+        if (searchQuery) tags = `${searchQuery} ${tags}`
+
+        const params = new URLSearchParams({
+          tags,
+          rating: activeFilter,
+          page: pageNum.toString(),
+          limit: '20'
+        })
+
+        const res = await fetch(`/api/danbooru?${params}`)
+        const data = await res.json()
+
+        if (data.success) {
+          setImages(prev => (reset ? data.data : [...prev, ...data.data]))
+          setHasMore(data.hasMore)
+          setPage(pageNum)
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setLoading(false)
+        setLoadingMore(false)
       }
-
-      let tags = sortMap[activeSort]
-      if (searchQuery) tags = `${searchQuery} ${tags}`
-
-      const params = new URLSearchParams({
-        tags,
-        rating: activeFilter,
-        page: pageNum.toString(),
-        limit: viewMode === 'grid' ? '30' : '20'
-      })
-
-      const res = await fetch(`/api/danbooru?${params}`)
-      const data = await res.json()
-
-      if (data.success) {
-        setImages(prev => reset ? data.data : [...prev, ...data.data])
-        setHasMore(data.hasMore)
-        setPage(pageNum)
-        if (reset) setCurrentIndex(0)
-      }
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(false)
-      setLoadingMore(false)
-    }
-  }, [searchQuery, activeFilter, activeSort, viewMode])
+    },
+    [searchQuery, activeFilter, activeSort]
+  )
 
   useEffect(() => {
     fetchImages(1, true)
-  }, [searchQuery, activeFilter, activeSort, viewMode])
+  }, [searchQuery, activeFilter, activeSort, fetchImages])
 
+  /* ================= Search debounce ================= */
   useEffect(() => {
     clearTimeout(searchTimeoutRef.current)
     searchTimeoutRef.current = setTimeout(() => {
       if (searchInput !== searchQuery) {
         setSearchQuery(searchInput)
         router.push(
-          searchInput ? `/fanart?tags=${searchInput}` : '/fanart',
-          undefined,
-          { shallow: true }
+          searchInput ? `/art?tags=${searchInput}` : '/art'
         )
       }
     }, 500)
-  }, [searchInput])
+  }, [searchInput, searchQuery, router])
 
   useEffect(() => {
     clearTimeout(autocompleteTimeoutRef.current)
@@ -169,6 +158,7 @@ export default function FanartPage() {
     }, 300)
   }, [searchInput, fetchAutocomplete])
 
+  /* ================= Modal ================= */
   const ImageModal = ({ post }) => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -187,58 +177,56 @@ export default function FanartPage() {
     </motion.div>
   )
 
+  /* ================= Render ================= */
   return (
-    <>
-      <Head>
-        <title>Fanart Gallery - Aichiow</title>
-      </Head>
+    <main className="min-h-screen bg-black text-white">
+      {loading && (
+        <div className="flex justify-center items-center h-screen">
+          <FiLoader className="animate-spin w-8 h-8" />
+        </div>
+      )}
 
-      <main className="min-h-screen bg-black text-white">
-        {loading && (
-          <div className="flex justify-center items-center h-screen">
-            <FiLoader className="animate-spin w-8 h-8" />
-          </div>
-        )}
+      {!loading && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+          {images.map(post => (
+            <div
+              key={post.id}
+              className="relative group cursor-pointer"
+              onClick={() => setSelectedImage(post)}
+            >
+              <Image
+                src={`/api/image-proxy?url=${encodeURIComponent(
+                  post.preview_file_url
+                )}`}
+                alt=""
+                fill
+                className="object-cover rounded-xl"
+                unoptimized
+              />
 
-        {!loading && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-            {images.map(post => (
-              <div
-                key={post.id}
-                className="relative group cursor-pointer"
-                onClick={() => setSelectedImage(post)}
+              <button
+                onClick={e => {
+                  e.stopPropagation()
+                  toggleFavorite(post.id)
+                }}
+                className="absolute top-2 right-2"
               >
-                <Image
-                  src={`/api/image-proxy?url=${encodeURIComponent(post.preview_file_url)}`}
-                  alt=""
-                  fill
-                  className="object-cover rounded-xl"
-                  unoptimized
+                <FiHeart
+                  className={
+                    favorites.has(post.id)
+                      ? 'text-red-500 fill-red-500'
+                      : 'text-white'
+                  }
                 />
-                <button
-                  onClick={e => {
-                    e.stopPropagation()
-                    toggleFavorite(post.id)
-                  }}
-                  className="absolute top-2 right-2"
-                >
-                  <FiHeart
-                    className={
-                      favorites.has(post.id)
-                        ? 'text-red-500 fill-red-500'
-                        : 'text-white'
-                    }
-                  />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
-        <AnimatePresence>
-          {selectedImage && <ImageModal post={selectedImage} />}
-        </AnimatePresence>
-      </main>
-    </>
+      <AnimatePresence>
+        {selectedImage && <ImageModal post={selectedImage} />}
+      </AnimatePresence>
+    </main>
   )
 }
