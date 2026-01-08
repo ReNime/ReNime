@@ -88,7 +88,9 @@ export default function FanartPage() {
         page: pageNum.toString()
       })
 
-      const res = await fetch(`/api/pixiv?${params}`)
+      const res = await fetch(
+  `/api/pixiv?q=${encodeURIComponent(searchQuery || 'original')}&page=${pageNum}`
+)
       const data = await res.json()
 
       if (data.success) {
