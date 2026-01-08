@@ -163,7 +163,7 @@ export default function FanartPage() {
           {images.map(post => (
             <div
               key={post.id}
-              className="relative group cursor-pointer"
+              className="relative group cursor-pointer aspect-[3/4] w-full overflow-hidden rounded-xl bg-zinc-900"
               onClick={() => setSelectedImage(post)}
             >
               <Image
