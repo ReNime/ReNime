@@ -1,32 +1,31 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { getCoverImage } from '@/app/libs/mangadex'
-import { cn } from '@/app/utils/cn'
 
-/**
- * @typedef {Object} MangaCardProps
- * @property {string} id
- * @property {string} title
- * @property {string} coverFileName
- * @property {number=} chaptersCount
- */
-
-
-export default function MangaCard({ id, title, coverFileName, chaptersCount }) {
+export default function MangaCard({ manga, chaptersCount }) {
   const fallbackCover = '/default-cover.jpg'
 
+  const coverRel = manga.relationships?.find(
+    (rel) => rel.type === 'cover_art'
+  )
+
+  const coverFileName = coverRel?.attributes?.fileName
+
   const imageUrl = coverFileName
-    ? getCoverImage(id, coverFileName)
+    ? getCoverImage(manga.id, coverFileName)
     : fallbackCover
+
+  const title =
+    manga.attributes.title.en ??
+    Object.values(manga.attributes.title)[0] ??
+    'Untitled'
 
   return (
     <Link
-      href={`/manga/${id}`}
+      href={`/manga/${manga.id}`}
       className="group block transition-transform duration-300 hover:scale-105"
     >
-      <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl shadow-xl bg-zinc-900 border border-zinc-800 group-hover:border-indigo-500/60 group-hover:shadow-indigo-500/30 transition-all duration-300">
-        
-        {/* IMAGE */}
+      <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl shadow-xl bg-zinc-900 border border-zinc-800">
         <Image
           src={imageUrl}
           alt={title}
@@ -35,19 +34,16 @@ export default function MangaCard({ id, title, coverFileName, chaptersCount }) {
           sizes="(max-width: 768px) 50vw, 20vw"
         />
 
-        {/* GRADIENT OVERLAY */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-        {/* CHAPTER COUNT */}
         {chaptersCount !== undefined && (
-          <div className="absolute bottom-2 right-2 px-2 py-0.5 backdrop-blur-md bg-black/50 text-white text-xs rounded-full shadow">
+          <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/60 text-xs rounded-full">
             📖 {chaptersCount} ch
           </div>
         )}
       </div>
 
-      {/* TITLE */}
-      <h3 className="mt-2 text-sm font-semibold text-center text-zinc-100 group-hover:text-indigo-400 transition-colors duration-300 truncate">
+      <h3 className="mt-2 text-sm font-semibold text-center text-zinc-100 truncate">
         {title}
       </h3>
     </Link>
