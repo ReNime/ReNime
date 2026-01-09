@@ -1,17 +1,32 @@
-import axios from 'axios';
+import axios from "axios";
+import { NextResponse } from "next/server";
 
-export default async function handler(req, res) {
-  const { chapterId } = req.query;
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const chapterId = searchParams.get("chapterId");
 
-  if (!chapterId || typeof chapterId !== 'string') {
-    return res.status(400).json({ message: 'Chapter ID is required' });
+  if (!chapterId) {
+    return NextResponse.json(
+      { message: "Chapter ID is required" },
+      { status: 400 }
+    );
   }
 
   try {
-    const response = await axios.get(`https://api.mangadex.org/at-home/server/${chapterId}`);
-    res.status(200).json(response.data);
+    const response = await axios.get(
+      `https://api.mangadex.org/at-home/server/${chapterId}`
+    );
+
+    return NextResponse.json(response.data);
   } catch (error) {
-    console.error('[API] /api/manga/chapter-images error:', error.message);
-    res.status(500).json({ message: 'Failed to fetch chapter images' });
+    console.error(
+      "[API] /api/manga/chapter-images error:",
+      error.message
+    );
+
+    return NextResponse.json(
+      { message: "Failed to fetch chapter images" },
+      { status: 500 }
+    );
   }
 }
