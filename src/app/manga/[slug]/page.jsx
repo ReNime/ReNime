@@ -100,7 +100,7 @@ setCharacters(chars || [])
 
   const title = getLocalizedTitle(manga.attributes?.title || {})
   const description = manga.attributes?.description?.en || 'No description.'
-  const coverRel = manga.relationships.find(r => r.type === 'cover_art')
+  const coverRel = manga.relationships?.find(r => r.type === 'cover_art')
   const coverUrl = getCoverImage(manga.id, coverRel?.attributes?.fileName || '')
   const tags = manga.attributes.tags || []
 
