@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react'
 
 /**
  * @typedef {Object} Params
- * @property {number=} mediaId - ID dari media
+ * @property {string | number=} mediaId - ID dari media
  * @property {'anime' | 'manga' | 'manhwa' | 'light_novel'=} mediaType - Tipe media
  */
 
@@ -27,15 +27,17 @@ export function useFavorites({ mediaId, mediaType } = {}) {
     }
 
     try {
-      const res = await fetch('/api/favorites') // endpoint Next.js untuk fetch favorites
+      const res = await fetch('/api/favorites')
+      if (!res.ok) throw new Error('Failed to fetch favorites')
       const data = await res.json()
-      setFavorites(data || [])
+      setFavorites(Array.isArray(data) ? data : [])
     } catch (err) {
       console.error('Error fetching favorites:', err)
+      setFavorites([])
     }
 
     setLoading(false)
-  }, [session])
+  }, [session?.user?.email])
 
   useEffect(() => {
     fetchFavorites()
@@ -44,35 +46,35 @@ export function useFavorites({ mediaId, mediaType } = {}) {
   const isFavorite = useMemo(() => {
     if (!mediaId || !mediaType) return false
     return favorites.some(
-      (f) => f.media_id === mediaId && f.media_type === mediaType
+      (f) =>
+        String(f.media_id) === String(mediaId) && f.media_type === mediaType
     )
   }, [favorites, mediaId, mediaType])
 
   const toggleFavorite = useCallback(async () => {
-    setLoading(true)
-
     if (!session?.user?.email) {
-      setLoading(false)
       router.push('/auth/login')
       return
     }
 
     if (!mediaId || !mediaType) {
       await fetchFavorites()
-      setLoading(false)
       return
     }
 
     const existing = favorites.find(
-      (f) => f.media_id === mediaId && f.media_type === mediaType
+      (f) =>
+        String(f.media_id) === String(mediaId) && f.media_type === mediaType
     )
 
+    setLoading(true)
     try {
       if (existing) {
         // Hapus favorit
-        await fetch(`/api/favorites/${existing.id}`, {
+        const res = await fetch(`/api/favorites/${existing.id}`, {
           method: 'DELETE',
         })
+        if (!res.ok) throw new Error('Failed to remove favorite')
         setFavorites((prev) => prev.filter((f) => f.id !== existing.id))
       } else {
         // Tambah favorit
@@ -85,15 +87,16 @@ export function useFavorites({ mediaId, mediaType } = {}) {
             added_at: new Date().toISOString(),
           }),
         })
+        if (!res.ok) throw new Error('Failed to add favorite')
         const data = await res.json()
         setFavorites((prev) => [data, ...prev])
       }
     } catch (err) {
       console.error('Error updating favorite:', err)
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
-  }, [favorites, mediaId, mediaType, fetchFavorites, router, session])
+  }, [favorites, mediaId, mediaType, fetchFavorites, router, session?.user?.email])
 
   return {
     favorites,
