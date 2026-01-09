@@ -37,9 +37,9 @@ export default function MangaDetailPage() {
   const [showShare, setShowShare] = useState(false)
 
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
-    mediaId: manga?.id ? parseInt(manga.id, 36) : undefined,
-    mediaType: 'manga'
-  })
+  mediaId: manga?.id,
+  mediaType: 'manga'
+})
 
   useEffect(() => {
     if (!slug) return
@@ -63,8 +63,15 @@ export default function MangaDetailPage() {
         setChapters(sorted)
 
         const title = getLocalizedTitle(detail.attributes?.title || {})
-        const chars = await fetchMangaCharacters(title)
-        setCharacters(chars || [])
+        let chars = []
+try {
+  const title = getLocalizedTitle(detail.attributes?.title || {})
+  chars = await fetchMangaCharacters(title)
+} catch (e) {
+  console.warn('AniList characters not found')
+}
+
+setCharacters(chars || [])
       } catch (err) {
         console.error(err)
         setError('Failed to load manga detail.')
