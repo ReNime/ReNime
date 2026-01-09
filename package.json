@@ -16,7 +16,6 @@
     "@prisma/client": "^6.18.0",
     "axios": "^1.6.8",
     "framer-motion": "^11.0.10",
-    "lucide-react": "^0.344.0",
     "next": "15.5.9",
     "next-auth": "^4.24.11",
     "pixiv-app-api": "0.3.0", 
