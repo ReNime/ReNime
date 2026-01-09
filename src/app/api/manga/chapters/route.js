@@ -1,12 +1,17 @@
-import axios from 'axios';
+import axios from "axios";
+import { NextResponse } from "next/server";
 
-const BASE_URL = 'https://api.mangadex.org/';
+const BASE_URL = "https://api.mangadex.org";
 
-export default async function handler(req, res) {
-  const { mangaId } = req.query;
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const mangaId = searchParams.get("mangaId");
 
-  if (!mangaId || typeof mangaId !== 'string') {
-    return res.status(400).json({ message: 'Manga ID is required' });
+  if (!mangaId) {
+    return NextResponse.json(
+      { message: "Manga ID is required" },
+      { status: 400 }
+    );
   }
 
   try {
@@ -14,14 +19,18 @@ export default async function handler(req, res) {
       params: {
         manga: mangaId,
         limit: 100,
-        translatedLanguage: ['en', 'id'],
-        order: { chapter: 'desc' },
+        translatedLanguage: ["en", "id"],
+        order: { chapter: "desc" },
       },
     });
 
-    res.status(200).json(response.data.data);
+    return NextResponse.json(response.data.data);
   } catch (error) {
-    console.error('[API] /api/manga/chapters error:', error.message);
-    res.status(500).json({ message: 'Failed to fetch chapters' });
+    console.error("[API] /api/manga/chapters error:", error.message);
+
+    return NextResponse.json(
+      { message: "Failed to fetch chapters" },
+      { status: 500 }
+    );
   }
 }
