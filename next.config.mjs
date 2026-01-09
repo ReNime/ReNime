@@ -4,6 +4,7 @@ const nextConfig = {
         unoptimized: true,
         remotePatterns: [
             {
+                protocol: "https", 
                 hostname: "uploads.mangadex.org"
             }, 
             {
