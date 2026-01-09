@@ -4,6 +4,12 @@ const nextConfig = {
         unoptimized: true,
         remotePatterns: [
             {
+                hostname: "uploads.mangadex.org"
+            }, 
+            {
+                hostname: "s4.anilist.co"
+            }, 
+            {
                 hostname: "cdn.myanimelist.net"
             },
             {
