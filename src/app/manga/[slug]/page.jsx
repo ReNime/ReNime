@@ -100,13 +100,7 @@ setCharacters(chars || [])
 
   const title = getLocalizedTitle(manga.attributes?.title || {})
   const description = manga.attributes?.description?.en || 'No description.'
-  const coverRel = manga.relationships?.find(
-  r => r.type === 'cover_art' && r.attributes?.fileName
-)
-
-const coverUrl = coverRel
-  ? getCoverImage(manga.id, coverRel.attributes.fileName)
-  : null
+  const coverUrl = getCoverImage(manga)
   const tags = manga.attributes.tags || []
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
@@ -117,12 +111,12 @@ const coverUrl = coverRel
         {coverUrl && (
   <Image
     src={coverUrl}
-    alt="bg"
+    alt={title}
     fill
-    className="object-cover blur-2xl"
-    priority
+    className="object-cover rounded-xl"
   />
 )}
+
       </div>
 
       <section className="relative z-10 max-w-6xl mx-auto px-4 py-6">
