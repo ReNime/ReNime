@@ -25,6 +25,7 @@ export default function MangaLandingPage() {
         setLog({ type: 'loading', message: 'Loading manga list...' })
         const popularRes = await fetchPopularManga()
         setPopular(popularRes)
+        console.log('POPULAR DATA:', popularRes)
         setLog({ type: 'success', message: 'Popular manga loaded successfully!' })
       } catch (err) {
         console.error('[Manga Landing] Error:', err)
