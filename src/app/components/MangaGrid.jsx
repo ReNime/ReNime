@@ -20,6 +20,7 @@ export default function MangaGrid({ mangaList }) {
             slug={manga.slug}
             title={manga.title}
             thumbnail={manga.thumbnail}
+            chaptersCount={manga.totalChapter}
           />
         )
       })}
