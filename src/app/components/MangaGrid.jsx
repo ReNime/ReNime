@@ -8,12 +8,15 @@ export default function MangaGrid({ mangaList }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
       {mangaList.map((manga, index) => {
-        if (!manga?.slug) return null
+        if (!manga?.apiDetailLink) return null
+
+        // ⬇️ ambil slug dari apiDetailLink
+        const slug = manga.apiDetailLink.replace('/detail-komik/', '')
 
         return (
           <MangaCard
-            key={manga.slug || index}
-            slug={manga.slug}
+            key={slug || index}
+            slug={slug}
             title={manga.title}
             thumbnail={manga.thumbnail}
           />
