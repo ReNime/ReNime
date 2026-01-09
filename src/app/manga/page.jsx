@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { fetchPopularManga } from '@/app/libs/mangadex'
+import { fetchPopularManga } from '@/app/libs/komiku'
 import MangaGrid from '@/app/components/MangaGrid'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -12,31 +12,6 @@ import {
   FaTimesCircle,
   FaSpinner
 } from 'react-icons/fa'
-
-/*export const metadata = {
-  title: 'Manga | Renime',
-  description: 'Discover the hottest manga with a full-featured reader.',
-  openGraph: {
-    title: 'Manga | Renime',
-    description: 'Discover the hottest manga with a full-featured reader.',
-    url: 'https://renime.xyz/manga',
-    siteName: 'Renime',
-    images: [
-      {
-        url: 'https://renime.xyz/favicon.ico',
-        width: 1200,
-        height: 630
-      }
-    ],
-    type: 'website'
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Manga | Renime',
-    description: 'Discover the hottest manga with a full-featured reader.',
-    images: ['https://renime.xyz/favicon.ico']
-  }
-}*/
 
 export default function MangaLandingPage() {
   const [popular, setPopular] = useState([])
@@ -118,7 +93,9 @@ export default function MangaLandingPage() {
           <section>
             <div className="flex items-center gap-3 mb-6">
               <FaFire className="text-orange-500 text-2xl" />
-              <h2 className="text-3xl font-black text-white">Most Followed</h2>
+              <h2 className="text-3xl font-black text-white">
+                Rekomendasi
+              </h2>
             </div>
             <MangaGrid mangaList={popular} />
           </section>
