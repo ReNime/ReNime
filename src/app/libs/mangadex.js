@@ -98,8 +98,14 @@ export async function fetchMangaByGenre(tagId) {
   return res.data
 }
 
-export function getCoverImage(mangaId, fileName) {
-  return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`
+export function getCoverImage(manga) {
+  const coverRel = manga.relationships?.find(
+    (r) => r.type === 'cover_art'
+  )
+
+  if (!coverRel?.attributes?.fileName) return null
+
+  return `https://uploads.mangadex.org/covers/${manga.id}/${coverRel.attributes.fileName}`
 }
 
 export function getLocalizedTitle(titleObj) {
