@@ -1,48 +1,54 @@
-import axios from "axios";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
 
-const BASE_URL = "https://api.mangadex.org";
+const API_BASE = 'https://komiku-alpha.vercel.app'
 
 export async function GET(request) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get("id");
+  const { searchParams } = new URL(request.url)
+  const slug = searchParams.get('slug')
 
-  if (!id) {
+  if (!slug) {
     return NextResponse.json(
-      { message: "Manga ID is required" },
+      { error: 'slug query is required' },
       { status: 400 }
-    );
+    )
   }
 
   try {
-    const response = await axios.get(`${BASE_URL}/manga/${id}`, {
-      params: {
-        includes: ["author", "artist", "cover_art"],
-        "contentRating[]": [
-          "safe",
-          "suggestive",
-          "erotica",
-          "pornographic",
-        ],
-      },
-    });
+    const res = await fetch(
+      `${API_BASE}/detail-komik/${slug}`,
+      { cache: 'no-store' }
+    )
 
-    const manga = response.data?.data;
-
-    if (!manga || Object.keys(manga).length === 0) {
-      return NextResponse.json(
-        { message: "Manga not found or removed" },
-        { status: 404 }
-      );
+    if (!res.ok) {
+      throw new Error(`Failed to fetch detail: ${res.status}`)
     }
 
-    return NextResponse.json(manga);
+    const data = await res.json()
+
+    // API PURE DATA (NO SLUG / NO TRANSFORM)
+    return NextResponse.json({
+      title: data.title,
+      alternativeTitle: data.alternativeTitle,
+      description: data.description || data.sinopsis || '',
+      thumbnail: data.thumbnail,
+      slug: data.slug,
+
+      info: data.info || {},
+      genres: data.genres || [],
+
+      firstChapter: data.firstChapter || null,
+      latestChapter: data.latestChapter || null,
+      chapters: data.chapters || []
+    })
   } catch (error) {
-    console.error("[API] /api/manga/detail error:", error.message);
+    console.error('[DETAIL API ERROR]', error)
 
     return NextResponse.json(
-      { message: "Failed to fetch manga detail" },
+      {
+        error: 'Failed to fetch manga detail',
+        message: error.message
+      },
       { status: 500 }
-    );
+    )
   }
 }
