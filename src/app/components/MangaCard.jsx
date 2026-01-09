@@ -10,13 +10,12 @@ export default function MangaCard({ slug, title, thumbnail }) {
       className="group block transition-transform duration-300 hover:scale-105"
     >
       <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl shadow-xl bg-zinc-900 border border-zinc-800 group-hover:border-indigo-500/60 transition-all duration-300">
-        <Image
-          src={thumbnail || fallbackCover}
-          alt={title}
-          fill
-          className="object-cover transition duration-500 group-hover:scale-105"
-          sizes="(max-width: 768px) 50vw, 20vw"
-        />
+        <img
+  src={thumbnail}
+  alt={title}
+  className="w-full h-full object-cover"
+/>
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
       </div>
 
