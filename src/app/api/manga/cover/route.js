@@ -1,32 +1,46 @@
-import axios from 'axios';
+import axios from "axios";
+import { NextResponse } from "next/server";
 
-const BASE_URL = 'https://api.mangadex.org';
+const BASE_URL = "https://api.mangadex.org";
 
-export default async function handler(req, res) {
-  const { mangaId } = req.query;
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const mangaId = searchParams.get("mangaId");
 
-  if (!mangaId || typeof mangaId !== 'string') {
-    return res.status(400).json({ message: 'Manga ID is required' });
+  if (!mangaId) {
+    return NextResponse.json(
+      { message: "Manga ID is required" },
+      { status: 400 }
+    );
   }
 
   try {
     const response = await axios.get(`${BASE_URL}/manga/${mangaId}`, {
-      params: { includes: ['cover_art'] },
+      params: { includes: ["cover_art"] },
     });
 
     const manga = response.data.data;
-    const coverRel = manga.relationships.find(rel => rel.type === 'cover_art');
+    const coverRel = manga.relationships?.find(
+      (rel) => rel.type === "cover_art"
+    );
     const coverFileName = coverRel?.attributes?.fileName;
 
     if (!coverFileName) {
-      return res.status(404).json({ message: 'Cover not found' });
+      return NextResponse.json(
+        { message: "Cover not found" },
+        { status: 404 }
+      );
     }
 
     const coverUrl = `https://uploads.mangadex.org/covers/${mangaId}/${coverFileName}`;
 
-    res.status(200).json({ url: coverUrl });
+    return NextResponse.json({ url: coverUrl });
   } catch (error) {
-    console.error('[API] /api/manga/cover error:', error.message);
-    res.status(500).json({ message: 'Failed to fetch cover' });
+    console.error("[API] /api/manga/cover error:", error.message);
+
+    return NextResponse.json(
+      { message: "Failed to fetch cover" },
+      { status: 500 }
+    );
   }
 }
