@@ -8,6 +8,9 @@ const nextConfig = {
                 hostname: "uploads.mangadex.org"
             }, 
             {
+                hostname: "thumbnail.komiku.org"
+            }, 
+            {
                 hostname: "s4.anilist.co"
             }, 
             {
