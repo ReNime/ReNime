@@ -13,7 +13,7 @@ import {
   FaSpinner
 } from 'react-icons/fa'
 
-export const metadata = {
+/*export const metadata = {
   title: 'Manga | Renime',
   description: 'Discover the hottest manga with a full-featured reader.',
   openGraph: {
@@ -36,7 +36,7 @@ export const metadata = {
     description: 'Discover the hottest manga with a full-featured reader.',
     images: ['https://renime.xyz/favicon.ico']
   }
-}
+}*/
 
 export default function MangaLandingPage() {
   const [popular, setPopular] = useState([])
