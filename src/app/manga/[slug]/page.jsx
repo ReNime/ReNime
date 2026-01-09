@@ -12,7 +12,7 @@ import { fetchMangaCharacters } from '@/app/libs/anilist'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useFavorites } from '@/app/hooks/useFavorites'
-import { Heart, Share2 } from 'lucide-react'
+import { FaHeart, FaShareAlt } from 'react-icons/fa'
 import ShareModal from '@/app/components/ShareModal'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -35,9 +35,6 @@ export default function MangaDetailPage() {
   const [error, setError] = useState('')
   const [showFullDesc, setShowFullDesc] = useState(false)
   const [showShare, setShowShare] = useState(false)
-  const [langFilter, setLangFilter] = useState('all')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [sortOrder, setSortOrder] = useState('desc')
 
   const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites({
     mediaId: manga?.id ? parseInt(manga.id, 36) : undefined,
@@ -50,8 +47,8 @@ export default function MangaDetailPage() {
     async function load() {
       try {
         setLoading(true)
-
         const id = Array.isArray(slug) ? slug[0] : slug
+
         const detail = await fetchMangaDetail(id)
         if (!detail?.id) throw new Error('Invalid manga')
 
@@ -78,23 +75,6 @@ export default function MangaDetailPage() {
 
     load()
   }, [slug])
-
-  const filteredChapters = chapters
-    .filter(ch => {
-      if (langFilter !== 'all' && ch.attributes.translatedLanguage !== langFilter) return false
-      if (!searchQuery) return true
-
-      const q = searchQuery.toLowerCase()
-      return (
-        (ch.attributes.chapter || '').includes(q) ||
-        (ch.attributes.title || '').toLowerCase().includes(q)
-      )
-    })
-    .sort((a, b) => {
-      const A = parseFloat(a.attributes.chapter || '0')
-      const B = parseFloat(b.attributes.chapter || '0')
-      return sortOrder === 'asc' ? A - B : B - A
-    })
 
   if (loading) return <LoadingSkeleton />
 
@@ -149,21 +129,21 @@ export default function MangaDetailPage() {
               <button
                 onClick={toggleFavorite}
                 disabled={favLoading}
-                className={`px-3 py-2 rounded-lg text-sm flex items-center gap-1 ${
+                className={`px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${
                   isFavorite
                     ? 'bg-red-500/20 text-red-400'
                     : 'bg-gray-800 text-gray-300'
                 }`}
               >
-                <Heart size={14} className={isFavorite ? 'fill-current' : ''} />
+                <FaHeart className={isFavorite ? 'text-red-400' : ''} />
                 Favorite
               </button>
 
               <button
                 onClick={() => setShowShare(true)}
-                className="px-3 py-2 rounded-lg bg-gray-800 text-gray-300 flex items-center gap-1"
+                className="px-3 py-2 rounded-lg bg-gray-800 text-gray-300 flex items-center gap-2"
               >
-                <Share2 size={14} />
+                <FaShareAlt />
                 Share
               </button>
             </div>
@@ -185,16 +165,16 @@ export default function MangaDetailPage() {
 
         {/* Chapters */}
         <section className="mt-10">
-          <h2 className="text-xl font-bold mb-4">Chapters ({filteredChapters.length})</h2>
+          <h2 className="text-xl font-bold mb-4">Chapters ({chapters.length})</h2>
 
           <AnimatePresence>
-            {filteredChapters.length > 0 ? (
+            {chapters.length > 0 ? (
               <motion.ul
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="grid grid-cols-1 sm:grid-cols-2 gap-2"
               >
-                {filteredChapters.map(ch => (
+                {chapters.map(ch => (
                   <li key={ch.id}>
                     <Link
                       href={`/read/${ch.id}`}
