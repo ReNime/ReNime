@@ -1,5 +1,5 @@
 import MangaCard from '@/app/components/MangaCard';
-import SearchInput from '@/app/components/SearchInput';
+import SearchInput from '@/app/components/SearchManga';
 import Navigation from '@/app/components/Navigation';
 import BreadcrumbNavigation from '@/app/components/BreadcrumbNavigation';
 
