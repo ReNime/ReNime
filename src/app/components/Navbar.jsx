@@ -206,7 +206,7 @@ const Navbar = ({ user }) => {
         <button
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle menu"
-          className="md:hidden relative w-10 h-10 flex items-center justify-center"
+          className="md:hidden absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center"
         >
           <motion.span
             className="absolute w-8 h-[2px] bg-current"
