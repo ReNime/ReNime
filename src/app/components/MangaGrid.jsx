@@ -8,9 +8,14 @@ export default function MangaGrid({ mangaList }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!Array.isArray(mangaList)) return
+    if (!Array.isArray(mangaList) || mangaList.length === 0) {
+      setDetails([])
+      setLoading(false)
+      return
+    }
 
     async function loadDetails() {
+      setLoading(true)
       const promises = mangaList.map(async (manga) => {
         try {
           const res = await fetch(`/api/manga/details?slug=${manga.slug}`)
@@ -29,11 +34,19 @@ export default function MangaGrid({ mangaList }) {
 
       const results = await Promise.all(promises)
       setDetails(results.filter(Boolean))
-      setLoading(false) 
+      setLoading(false)
     }
 
     loadDetails()
   }, [mangaList])
+
+  if (loading) {
+    return (
+      <p className="text-zinc-400 animate-pulse">
+        Loading manga details...
+      </p>
+    )
+  }
 
   if (!details.length) {
     return <p className="text-zinc-400">No manga found</p>
