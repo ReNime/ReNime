@@ -23,11 +23,11 @@ export default function MangaLandingPage() {
   useEffect(() => {
     async function load() {
       try {
-        setLog({ type: 'loading', message: 'Loading manga list...' })
+        //setLog({ type: 'loading', message: 'Loading manga list...' })
         const popularRes = await fetchPopularManga()
         setPopular(popularRes)
         console.log('POPULAR DATA:', popularRes)
-        setLog({ type: 'success', message: 'Popular manga loaded successfully!' })
+        //setLog({ type: 'success', message: 'Popular manga loaded successfully!' })
         //setLog({ type: 'success', message: popularRes })
       } catch (err) {
         console.error('[Manga Landing] Error:', err)
