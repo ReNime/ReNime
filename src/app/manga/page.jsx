@@ -106,15 +106,7 @@ export default function MangaLandingPage() {
           </section>
         )}
 
-        <div className="mt-16 text-center">
-          <Link
-            href="/manga/explore"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-sky-500 to-cyan-500 px-6 py-3 rounded-xl font-bold text-black"
-          >
-            <FaSearch />
-            Explore Library
-          </Link>
-        </div>
+        
       </div>
     </main>
   )
