@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 export default function ReadPage() {
   const router = useRouter()
-  const { mangaSlug, chapterId } = useParams()
+  const { mangaSlug, chapterId } = useParams() // harus sesuai folder
 
   const [images, setImages] = useState([])
   const [loading, setLoading] = useState(true)
@@ -58,7 +58,7 @@ export default function ReadPage() {
     }
 
     load()
-  }, [mangaSlug, chapterId])
+  }, [mangaSlug, chapterId]) // gunakan chapterId
 
   const toggleBlur = (i) => {
     setBlurredPages((prev) => {
@@ -68,8 +68,8 @@ export default function ReadPage() {
     })
   }
 
-  const goChapter = (target) => {
-    if (!target) return
+  const goChapter = (targetChapter) => {
+    if (!targetChapter) return
     router.push(`/manga/read/${mangaSlug}/${targetChapter}`)
     setCurrentPage(0)
     window.scrollTo({ top: 0 })
@@ -194,4 +194,4 @@ export default function ReadPage() {
       </div>
     </div>
   )
-         }
+}
