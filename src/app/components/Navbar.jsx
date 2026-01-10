@@ -220,7 +220,13 @@ const Navbar = ({ user }) => {
                 >
                   <Link
                     href={link.href}
-                    className="block py-3 px-4 rounded-lg hover:bg-theme-tertiary"
+                    className="
+          block py-3 px-4 rounded-lg
+          text-theme-primary
+          hover:bg-theme-tertiary/60
+          active:bg-theme-tertiary
+          transition-colors duration-200
+        "
                     onClick={() => setIsOpen(false)}
                   >
                     {link.name}
