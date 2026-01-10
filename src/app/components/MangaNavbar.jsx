@@ -1,11 +1,10 @@
 "use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { useState, useRef, useEffect } from 'react';
-import { PiSparkleFill } from 'react-icons/pi';
-import { FaUser, FaSignOutAlt, FaSignInAlt, FaTachometerAlt, FaUserShield } from 'react-icons/fa';
-//import ThemeSwitcher from '@/app/components/ThemeSwitcher';
+import Link from "next/link";
+import Image from "next/image";
+import { useState, useRef, useEffect } from "react";
+import { PiSparkleFill } from "react-icons/pi";
+import { FaUser, FaSignOutAlt, FaSignInAlt, FaTachometerAlt, FaUserShield } from "react-icons/fa";
 
 const MangaNavbar = ({ user }) => { 
   const [isOpen, setIsOpen] = useState(false);
@@ -22,11 +21,11 @@ const MangaNavbar = ({ user }) => {
       }
 
       try {
-        const res = await fetch('/api/admin/check');
+        const res = await fetch("/api/admin/check");
         const data = await res.json();
         setIsAdmin(data.isAdmin === true);
       } catch (error) {
-        console.error('Error checking admin status:', error);
+        console.error("Error checking admin status:", error);
         setIsAdmin(false);
       }
     };
@@ -48,24 +47,20 @@ const MangaNavbar = ({ user }) => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
-    if (isProfileOpen) {
-      setIsOpen(false);
-    }
+    if (isProfileOpen) setIsOpen(false);
   }, [isProfileOpen]);
 
   useEffect(() => {
-    if (isOpen) {
-      setIsProfileOpen(false);
-    }
+    if (isOpen) setIsProfileOpen(false);
   }, [isOpen]);
 
   const navLinks = [
-    { href: "/", name: "Anime" }, 
+    { href: "/", name: "Anime" },
     { href: "/populer", name: "Populer" },
     { href: "/movie", name: "Movie" },
     { href: "/genres", name: "Genre" },
@@ -84,19 +79,22 @@ const MangaNavbar = ({ user }) => {
                 className="link-theme text-md font-medium relative group"
               >
                 {link.name}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full" 
-                      style={{ background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))' }}
+                <span 
+                  className="absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full" 
+                  style={{ background: "linear-gradient(to right, var(--accent-from), var(--accent-to))" }}
                 ></span>
               </Link>
             </li>
           ))}
         </ul>
 
+        {/* Right Side: Sparkle + Profile */}
+        <div className="absolute right-4 top-5 md:right-10 md:top-6 flex items-center gap-3">
           {/* Sparkle Icon */}
           <Link 
             href="/renai" 
             className="text-theme-primary animate-pulse hover:scale-110 transition-transform duration-300 hover:drop-shadow-lg"
-            style={{ filter: 'drop-shadow(0 0 8px var(--accent-from))' }}
+            style={{ filter: "drop-shadow(0 0 8px var(--accent-from))" }}
           >
             <PiSparkleFill size={28} />
           </Link>
@@ -107,8 +105,8 @@ const MangaNavbar = ({ user }) => {
               onClick={() => setIsProfileOpen(!isProfileOpen)}
               className="w-10 h-10 rounded-full overflow-hidden border-2 border-theme hover:scale-105 focus:outline-none transition-all duration-300"
               style={{ 
-                boxShadow: isProfileOpen ? '0 0 0 3px var(--border-theme)' : 'none',
-                borderColor: isProfileOpen ? 'var(--accent-from)' : 'var(--border-theme)'
+                boxShadow: isProfileOpen ? "0 0 0 3px var(--border-theme)" : "none",
+                borderColor: isProfileOpen ? "var(--accent-from)" : "var(--border-theme)"
               }}
             >
               {user?.image ? (
@@ -126,20 +124,21 @@ const MangaNavbar = ({ user }) => {
               )}
             </button>
 
-            {/* Profile Dropdown Menu */}
             {isProfileOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-theme-secondary backdrop-blur-xl border border-theme rounded-xl shadow-2xl overflow-hidden animate-fadeIn">
                 {user ? (
                   <>
                     <div className="px-4 py-3 border-b border-theme bg-theme-tertiary/30">
-                      <p className="text-sm font-semibold text-theme-primary truncate">{user.name || 'User'}</p>
-                      <p className="text-xs text-theme-tertiary truncate">{user.email || ''}</p>
+                      <p className="text-sm font-semibold text-theme-primary truncate">{user.name || "User"}</p>
+                      <p className="text-xs text-theme-tertiary truncate">{user.email || ""}</p>
                       {isAdmin && (
-                        <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 text-xs rounded-full font-medium"
-                              style={{ 
-                                background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))',
-                                color: 'var(--text-primary)'
-                              }}>
+                        <span 
+                          className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 text-xs rounded-full font-medium"
+                          style={{ 
+                            background: "linear-gradient(to right, var(--accent-from), var(--accent-to))",
+                            color: "var(--text-primary)"
+                          }}
+                        >
                           <FaUserShield className="text-[10px]" />
                           Admin
                         </span>
@@ -218,7 +217,7 @@ const MangaNavbar = ({ user }) => {
       <div 
         ref={mobileMenuRef}
         className={`md:hidden absolute top-full left-0 right-0 bg-theme-secondary border-b border-theme backdrop-blur-xl transition-all duration-300 overflow-hidden ${
-          isOpen ? 'max-h-screen shadow-2xl opacity-100' : 'max-h-0 opacity-0'
+          isOpen ? "max-h-screen shadow-2xl opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <ul className="flex flex-col p-4 space-y-1">
