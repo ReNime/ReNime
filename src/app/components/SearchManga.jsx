@@ -6,7 +6,7 @@ import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 
-export default function SearchInput() {
+export default function MangaSearchInput({ basePath = '/manga/search' }) {
   const router = useRouter();
   const searchRef = useRef();
   const [isFocused, setIsFocused] = useState(false);
@@ -27,7 +27,7 @@ export default function SearchInput() {
     setResults([]);
 
     try {
-      // Fetch ke API route internal
+      // fetch ke API internal
       const res = await fetch(`/api/manga/search?q=${encodeURIComponent(keyword)}`);
       const data = await res.json();
 
@@ -36,6 +36,9 @@ export default function SearchInput() {
       } else {
         setResults([]);
       }
+
+      // langsung redirect ke page search
+      router.push(`${basePath}/${encodeURIComponent(keyword)}`);
     } catch (err) {
       console.error(err);
       setResults([]);
@@ -102,7 +105,7 @@ export default function SearchInput() {
         </motion.div>
       </form>
 
-      {/* Search Results */}
+      {/* Search Suggestions / Dropdown */}
       <AnimatePresence>
         {isFocused && (results.length > 0 || loading) && (
           <motion.div
@@ -119,7 +122,7 @@ export default function SearchInput() {
                   <motion.div
                     key={item.slug}
                     whileHover={{ scale: 1.02 }}
-                    onClick={() => router.push(`/manga/details/${item.slug}`)}
+                    onClick={() => router.push(`${basePath}/${item.slug}`)}
                     className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-theme-tertiary/20 transition-all"
                   >
                     <div className="w-12 h-16 relative flex-shrink-0">
