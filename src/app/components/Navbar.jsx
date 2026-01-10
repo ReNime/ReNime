@@ -203,25 +203,30 @@ const Navbar = ({ user }) => {
         </div>
 
         {/* ================= HAMBURGER ================= */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label="Toggle menu"
-          className="text-theme-primary focus:outline-none hover:scale-105 transition-transform duration-200"
-        >
-          <motion.span
-            className="absolute w-8 h-[2px] bg-current"
-            animate={{ rotate: isOpen ? 45 : 0, y: isOpen ? 6 : -6 }}
-          />
-          <motion.span
-            className="absolute w-8 h-[2px] bg-current"
-            animate={{ opacity: isOpen ? 0 : 1 }}
-          />
-          <motion.span
-            className="absolute w-8 h-[2px] bg-current"
-            animate={{ rotate: isOpen ? -45 : 0, y: isOpen ? -6 : 6 }}
-          />
-        </button>
-      </div>
+       <div className="absolute left-4 top-0 bottom-0 flex items-center md:hidden">
+  <button
+    onClick={() => setIsOpen(!isOpen)}
+    aria-label="Toggle menu"
+    className="w-10 h-10 flex items-center justify-center"
+  >
+    <motion.span
+      className="absolute w-8 h-[2px] bg-current"
+      animate={{ rotate: isOpen ? 45 : 0, y: isOpen ? 6 : -6 }}
+      transition={{ duration: 0.25 }}
+    />
+    <motion.span
+      className="absolute w-8 h-[2px] bg-current"
+      animate={{ opacity: isOpen ? 0 : 1 }}
+      transition={{ duration: 0.2 }}
+    />
+    <motion.span
+      className="absolute w-8 h-[2px] bg-current"
+      animate={{ rotate: isOpen ? -45 : 0, y: isOpen ? -6 : 6 }}
+      transition={{ duration: 0.25 }}
+    />
+  </button>
+       </div>
+</div>
 
       {/* ================= MOBILE MENU ================= */}
       <AnimatePresence>
