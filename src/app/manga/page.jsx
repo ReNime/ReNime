@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useEffect, useState } from 'react'
 import { fetchPopularManga } from '@/app/libs/komiku'
@@ -16,21 +16,28 @@ import {
 } from 'react-icons/fa'
 
 export default function MangaLandingPage() {
-  const user = await AuthUserSession();
+  const [user, setUser] = useState(null)
   const [popular, setPopular] = useState([])
   const [loading, setLoading] = useState(true)
   const [log, setLog] = useState(null)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
+  // Fetch user session
+  useEffect(() => {
+    AuthUserSession().then(setUser).catch(err => {
+      console.error(err)
+      setUser(null)
+    })
+  }, [])
+
+  // Fetch popular manga
   useEffect(() => {
     async function load() {
       try {
-        //setLog({ type: 'loading', message: 'Loading manga list...' })
+        setLog({ type: 'loading', message: 'Loading manga list...' })
         const popularRes = await fetchPopularManga()
         setPopular(popularRes)
-        console.log('POPULAR DATA:', popularRes)
-        //setLog({ type: 'success', message: 'Popular manga loaded successfully!' })
-        //setLog({ type: 'success', message: popularRes })
+        setLog({ type: 'success', message: 'Popular manga loaded successfully!' })
       } catch (err) {
         console.error('[Manga Landing] Error:', err)
         setLog({
@@ -44,6 +51,7 @@ export default function MangaLandingPage() {
     load()
   }, [])
 
+  // Track mouse position
   useEffect(() => {
     const handleMouseMove = (e) => {
       setMousePosition({ x: e.clientX, y: e.clientY })
