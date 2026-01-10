@@ -104,12 +104,11 @@ export async function fetchChapterImages(mangaSlug, chapterId) {
 
   const data = await res.json()
 
-  // pastikan images array
+  // ambil URL image saja
   const images = Array.isArray(data.images)
-    ? data.images.map((img) => img.src)
+    ? data.images.map(img => img.src)
     : []
 
-  // navigasi prev/next
   const prev = data.navigation?.prevChapter?.chapter || null
   const next = data.navigation?.nextChapter?.chapter || null
 
