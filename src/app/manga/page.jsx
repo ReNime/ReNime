@@ -6,6 +6,7 @@ import MangaGrid from '@/app/components/MangaGrid'
 import MangaNavbar from '@/app/components/MangaNavbar'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import { AuthUserSession } from "@/app/libs/auth-libs"; 
 import {
   FaFire,
   FaSearch,
@@ -15,6 +16,7 @@ import {
 } from 'react-icons/fa'
 
 export default function MangaLandingPage() {
+  const user = await AuthUserSession();
   const [popular, setPopular] = useState([])
   const [loading, setLoading] = useState(true)
   const [log, setLog] = useState(null)
