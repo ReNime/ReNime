@@ -13,12 +13,21 @@ async function getAllGenres() {
     if (!response.ok) throw new Error('Gagal mengambil data genre');
 
     const result = await response.json();
-    return result.data || [];
+
+    // Jika data ada di root 'data' atau fallback ke root array
+    if (Array.isArray(result.data)) {
+      return result.data;
+    } else if (Array.isArray(result)) {
+      return result;
+    } else {
+      return [];
+    }
   } catch (error) {
     console.error("Error fetching genres:", error);
     return [];
   }
 }
+
 
 export default async function GenresPage() {
   const allGenres = await getAllGenres();
