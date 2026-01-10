@@ -24,7 +24,7 @@ export default async function GenresPage() {
   const allGenres = await getAllGenres();
 
   const breadcrumbs = [
-    { title: 'Genres', href: '/genres' }
+    { title: 'Genres', href: '/manga/genres' }
   ];
 
   return (
@@ -47,8 +47,9 @@ export default async function GenresPage() {
                   key={genre.slug}
                   href={`/manga/genre/${genre.slug}`}
                   className="block bg-neutral-800 hover:bg-neutral-700 rounded-lg p-4 text-center font-semibold transition-all duration-300"
+                  title={genre.titleAttr} // tooltip optional
                 >
-                  {genre.title}
+                  {genre.title} {/* e.g. "Comedy (2.611)" */}
                 </Link>
               ))}
             </div>
@@ -56,7 +57,7 @@ export default async function GenresPage() {
         ) : (
           <div className="flex justify-center items-center min-h-[50vh]">
             <div className="text-center">
-              <div 
+              <div
                 className="w-16 h-16 border-4 border-neutral-700 rounded-full animate-spin mx-auto mb-4"
                 style={{ borderTopColor: 'var(--accent-from)' }}
               ></div>
