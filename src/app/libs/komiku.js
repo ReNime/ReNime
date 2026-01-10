@@ -95,8 +95,23 @@ export async function searchManga(query) {
  * chapterSlug contoh: kimetsu-no-yaiba/1
  */
 export async function fetchChapterImages(mangaSlug, chapterId) {
-  const res = await fetch(`https://komiku-alpha.vercel.app/chapter/${mangaSlug}/${chapterId}`)
-  const data = await res.json()
-  return data
-}
+  const res = await fetch(
+    `https://komiku-alpha.vercel.app/baca-chapter/${encodeURIComponent(mangaSlug)}/${encodeURIComponent(chapterId)}`,
+    { cache: 'no-store' }
+  )
 
+  if (!res.ok) throw new Error('Failed to fetch chapter images')
+
+  const data = await res.json()
+
+  // pastikan images array
+  const images = Array.isArray(data.images)
+    ? data.images.map((img) => img.src)
+    : []
+
+  // navigasi prev/next
+  const prev = data.navigation?.prevChapter?.chapter || null
+  const next = data.navigation?.nextChapter?.chapter || null
+
+  return { images, prev, next }
+}
