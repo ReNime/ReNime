@@ -5,6 +5,7 @@ import MangaCard from './MangaCard'
 
 export default function MangaGrid({ mangaList }) {
   const [details, setDetails] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!Array.isArray(mangaList)) return
@@ -28,6 +29,7 @@ export default function MangaGrid({ mangaList }) {
 
       const results = await Promise.all(promises)
       setDetails(results.filter(Boolean))
+      setLoading(false) 
     }
 
     loadDetails()
