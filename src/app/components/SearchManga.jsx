@@ -16,17 +16,19 @@ export default function SearchInput() {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    const keyword = searchRef.current.value;
+    const keyword = searchRef.current.value.trim();
 
-    if (!keyword.trim()) {
+    if (!keyword) {
       alert("Please type something to search");
       return;
     }
 
     setLoading(true);
     setResults([]);
+
     try {
-      const res = await fetch(`/api/manga/search?q=${encodeURIComponent(keyword.trim())}`);
+      // Fetch ke API route internal
+      const res = await fetch(`/api/manga/search?q=${encodeURIComponent(keyword)}`);
       const data = await res.json();
 
       if (data.status && Array.isArray(data.data)) {
@@ -52,12 +54,7 @@ export default function SearchInput() {
   return (
     <div className="relative w-full max-w-md my-8">
       <form onSubmit={handleSearch}>
-        <motion.div 
-          className="relative"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
+        <motion.div className="relative">
           {/* Search Icon */}
           <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
             <MagnifyingGlassIcon className="h-5 w-5 text-theme-tertiary" />
@@ -70,13 +67,11 @@ export default function SearchInput() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
+            onBlur={() => setTimeout(() => setIsFocused(false), 150)}
             placeholder="Search manga title..."
-            className={`
-              w-full input-theme rounded-full py-3 pl-12 pr-24
-              transition-all duration-300
-              ${isFocused ? 'ring-2 ring-[var(--accent-from)] shadow-lg shadow-[var(--shadow-theme)]' : ''}
-            `}
+            className={`w-full input-theme rounded-full py-3 pl-12 pr-24 transition-all duration-300 ${
+              isFocused ? 'ring-2 ring-[var(--accent-from)] shadow-lg shadow-[var(--shadow-theme)]' : ''
+            }`}
           />
 
           {/* Clear Button */}
@@ -104,14 +99,6 @@ export default function SearchInput() {
           >
             <MagnifyingGlassIcon className="h-6 w-6" />
           </motion.button>
-
-          {/* Focus Indicator */}
-          <motion.div
-            className="absolute bottom-0 left-0 right-0 h-0.5 gradient-theme rounded-full"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: isFocused ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-          />
         </motion.div>
       </form>
 
@@ -127,27 +114,28 @@ export default function SearchInput() {
             <div className="p-2">
               {loading && <p className="text-theme-tertiary text-sm px-3 py-2 animate-pulse">Loading...</p>}
               {!loading && results.length === 0 && <p className="text-theme-tertiary text-sm px-3 py-2">No results found</p>}
-              {!loading && results.map((item) => (
-                <motion.div
-                  key={item.slug}
-                  whileHover={{ scale: 1.02 }}
-                  onClick={() => router.push(`/manga/details/${item.slug}`)}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-theme-tertiary/20 transition-all"
-                >
-                  <div className="w-12 h-16 relative flex-shrink-0">
-                    <Image
-                      src={item.thumbnail}
-                      alt={item.title}
-                      fill
-                      className="object-cover rounded"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-white truncate">{item.title}</p>
-                    {item.altTitle && <p className="text-xs text-theme-tertiary truncate">{item.altTitle}</p>}
-                  </div>
-                </motion.div>
-              ))}
+              {!loading &&
+                results.map((item) => (
+                  <motion.div
+                    key={item.slug}
+                    whileHover={{ scale: 1.02 }}
+                    onClick={() => router.push(`/manga/details/${item.slug}`)}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-theme-tertiary/20 transition-all"
+                  >
+                    <div className="w-12 h-16 relative flex-shrink-0">
+                      <Image
+                        src={item.thumbnail}
+                        alt={item.title}
+                        fill
+                        className="object-cover rounded"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-white truncate">{item.title}</p>
+                      {item.altTitle && <p className="text-xs text-theme-tertiary truncate">{item.altTitle}</p>}
+                    </div>
+                  </motion.div>
+                ))}
             </div>
           </motion.div>
         )}
