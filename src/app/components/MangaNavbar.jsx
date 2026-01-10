@@ -24,10 +24,10 @@ const MangaNavbar = () => {
 
   const navLinks = [
     { href: "/", name: "Anime" },
-    { href: "/populer", name: "Populer" },
-    { href: "/movie", name: "Movie" },
-    { href: "/genres", name: "Genre" },
-    { href: "/schedule", name: "Schedule" },
+    //{ href: "/populer", name: "Populer" },
+    //{ href: "/movie", name: "Movie" },
+    { href: "/manga/genres", name: "Genre" },
+    //{ href: "/schedule", name: "Schedule" },
   ];
 
   return (
