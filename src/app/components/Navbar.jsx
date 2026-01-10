@@ -225,7 +225,7 @@ const Navbar = ({ user }) => {
       transition={{ duration: 0.25 }}
     />
   </button>
-       </div>
+       
 </div>
 
       {/* ================= MOBILE MENU ================= */}
