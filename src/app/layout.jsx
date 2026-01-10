@@ -1,7 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from '@/app/context/ThemeContext';
+import { ThemeProvider } from "@/app/context/ThemeContext";
 import "./globals.css";
 import NextAuthProvider from "./components/NextAuthProvider";
+import Navbar from "@/app/components/Sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,32 +19,38 @@ export const metadata = {
   description: "Web Streaming Anime Sub Indo",
   icons: {
     icon: [
-      { url: '/images/favicon_io/favicon.ico' },
-      { url: '/images/favicon_io/favicon-32x32.png', sizes: '16x16', type: 'image/png' },
-      { url: '/images/favicon_io/favicon-64x64.png', sizes: '32x32', type: 'image/png' },
+      { url: "/images/favicon_io/favicon.ico" },
+      { url: "/images/favicon_io/favicon-32x32.png", sizes: "16x16", type: "image/png" },
+      { url: "/images/favicon_io/favicon-64x64.png", sizes: "32x32", type: "image/png" },
     ],
     apple: [
-      { url: '/images/favicon_io/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: "/images/favicon_io/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
-  manifest: '/images/favicon_io/site.webmanifest',
+  manifest: "/images/favicon_io/site.webmanifest",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <main className="md:ml-64">
       <body
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
-        <NextAuthProvider>
-          {children}
-        </NextAuthProvider>
+          <NextAuthProvider>
+            
+            {/* Sidebar */}
+            <Navbar />
+
+            {/* Content */}
+            <main className="md:ml-64 min-h-screen">
+              {children}
+            </main>
+
+          </NextAuthProvider>
         </ThemeProvider>
       </body>
-      </main>
     </html>
   );
 }
