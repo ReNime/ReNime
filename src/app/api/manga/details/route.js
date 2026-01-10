@@ -6,48 +6,35 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url)
   const slug = searchParams.get('slug')
 
-  if (!slug) {
-    return NextResponse.json(
-      { error: 'slug query is required' },
-      { status: 400 }
-    )
-  }
+  if (!slug) return NextResponse.json({ error: 'slug required' }, { status: 400 })
 
   try {
-    const res = await fetch(
-      `${API_BASE}/detail-komik/${slug}`,
-      { cache: 'no-store' }
-    )
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000)
 
-    if (!res.ok) {
-      throw new Error(`Failed to fetch detail: ${res.status}`)
-    }
+    const res = await fetch(`https://komiku-alpha.vercel.app/detail-komik/${slug}`, {
+      signal: controller.signal,
+      cache: 'no-store'
+    })
+
+    clearTimeout(timeoutId)
+
+    if (!res.ok) throw new Error('API error ' + res.status)
 
     const data = await res.json()
-
-    // API PURE DATA (NO SLUG / NO TRANSFORM)
     return NextResponse.json({
       title: data.title,
       alternativeTitle: data.alternativeTitle,
       description: data.description || data.sinopsis || '',
       thumbnail: data.thumbnail,
       slug: data.slug,
-
-      info: data.info || {},
       genres: data.genres || [],
-
-      firstChapter: data.firstChapter || null,
-      latestChapter: data.latestChapter || null,
-      chapters: data.chapters || []
+      chapters: data.chapters || [],
     })
-  } catch (error) {
-    console.error('[DETAIL API ERROR]', error)
-
+  } catch (err) {
+    console.error('[DETAIL API ERROR]', err)
     return NextResponse.json(
-      {
-        error: 'Failed to fetch manga detail',
-        message: error.message
-      },
+      { error: 'Failed to fetch manga detail', message: err.message },
       { status: 500 }
     )
   }
