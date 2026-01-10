@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { fetchPopularManga } from '@/app/libs/komiku'
 import MangaGrid from '@/app/components/MangaGrid'
 import SearchManga from '@/app/components/SearchManga'
-//import MangaNavbar from '@/app/components/MangaNavbar'
+import MangaNavbar from '@/app/components/MangaNavbar'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -53,6 +53,7 @@ export default function MangaLandingPage() {
 
   return (
     <main className="relative min-h-screen bg-black overflow-hidden">
+      <MangaNavbar />
       {/* background */}
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,0.08),transparent_50%),radial-gradient(circle_at_80%_20%,rgba(6,182,212,0.06),transparent_50%),radial-gradient(circle_at_20%_80%,rgba(14,165,233,0.05),transparent_50%)] pointer-events-none" />
 
