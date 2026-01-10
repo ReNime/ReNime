@@ -32,6 +32,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <main className="md:ml-64">
       <body
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
@@ -42,6 +43,7 @@ export default function RootLayout({ children }) {
         </NextAuthProvider>
         </ThemeProvider>
       </body>
+      </main>
     </html>
   );
 }
