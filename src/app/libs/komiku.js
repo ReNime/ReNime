@@ -94,9 +94,9 @@ export async function searchManga(query) {
  * =========================
  * chapterSlug contoh: kimetsu-no-yaiba/1
  */
-export async function fetchChapterImages(chapterSlug) {
-  if (!chapterSlug) throw new Error('Chapter slug is required')
-
-  const res = await axios.get(`${apiUrl}/chapter/${chapterSlug}`)
-  return res.data
+export async function fetchChapterImages(mangaSlug, chapterId) {
+  const res = await fetch(`https://komiku-alpha.vercel.app/chapter/${mangaSlug}/${chapterId}`)
+  const data = await res.json()
+  return data
 }
+
