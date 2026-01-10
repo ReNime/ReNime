@@ -33,29 +33,26 @@ export default function MangaDetailPage() {
     })
 
   useEffect(() => {
-    if (!slug) return
+  if (!slug) return;
 
-    async function load() {
-      try {
-        setLoading(true)
-        const res = await fetch(
-          `/api/manga/details?slug=${slug}`
-        )
-
-        if (!res.ok) throw new Error('Failed to fetch detail')
-
-        const data = await res.json()
-        setManga(data)
-      } catch (err) {
-        console.error(err)
-        setError('Failed to load manga detail.')
-      } finally {
-        setLoading(false)
-      }
+  async function load() {
+    try {
+      setLoading(true);
+      const res = await fetch(`https://komiku-alpha.vercel.app/detail-komik/${slug}`);
+      if (!res.ok) throw new Error('Failed to fetch detail');
+      const data = await res.json();
+      setManga(data);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load manga detail.');
+    } finally {
+      setLoading(false);
     }
+  }
 
-    load()
-  }, [slug])
+  load();
+}, [slug]);
+
 
   if (loading) return <LoadingSkeleton />
 
