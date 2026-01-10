@@ -14,24 +14,32 @@ export async function GET(request) {
   }
 
   try {
-    const res = await fetch(`${KOMIKU_API_BASE}/search?q=${encodeURIComponent(keyword)}`, {
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${KOMIKU_API_BASE}/search?q=${encodeURIComponent(keyword)}`,
+      { cache: "no-store" }
+    );
 
     if (!res.ok) {
       throw new Error(`Failed to fetch komiku search: ${res.status}`);
     }
 
-    const data = await res.json();
+    const komikuData = await res.json();
 
-    // Sesuaikan format JSON supaya frontend gampang pakai
-    // Misal ambil `data.data` dari API komiku
+    // Map data supaya sesuai kebutuhan frontend
+    const mapped = (komikuData.data || []).map((item) => ({
+      title: item.title,
+      altTitle: item.altTitle || "",
+      slug: item.slug,
+      href: item.href,
+      thumbnail: item.thumbnail,
+    }));
+
     return NextResponse.json({
       status: true,
-      message: data.message || "Search success",
+      message: komikuData.message || "Search success",
       keyword,
-      total: data.total || 0,
-      data: data.data || [],
+      total: komikuData.total || 0,
+      data: mapped,
     });
   } catch (error) {
     console.error("[API SEARCH ERROR]", error);
