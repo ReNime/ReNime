@@ -6,7 +6,8 @@ import BottomNav from "@/app/components/BottomNav";
 import Header from "@/app/components/Header";
 import HeroSection from "@/app/components/HeroSection";
 import React from 'react';
-import Navbar from "./components/Navbar"; 
+import Navbar from "./components/Sidebar"; 
+//import Navbar from "./components/Navbar"; 
 import { AuthUserSession } from "./libs/auth-libs"; 
 
 // Warning Message Component with Theme
