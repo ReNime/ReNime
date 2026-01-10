@@ -25,11 +25,7 @@ const Navbar = ({ user }) => {
   /* ================= ADMIN CHECK ================= */
   useEffect(() => {
     const checkAdmin = async () => {
-      if (!user?.email) {
-        setIsAdmin(false);
-        return;
-      }
-
+      if (!user?.email) return setIsAdmin(false);
       try {
         const res = await fetch("/api/admin/check");
         const data = await res.json();
@@ -38,7 +34,6 @@ const Navbar = ({ user }) => {
         setIsAdmin(false);
       }
     };
-
     checkAdmin();
   }, [user?.email]);
 
@@ -76,9 +71,32 @@ const Navbar = ({ user }) => {
   ];
 
   return (
-    <nav className="w-full md:pt-10 pt-5 relative z-50">
-      <div className="container mx-auto flex justify-center items-center px-4">
-        {/* ================= DESKTOP MENU ================= */}
+    <nav className="w-full relative z-50 bg-theme-secondary/80 backdrop-blur-xl border-b border-theme">
+      <div className="container mx-auto relative flex justify-center items-center px-4 h-16 md:h-20">
+        
+        {/* ================= HAMBURGER (LEFT) ================= */}
+        <div className="absolute left-4 inset-y-0 flex items-center md:hidden">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle menu"
+            className="w-10 h-10 flex items-center justify-center"
+          >
+            <motion.span
+              className="absolute w-8 h-[2px] bg-current"
+              animate={{ rotate: isOpen ? 45 : 0, y: isOpen ? 6 : -6 }}
+            />
+            <motion.span
+              className="absolute w-8 h-[2px] bg-current"
+              animate={{ opacity: isOpen ? 0 : 1 }}
+            />
+            <motion.span
+              className="absolute w-8 h-[2px] bg-current"
+              animate={{ rotate: isOpen ? -45 : 0, y: isOpen ? -6 : 6 }}
+            />
+          </button>
+        </div>
+
+        {/* ================= DESKTOP MENU (CENTER) ================= */}
         <ul className="hidden md:flex items-center space-x-6">
           {navLinks.map((link) => (
             <li key={link.href}>
@@ -100,7 +118,7 @@ const Navbar = ({ user }) => {
         </ul>
 
         {/* ================= RIGHT SIDE ================= */}
-        <div className="absolute right-4 top-5 md:right-10 md:top-6 flex items-center gap-3">
+        <div className="absolute right-4 inset-y-0 flex items-center gap-3">
           <ThemeSwitcher />
 
           <Link
@@ -123,16 +141,10 @@ const Navbar = ({ user }) => {
               }}
             >
               {user?.image ? (
-                <Image
-                  src={user.image}
-                  alt="Profile"
-                  width={40}
-                  height={40}
-                  className="object-cover"
-                />
+                <Image src={user.image} alt="Profile" width={40} height={40} />
               ) : (
                 <div className="w-full h-full bg-theme-tertiary flex items-center justify-center">
-                  <FaUser className="text-theme-secondary" />
+                  <FaUser />
                 </div>
               )}
             </button>
@@ -143,56 +155,41 @@ const Navbar = ({ user }) => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.2 }}
                   className="absolute right-0 mt-2 w-48 bg-theme-secondary border border-theme rounded-xl shadow-2xl overflow-hidden"
                 >
                   {user ? (
                     <>
                       <div className="px-4 py-3 border-b border-theme">
-                        <p className="text-sm font-semibold">
-                          {user.name || "User"}
-                        </p>
+                        <p className="font-semibold">{user.name || "User"}</p>
                         <p className="text-xs text-theme-tertiary truncate">
                           {user.email}
                         </p>
                         {isAdmin && (
                           <span className="inline-flex gap-1 mt-2 px-2 py-0.5 text-xs rounded-full bg-gradient-to-r from-[var(--accent-from)] to-[var(--accent-to)]">
-                            <FaUserShield />
-                            Admin
+                            <FaUserShield /> Admin
                           </span>
                         )}
                       </div>
 
-                      <Link
-                        href="/users/dashboard"
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-theme-tertiary"
-                        onClick={() => setIsProfileOpen(false)}
-                      >
+                      <Link href="/users/dashboard" className="menu-item">
                         <FaTachometerAlt /> Dashboard
                       </Link>
 
                       {isAdmin && (
-                        <Link
-                          href="/admin/dashboard"
-                          className="flex items-center gap-3 px-4 py-3 hover:bg-theme-tertiary border-t border-theme"
-                          onClick={() => setIsProfileOpen(false)}
-                        >
+                        <Link href="/admin/dashboard" className="menu-item">
                           <FaUserShield /> Admin
                         </Link>
                       )}
 
                       <Link
                         href="/api/auth/signout"
-                        className="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 border-t border-theme"
+                        className="menu-item text-red-400"
                       >
                         <FaSignOutAlt /> Logout
                       </Link>
                     </>
                   ) : (
-                    <Link
-                      href="/api/auth/signin"
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-theme-tertiary"
-                    >
+                    <Link href="/api/auth/signin" className="menu-item">
                       <FaSignInAlt /> Login
                     </Link>
                   )}
@@ -201,32 +198,7 @@ const Navbar = ({ user }) => {
             </AnimatePresence>
           </div>
         </div>
-
-        {/* ================= HAMBURGER ================= */}
-       <div className="absolute left-4 top-0 bottom-0 flex items-center md:hidden">
-  <button
-    onClick={() => setIsOpen(!isOpen)}
-    aria-label="Toggle menu"
-    className="w-10 h-10 flex items-center justify-center"
-  >
-    <motion.span
-      className="absolute w-8 h-[2px] bg-current"
-      animate={{ rotate: isOpen ? 45 : 0, y: isOpen ? 6 : -6 }}
-      transition={{ duration: 0.25 }}
-    />
-    <motion.span
-      className="absolute w-8 h-[2px] bg-current"
-      animate={{ opacity: isOpen ? 0 : 1 }}
-      transition={{ duration: 0.2 }}
-    />
-    <motion.span
-      className="absolute w-8 h-[2px] bg-current"
-      animate={{ rotate: isOpen ? -45 : 0, y: isOpen ? -6 : 6 }}
-      transition={{ duration: 0.25 }}
-    />
-  </button>
-       
-</div>
+      </div>
 
       {/* ================= MOBILE MENU ================= */}
       <AnimatePresence>
@@ -236,7 +208,6 @@ const Navbar = ({ user }) => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25 }}
             className="md:hidden absolute top-full left-0 right-0 bg-theme-secondary border-b border-theme shadow-2xl"
           >
             <ul className="flex flex-col p-4 space-y-1">
