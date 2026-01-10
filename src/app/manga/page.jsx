@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { fetchPopularManga } from '@/app/libs/komiku'
 import MangaGrid from '@/app/components/MangaGrid'
+import SearchManga from '@/app/components/SearchManga'
 //import MangaNavbar from '@/app/components/MangaNavbar'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -89,7 +90,7 @@ export default function MangaLandingPage() {
             </motion.div>
           )}
         </AnimatePresence>
-
+      <SearchManga />
         {loading ? (
           <p className="text-gray-400">Loading manga...</p>
         ) : (
