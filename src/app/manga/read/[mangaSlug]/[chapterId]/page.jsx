@@ -29,36 +29,25 @@ export default function ReadPage() {
   const [blurredPages, setBlurredPages] = useState(new Set())
 
   useEffect(() => {
-    if (!mangaSlug || !chapterId) return
+  if (!mangaSlug || !chapterId) return
 
-    const load = async () => {
-      try {
-        setLoading(true)
-        const data = await fetchChapterImages(mangaSlug, chapterId)
-
-        if (!Array.isArray(data.images)) {
-          throw new Error('Invalid Komiku chapter response')
-        }
-
-        setImages(data.images)
-        setNextChapter(data.next || null)
-        setPrevChapter(data.prev || null)
-
-        const blur = new Set()
-        data.images.forEach((_, i) => {
-          if (Math.random() > 0.75) blur.add(i)
-        })
-        setBlurredPages(blur)
-      } catch (err) {
-        console.error(err)
-        setError('Failed to load chapter')
-      } finally {
-        setLoading(false)
-      }
+  const load = async () => {
+    try {
+      setLoading(true)
+      const { images, prev, next } = await fetchChapterImages(mangaSlug, chapterId)
+      setImages(images)
+      setPrevChapter(prev)
+      setNextChapter(next)
+    } catch (err) {
+      console.error(err)
+      setError('Failed to load chapter')
+    } finally {
+      setLoading(false)
     }
+  }
 
-    load()
-  }, [mangaSlug, chapterId]) // gunakan chapterId
+  load()
+}, [mangaSlug, chapterId]) // gunakan chapterId
 
   const toggleBlur = (i) => {
     setBlurredPages((prev) => {
