@@ -156,62 +156,80 @@ export default function ManhwaReadPage() {
 
         {/* SWIPE MODE */}
         {mode === 'swipe' && (
-          <>
-            <div className="relative flex justify-center select-none">
-              <motion.img
-                key={currentPage}
-                src={images[currentPage]}
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0}
-                onDragEnd={(e, { offset, velocity }) => {
-                  const swipe = Math.abs(offset.x) * velocity.x
-                  if (swipe < -10000 && currentPage < images.length - 1) {
-                    setCurrentPage((p) => p + 1)
-                  } else if (swipe > 10000 && currentPage > 0) {
-                    setCurrentPage((p) => p - 1)
-                  }
-                }}
-                className={`max-h-[85vh] rounded-lg ${
-                  blurredPages.has(currentPage) ? 'blur-xl' : ''
-                }`}
-              />
+  <>
+    {/* FIXED VIEWPORT */}
+    <div className="relative w-full h-[85vh] flex items-center justify-center overflow-hidden bg-black">
+      <motion.img
+        key={currentPage}
+        src={images[currentPage]}
+        alt={`Page ${currentPage + 1}`}
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0}
+        onDragEnd={(e, { offset, velocity }) => {
+          const swipe = Math.abs(offset.x) * velocity.x
 
-              <button
-                onClick={() => toggleBlur(currentPage)}
-                className="absolute top-4 right-4 bg-black/70 p-2 rounded"
-              >
-                {blurredPages.has(currentPage) ? (
-                  <MdBlurOff />
-                ) : (
-                  <MdBlurOn />
-                )}
-              </button>
-            </div>
+          if (swipe < -10000 && currentPage < images.length - 1) {
+            setCurrentPage((p) => p + 1)
+          } else if (swipe > 10000 && currentPage > 0) {
+            setCurrentPage((p) => p - 1)
+          }
+        }}
+        className={`
+          absolute
+          max-w-full
+          max-h-full
+          object-contain
+          ${
+            blurredPages.has(currentPage)
+              ? 'blur-xl'
+              : ''
+          }
+        `}
+      />
 
-            <div className="flex justify-between items-center mt-6">
-              <button
-                onClick={() => setCurrentPage((p) => p - 1)}
-                disabled={currentPage === 0}
-                className="px-4 py-2 bg-neutral-800 rounded disabled:opacity-40"
-              >
-                <FiChevronLeft />
-              </button>
-
-              <span className="text-sm text-neutral-400">
-                {currentPage + 1} / {images.length}
-              </span>
-
-              <button
-                onClick={() => setCurrentPage((p) => p + 1)}
-                disabled={currentPage === images.length - 1}
-                className="px-4 py-2 bg-neutral-800 rounded disabled:opacity-40"
-              >
-                <FiChevronRight />
-              </button>
-            </div>
-          </>
+      {/* TOGGLE BLUR */}
+      <button
+        onClick={() => toggleBlur(currentPage)}
+        className="absolute top-4 right-4 bg-black/70 p-2 rounded z-10"
+      >
+        {blurredPages.has(currentPage) ? (
+          <MdBlurOff />
+        ) : (
+          <MdBlurOn />
         )}
+      </button>
+    </div>
+
+    {/* CONTROLS */}
+    <div className="flex justify-between items-center mt-6">
+      <button
+        onClick={() => setCurrentPage((p) => Math.max(p - 1, 0))}
+        disabled={currentPage === 0}
+        className="px-4 py-2 bg-neutral-800 rounded disabled:opacity-40"
+      >
+        <FiChevronLeft />
+      </button>
+
+      <span className="text-sm text-neutral-400">
+        {currentPage + 1} / {images.length}
+      </span>
+
+      <button
+        onClick={() =>
+          setCurrentPage((p) =>
+            Math.min(p + 1, images.length - 1)
+          )
+        }
+        disabled={currentPage === images.length - 1}
+        className="px-4 py-2 bg-neutral-800 rounded disabled:opacity-40"
+      >
+        <FiChevronRight />
+      </button>
+    </div>
+  </>
+)}
+
 
         {/* CHAPTER NAV */}
         <div className="flex gap-4 mt-10">
