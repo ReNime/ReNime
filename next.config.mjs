@@ -8,6 +8,9 @@ const nextConfig = {
                 hostname: "uploads.mangadex.org"
             }, 
             {
+                hostname: "weebs.caliph.dev"
+            }, 
+            {
                 hostname: "thumbnail.komiku.org"
             }, 
             {
