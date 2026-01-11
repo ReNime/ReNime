@@ -22,6 +22,7 @@ export default function ManhwaReadPage() {
   const [error, setError] = useState('')
   const [mode, setMode] = useState('scroll')
   const [currentPage, setCurrentPage] = useState(0)
+  const [zoom, setZoom] = useState(1)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [blurredPages, setBlurredPages] = useState(new Set())
 
