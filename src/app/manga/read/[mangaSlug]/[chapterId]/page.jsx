@@ -142,12 +142,12 @@ export default function ReadPage() {
       <main className="flex-1 max-w-5xl mx-auto px-4 py-6 w-full">
         {/* SCROLL MODE */}
         {mode === 'scroll' && (
-          <div className="space-y-6">
+          <div className="space-y-0">
             {images.map((src, i) => (
               <div key={i} className="relative">
                 <img
                   src={src}
-                  className={`w-full rounded-lg ${
+                  className={`w-full block ${
                     blurredPages.has(i) ? 'blur-xl' : ''
                   }`}
                 />
