@@ -157,16 +157,29 @@ export default function ManhwaReadPage() {
         {/* SWIPE MODE */}
         {mode === 'swipe' && (
   <>
-    {/* FIXED VIEWPORT */}
-    <div className="relative w-full h-[85vh] flex items-center justify-center overflow-hidden bg-black">
+    {/* FIXED VIEWPORT + ZOOM */}
+    <div className="relative w-full h-[85vh] overflow-hidden bg-black select-none flex items-center justify-center">
       <motion.img
         key={currentPage}
         src={images[currentPage]}
         alt={`Page ${currentPage + 1}`}
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0}
+        drag
+        dragConstraints={{ left: -300, right: 300, top: -300, bottom: 300 }}
+        dragElastic={0.1}
+        whileTap={{ cursor: 'grabbing' }}
+        initial={{ scale: 1 }}
+        animate={{ scale: 1 }}
+        transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+        onDoubleClick={(e) => {
+          e.stopPropagation()
+          setZoom((z) => (z === 1 ? 2 : 1))
+        }}
+        style={{
+          scale: zoom,
+        }}
         onDragEnd={(e, { offset, velocity }) => {
+          if (zoom !== 1) return // ❗ kalau zoom aktif, jangan swipe halaman
+
           const swipe = Math.abs(offset.x) * velocity.x
 
           if (swipe < -10000 && currentPage < images.length - 1) {
@@ -175,17 +188,9 @@ export default function ManhwaReadPage() {
             setCurrentPage((p) => p - 1)
           }
         }}
-        className={`
-          absolute
-          max-w-full
-          max-h-full
-          object-contain
-          ${
-            blurredPages.has(currentPage)
-              ? 'blur-xl'
-              : ''
-          }
-        `}
+        className={`absolute max-w-full max-h-full object-contain ${
+          blurredPages.has(currentPage) ? 'blur-xl' : ''
+        }`}
       />
 
       {/* TOGGLE BLUR */}
@@ -193,15 +198,11 @@ export default function ManhwaReadPage() {
         onClick={() => toggleBlur(currentPage)}
         className="absolute top-4 right-4 bg-black/70 p-2 rounded z-10"
       >
-        {blurredPages.has(currentPage) ? (
-          <MdBlurOff />
-        ) : (
-          <MdBlurOn />
-        )}
+        {blurredPages.has(currentPage) ? <MdBlurOff /> : <MdBlurOn />}
       </button>
     </div>
 
-    {/* CONTROLS */}
+    {/* PAGE CONTROLS */}
     <div className="flex justify-between items-center mt-6">
       <button
         onClick={() => setCurrentPage((p) => Math.max(p - 1, 0))}
@@ -229,7 +230,6 @@ export default function ManhwaReadPage() {
     </div>
   </>
 )}
-
 
         {/* CHAPTER NAV */}
         <div className="flex gap-4 mt-10">
