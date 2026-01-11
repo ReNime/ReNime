@@ -164,7 +164,8 @@ export default function ReadPage() {
 
 {mode === 'swipe' && (
   <>
-    <div className="relative flex justify-center select-none">
+    {/* FIXED VIEWPORT SWIPE */}
+    <div className="relative w-full h-[85vh] flex items-center justify-center overflow-hidden bg-black select-none">
       <motion.img
         key={currentPage}
         src={images[currentPage]}
@@ -174,25 +175,21 @@ export default function ReadPage() {
         onDragEnd={(e, { offset, velocity }) => {
           const swipe = Math.abs(offset.x) * velocity.x
 
-          if (swipe < -10000) {
-            // swipe kiri → next page
-            setCurrentPage((p) =>
-              p < images.length - 1 ? p + 1 : p
-            )
-          } else if (swipe > 10000) {
-            // swipe kanan → prev page
-            setCurrentPage((p) => (p > 0 ? p - 1 : p))
+          if (swipe < -10000 && currentPage < images.length - 1) {
+            setCurrentPage((p) => p + 1)
+          } else if (swipe > 10000 && currentPage > 0) {
+            setCurrentPage((p) => p - 1)
           }
         }}
-        className={`max-h-[85vh] rounded-lg ${
+        className={`absolute max-w-full max-h-full object-contain ${
           blurredPages.has(currentPage) ? 'blur-xl' : ''
         }`}
       />
 
-      {/* Toggle blur */}
+      {/* TOGGLE BLUR */}
       <button
         onClick={() => toggleBlur(currentPage)}
-        className="absolute top-4 right-4 bg-black/70 p-2 rounded"
+        className="absolute top-4 right-4 bg-black/70 p-2 rounded z-10"
       >
         {blurredPages.has(currentPage) ? <MdBlurOff /> : <MdBlurOn />}
       </button>
@@ -201,9 +198,7 @@ export default function ReadPage() {
     {/* PAGE INDICATOR + BUTTON */}
     <div className="flex justify-between items-center mt-6">
       <button
-        onClick={() =>
-          setCurrentPage((p) => (p > 0 ? p - 1 : p))
-        }
+        onClick={() => setCurrentPage((p) => (p > 0 ? p - 1 : p))}
         disabled={currentPage === 0}
         className="px-4 py-2 bg-neutral-800 rounded disabled:opacity-40"
       >
