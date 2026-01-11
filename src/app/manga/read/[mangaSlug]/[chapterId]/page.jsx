@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 export default function ReadPage() {
   const router = useRouter()
-  const { mangaSlug, chapterId } = useParams() // harus sesuai folder
+  const { mangaSlug, chapterId } = useParams()
 
   const [images, setImages] = useState([])
   const [loading, setLoading] = useState(true)
@@ -28,27 +28,32 @@ export default function ReadPage() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [blurredPages, setBlurredPages] = useState(new Set())
 
+  /* ================= LOAD CHAPTER ================= */
   useEffect(() => {
-  if (!mangaSlug || !chapterId) return
+    if (!mangaSlug || !chapterId) return
 
-  const load = async () => {
-    try {
-      setLoading(true)
-      const { images, prev, next } = await fetchChapterImages(mangaSlug, chapterId)
-      setImages(images)
-      setPrevChapter(prev)
-      setNextChapter(next)
-    } catch (err) {
-      console.error(err)
-      setError('Failed to load chapter')
-    } finally {
-      setLoading(false)
+    const load = async () => {
+      try {
+        setLoading(true)
+        const { images, prev, next } =
+          await fetchChapterImages(mangaSlug, chapterId)
+
+        setImages(images)
+        setPrevChapter(prev)
+        setNextChapter(next)
+        setCurrentPage(0)
+      } catch (err) {
+        console.error(err)
+        setError('Failed to load chapter')
+      } finally {
+        setLoading(false)
+      }
     }
-  }
 
-  load()
-}, [mangaSlug, chapterId]) // gunakan chapterId
+    load()
+  }, [mangaSlug, chapterId])
 
+  /* ================= BLUR ================= */
   const toggleBlur = (i) => {
     setBlurredPages((prev) => {
       const next = new Set(prev)
@@ -57,10 +62,25 @@ export default function ReadPage() {
     })
   }
 
+  /* ================= SWIPE ================= */
+  const swipeConfidenceThreshold = 10000
+
+  const swipePower = (offset, velocity) => {
+    return Math.abs(offset) * velocity
+  }
+
+  const paginate = (direction) => {
+    setCurrentPage((prev) => {
+      const next = prev + direction
+      if (next < 0 || next >= images.length) return prev
+      return next
+    })
+  }
+
+  /* ================= NAVIGATION ================= */
   const goChapter = (targetChapter) => {
     if (!targetChapter) return
     router.push(`/manga/read/${mangaSlug}/${targetChapter}`)
-    setCurrentPage(0)
     window.scrollTo({ top: 0 })
   }
 
@@ -74,6 +94,7 @@ export default function ReadPage() {
     }
   }
 
+  /* ================= STATES ================= */
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -90,8 +111,10 @@ export default function ReadPage() {
     )
   }
 
+  /* ================= RENDER ================= */
   return (
     <div className="min-h-screen bg-neutral-950 text-white flex flex-col">
+      {/* HEADER */}
       <header className="sticky top-0 z-40 flex justify-between items-center bg-neutral-900/80 backdrop-blur px-4 py-3 border-b border-neutral-800">
         <button
           onClick={() => router.back()}
@@ -115,7 +138,9 @@ export default function ReadPage() {
         </div>
       </header>
 
+      {/* CONTENT */}
       <main className="flex-1 max-w-5xl mx-auto px-4 py-6 w-full">
+        {/* SCROLL MODE */}
         {mode === 'scroll' && (
           <div className="space-y-6">
             {images.map((src, i) => (
@@ -137,39 +162,93 @@ export default function ReadPage() {
           </div>
         )}
 
+        {/* SWIPE MODE */}
         {mode === 'swipe' && (
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={currentPage}
-              src={images[currentPage]}
-              initial={{ opacity: 0, x: 100 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -100 }}
-              className={`mx-auto rounded-lg ${
-                blurredPages.has(currentPage) ? 'blur-xl' : ''
-              }`}
-            />
-          </AnimatePresence>
+          <>
+            <div className="relative flex justify-center">
+              <AnimatePresence initial={false}>
+                <motion.img
+                  key={currentPage}
+                  src={images[currentPage]}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, { offset, velocity }) => {
+                    const swipe = swipePower(offset.x, velocity.x)
+
+                    if (swipe < -swipeConfidenceThreshold) {
+                      paginate(1)
+                    } else if (swipe > swipeConfidenceThreshold) {
+                      paginate(-1)
+                    }
+                  }}
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.25 }}
+                  className={`max-h-[85vh] rounded-lg ${
+                    blurredPages.has(currentPage) ? 'blur-xl' : ''
+                  }`}
+                />
+              </AnimatePresence>
+
+              <button
+                onClick={() => toggleBlur(currentPage)}
+                className="absolute top-4 right-4 bg-black/70 p-2 rounded"
+              >
+                {blurredPages.has(currentPage) ? (
+                  <MdBlurOff />
+                ) : (
+                  <MdBlurOn />
+                )}
+              </button>
+            </div>
+
+            {/* PAGE CONTROLS */}
+            <div className="flex justify-between items-center mt-6">
+              <button
+                onClick={() => paginate(-1)}
+                disabled={currentPage === 0}
+                className="px-4 py-2 bg-neutral-800 rounded disabled:opacity-40"
+              >
+                <FiChevronLeft />
+              </button>
+
+              <span className="text-sm text-neutral-400">
+                {currentPage + 1} / {images.length}
+              </span>
+
+              <button
+                onClick={() => paginate(1)}
+                disabled={currentPage === images.length - 1}
+                className="px-4 py-2 bg-neutral-800 rounded disabled:opacity-40"
+              >
+                <FiChevronRight />
+              </button>
+            </div>
+          </>
         )}
 
+        {/* CHAPTER NAV */}
         <div className="flex gap-4 mt-10">
           <button
             onClick={() => goChapter(prevChapter)}
             disabled={!prevChapter}
             className="w-full py-3 bg-neutral-800 rounded disabled:opacity-40"
           >
-            <FiChevronLeft /> Prev
+            Prev
           </button>
           <button
             onClick={() => goChapter(nextChapter)}
             disabled={!nextChapter}
             className="w-full py-3 bg-neutral-800 rounded disabled:opacity-40"
           >
-            Next <FiChevronRight />
+            Next
           </button>
         </div>
       </main>
 
+      {/* FLOATING BUTTONS */}
       <div className="fixed bottom-6 right-6 flex flex-col gap-3">
         <button onClick={toggleFullscreen} className="p-3 bg-neutral-800 rounded">
           {isFullscreen ? <MdFullscreenExit /> : <MdFullscreen />}
