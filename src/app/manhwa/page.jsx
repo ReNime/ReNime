@@ -14,8 +14,13 @@ export default function ManhwaPage() {
   useEffect(() => {
     async function loadManhwa() {
       try {
-        const res = await fetch('/api/manhwa')
+        const res = await fetch('/api/manhwa', {
+          cache: 'no-store'
+        })
         const json = await res.json()
+
+        console.log('[MANHWA DATA]', json.data)
+
         setManhwaList(json.data || [])
       } catch (err) {
         console.error('[Manhwa Page]', err)
@@ -33,7 +38,6 @@ export default function ManhwaPage() {
       <ManhwaNavbar />
 
       <div className="max-w-7xl mx-auto px-4 py-10">
-
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
           <h1 className="text-4xl font-black text-white">
@@ -71,7 +75,8 @@ export default function ManhwaPage() {
               </h2>
             </div>
 
-            <ManhwaGrid manhwaList={manhwaList} />
+            {/* 🔑 FIX DI SINI */}
+            <ManhwaGrid list={manhwaList} />
           </>
         )}
       </div>
