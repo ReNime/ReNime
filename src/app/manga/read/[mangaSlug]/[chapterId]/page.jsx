@@ -162,72 +162,72 @@ export default function ReadPage() {
           </div>
         )}
 
-        {/* SWIPE MODE */}
-        {mode === 'swipe' && (
-          <>
-            <div className="relative flex justify-center">
-              <AnimatePresence initial={false}>
-                <motion.img
-                  key={currentPage}
-                  src={images[currentPage]}
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.2}
-                  onDragEnd={(e, { offset, velocity }) => {
-                    const swipe = swipePower(offset.x, velocity.x)
+{mode === 'swipe' && (
+  <>
+    <div className="relative flex justify-center select-none">
+      <motion.img
+        key={currentPage}
+        src={images[currentPage]}
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0}
+        onDragEnd={(e, { offset, velocity }) => {
+          const swipe = Math.abs(offset.x) * velocity.x
 
-                    if (swipe < -swipeConfidenceThreshold) {
-                      paginate(1)
-                    } else if (swipe > swipeConfidenceThreshold) {
-                      paginate(-1)
-                    }
-                  }}
-                  initial={{ opacity: 0, x: 100 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -100 }}
-                  transition={{ duration: 0.25 }}
-                  className={`max-h-[85vh] rounded-lg ${
-                    blurredPages.has(currentPage) ? 'blur-xl' : ''
-                  }`}
-                />
-              </AnimatePresence>
+          if (swipe < -10000) {
+            // swipe kiri → next page
+            setCurrentPage((p) =>
+              p < images.length - 1 ? p + 1 : p
+            )
+          } else if (swipe > 10000) {
+            // swipe kanan → prev page
+            setCurrentPage((p) => (p > 0 ? p - 1 : p))
+          }
+        }}
+        className={`max-h-[85vh] rounded-lg ${
+          blurredPages.has(currentPage) ? 'blur-xl' : ''
+        }`}
+      />
 
-              <button
-                onClick={() => toggleBlur(currentPage)}
-                className="absolute top-4 right-4 bg-black/70 p-2 rounded"
-              >
-                {blurredPages.has(currentPage) ? (
-                  <MdBlurOff />
-                ) : (
-                  <MdBlurOn />
-                )}
-              </button>
-            </div>
+      {/* Toggle blur */}
+      <button
+        onClick={() => toggleBlur(currentPage)}
+        className="absolute top-4 right-4 bg-black/70 p-2 rounded"
+      >
+        {blurredPages.has(currentPage) ? <MdBlurOff /> : <MdBlurOn />}
+      </button>
+    </div>
 
-            {/* PAGE CONTROLS */}
-            <div className="flex justify-between items-center mt-6">
-              <button
-                onClick={() => paginate(-1)}
-                disabled={currentPage === 0}
-                className="px-4 py-2 bg-neutral-800 rounded disabled:opacity-40"
-              >
-                <FiChevronLeft />
-              </button>
+    {/* PAGE INDICATOR + BUTTON */}
+    <div className="flex justify-between items-center mt-6">
+      <button
+        onClick={() =>
+          setCurrentPage((p) => (p > 0 ? p - 1 : p))
+        }
+        disabled={currentPage === 0}
+        className="px-4 py-2 bg-neutral-800 rounded disabled:opacity-40"
+      >
+        <FiChevronLeft />
+      </button>
 
-              <span className="text-sm text-neutral-400">
-                {currentPage + 1} / {images.length}
-              </span>
+      <span className="text-sm text-neutral-400">
+        {currentPage + 1} / {images.length}
+      </span>
 
-              <button
-                onClick={() => paginate(1)}
-                disabled={currentPage === images.length - 1}
-                className="px-4 py-2 bg-neutral-800 rounded disabled:opacity-40"
-              >
-                <FiChevronRight />
-              </button>
-            </div>
-          </>
-        )}
+      <button
+        onClick={() =>
+          setCurrentPage((p) =>
+            p < images.length - 1 ? p + 1 : p
+          )
+        }
+        disabled={currentPage === images.length - 1}
+        className="px-4 py-2 bg-neutral-800 rounded disabled:opacity-40"
+      >
+        <FiChevronRight />
+      </button>
+    </div>
+  </>
+)}
 
         {/* CHAPTER NAV */}
         <div className="flex gap-4 mt-10">
