@@ -37,28 +37,15 @@ export default function LightNovelDetailPage() {
     async function load() {
       try {
         setLoading(true)
-        // Fetch detail dari Next.js API / RanobeDB
         const res = await fetch(`/api/lightnovel/details?slug=${encodeURIComponent(slug)}`)
         if (!res.ok) throw new Error('Failed to fetch detail')
 
         const json = await res.json()
-        const book = json.book
+        if (!json.success) throw new Error(json.error || 'Failed to fetch detail')
 
-        // Mapping sesuai sample RanobeDB
-        const mappedLN = {
-          id: book.id,
-          title: book.title,
-          romaji: book.romaji || book.romaji_orig || book.title_orig,
-          description: book.description || book.description_ja || 'No description available.',
-          cover: book.image ? `https://cdn.ranobedb.org/images/${book.image.filename}` : null,
-          lang: book.lang,
-          release_date: book.c_release_date,
-          publishers: book.publishers?.map(p => p.name) || [],
-          series: book.series?.books || [],
-          tags: book.series?.tags || []
-        }
+        const book = json.data
 
-        setLn(mappedLN)
+        setLn(book)
       } catch (err) {
         console.error(err)
         setError('Failed to load light novel detail.')
@@ -91,26 +78,36 @@ export default function LightNovelDetailPage() {
     <main className="relative min-h-screen bg-gray-950 text-white">
       {/* Background blur */}
       <div className="absolute inset-0 opacity-5">
-        <Image src={ln.cover} alt={ln.title} fill className="object-cover" />
+        <Image
+          src={ln.thumbnail || '/default-cover.jpg'}
+          alt={ln.title}
+          fill
+          className="object-cover"
+        />
       </div>
 
       <section className="relative z-10 max-w-6xl mx-auto px-4 py-6">
         {/* HEADER */}
         <div className="flex flex-col md:flex-row gap-6">
           <div className="relative w-48 aspect-[3/4]">
-            <Image src={ln.cover} alt={ln.title} fill className="rounded-xl object-cover" />
+            <Image
+              src={ln.thumbnail || '/default-cover.jpg'}
+              alt={ln.title}
+              fill
+              className="rounded-xl object-cover"
+            />
           </div>
 
           <div className="flex-1">
             <h1 className="text-2xl md:text-3xl font-bold mb-1">{ln.title}</h1>
 
-            {ln.romaji && (
-              <p className="text-sm text-gray-400 mb-3">{ln.romaji}</p>
+            {ln.alternativeTitle && (
+              <p className="text-sm text-gray-400 mb-3">{ln.alternativeTitle}</p>
             )}
 
             {/* TAGS / GENRES */}
             <div className="flex flex-wrap gap-2 mb-4">
-              {ln.tags?.map((g) => (
+              {ln.genres?.map((g) => (
                 <span
                   key={g}
                   className="text-xs bg-sky-500/10 text-sky-300 px-2 py-1 rounded-full"
@@ -126,9 +123,7 @@ export default function LightNovelDetailPage() {
                 onClick={toggleFavorite}
                 disabled={favLoading}
                 className={`px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${
-                  isFavorite
-                    ? 'bg-red-500/20 text-red-400'
-                    : 'bg-gray-800 text-gray-300'
+                  isFavorite ? 'bg-red-500/20 text-red-400' : 'bg-gray-800 text-gray-300'
                 }`}
               >
                 <FaHeart />
@@ -145,11 +140,7 @@ export default function LightNovelDetailPage() {
             </div>
 
             {/* DESCRIPTION */}
-            <p
-              className={`text-sm text-gray-400 ${
-                !showFullDesc && 'line-clamp-4'
-              }`}
-            >
+            <p className={`text-sm text-gray-400 ${!showFullDesc && 'line-clamp-4'}`}>
               {ln.description}
             </p>
 
@@ -164,35 +155,12 @@ export default function LightNovelDetailPage() {
           </div>
         </div>
 
-        {/* DETAIL INFO */}
-        <section className="mt-10">
-          <h2 className="text-xl font-bold mb-4">Details</h2>
-          <ul className="text-gray-300 text-sm flex flex-col gap-1">
-            {ln.lang && (
-              <li>
-                <span className="font-semibold">Language:</span> {ln.lang.toUpperCase()}
-              </li>
-            )}
-            {ln.release_date && (
-              <li>
-                <span className="font-semibold">Release Date:</span>{' '}
-                {ln.release_date.toString().replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')}
-              </li>
-            )}
-            {ln.publishers.length > 0 && (
-              <li>
-                <span className="font-semibold">Publisher:</span> {ln.publishers.join(', ')}
-              </li>
-            )}
-          </ul>
-        </section>
-
         {/* SERIES / VOLUMES */}
-        {ln.series.length > 0 && (
+        {ln.volumes?.length > 0 && (
           <section className="mt-10">
             <h2 className="text-xl font-bold mb-4">Series / Volumes</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {ln.series.map((vol) => (
+              {ln.volumes.map((vol) => (
                 <Link
                   key={vol.id}
                   href={`/light-novel/detail/${vol.id}`}
@@ -200,7 +168,7 @@ export default function LightNovelDetailPage() {
                 >
                   <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-zinc-900 border border-zinc-800">
                     <Image
-                      src={vol.image ? `https://cdn.ranobedb.org/images/${vol.image.filename}` : '/default-cover.jpg'}
+                      src={vol.image || '/default-cover.jpg'}
                       alt={vol.title}
                       fill
                       className="object-cover"
@@ -222,7 +190,7 @@ export default function LightNovelDetailPage() {
         setOpen={setShowShare}
         url={shareUrl}
         title={ln.title}
-        thumbnail={ln.cover}
+        thumbnail={ln.thumbnail || '/default-cover.jpg'}
       />
     </main>
   )
