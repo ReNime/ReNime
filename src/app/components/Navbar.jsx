@@ -11,6 +11,7 @@ import {
   FaSignOutAlt,
   FaSignInAlt,
   FaTachometerAlt,
+  FaHome, 
   FaBook,
   FaBookOpen,
 } from "react-icons/fa";
@@ -76,18 +77,18 @@ const Navbar = () => {
   /* ================= BOOK MENU ================= */
   const bookMenus = [
     {
-      name: "Library",
-      href: "/library",
-      icon: <FaBookOpen />,
+      name: "Anime",
+      href: "/",
+      icon: <FaHome />,
     },
     {
-      name: "Reading",
-      href: "/reading",
+      name: Manga",
+      href: "/manga",
       icon: <MdMenuBook />,
     },
     {
-      name: "Bookshelf",
-      href: "/bookshelf",
+      name: "Manhwa",
+      href: "/manhwa",
       icon: <GiBookshelf />,
     },
   ];
