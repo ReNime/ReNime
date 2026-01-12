@@ -1,42 +1,84 @@
-// app/api/lightnovel/details/[slug]/route.js
 import { NextResponse } from 'next/server'
 
-export async function GET({ params }) {
-  const { slug } = params
+export async function GET(_req, { params }) {
+  const { slug } = params // slug = book id
 
   if (!slug) {
     return NextResponse.json(
-      { success: false, error: 'slug (book id) required' },
+      { success: false, error: 'book id required' },
       { status: 400 }
     )
   }
 
   try {
-    const res = await fetch(`https://ranobedb.org/api/v0/book/${slug}`, { cache: 'no-store' })
-    if (!res.ok) throw new Error('Failed to fetch RanobeDB book ' + res.status)
+    const res = await fetch(
+      `https://ranobedb.org/api/v0/book/${slug}`,
+      { cache: 'no-store' }
+    )
 
-    const json = await res.json()
-    const book = json.book
-
-    // Mapping data aman
-    const mapped = {
-      id: book.id,
-      title: book.title,
-      alternativeTitle: book.romaji || book.romaji_orig || book.title_orig || '',
-      description: book.description || book.description_ja || 'No description available.',
-      thumbnail: book.image ? `https://images.ranobedb.org/${book.image.filename}` : null,
-      slug: slug,
-      genres: book.series?.tags || [],
-      volumes: book.series?.books?.map(v => ({
-        id: v.id,
-        title: v.title,
-        image: v.image ? `https://images.ranobedb.org/${v.image.filename}` : null
-      })) || []
+    if (!res.ok) {
+      throw new Error(`RanobeDB error ${res.status}`)
     }
 
-    return NextResponse.json({ success: true, data: mapped })
+    const json = await res.json()
+    const book = json?.book
+
+    if (!book) {
+      throw new Error('Book not found in response')
+    }
+
+    const imageBase = 'https://images.ranobedb.org/'
+
+    const data = {
+      id: book.id,
+      title: book.title ?? 'Unknown title',
+      romaji:
+        book.romaji ||
+        book.romaji_orig ||
+        book.title_orig ||
+        null,
+
+      description:
+        book.description ||
+        book.description_ja ||
+        'No description available.',
+
+      cover: book.image?.filename
+        ? `${imageBase}${book.image.filename}`
+        : '/default-cover.jpg',
+
+      lang: book.lang ?? null,
+      release_date: book.c_release_date ?? null,
+
+      publishers:
+        Array.isArray(book.publishers)
+          ? book.publishers.map(p => p.name).filter(Boolean)
+          : [],
+
+      tags:
+        Array.isArray(book.series?.tags)
+          ? book.series.tags
+          : [],
+
+      volumes:
+        Array.isArray(book.series?.books)
+          ? book.series.books.map(v => ({
+              id: v.id,
+              title: v.title,
+              cover: v.image?.filename
+                ? `${imageBase}${v.image.filename}`
+                : '/default-cover.jpg'
+            }))
+          : []
+    }
+
+    return NextResponse.json({
+      success: true,
+      data
+    })
   } catch (err) {
     console.error('[LIGHT NOVEL DETAIL API ERROR]', err)
+
     return NextResponse.json(
       {
         success: false,
