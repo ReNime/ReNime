@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PiSparkleFill } from "react-icons/pi";
 import {
@@ -14,8 +15,10 @@ import {
 } from "react-icons/fa";
 import ThemeSwitcher from "@/app/components/ThemeSwitcher";
 
-const Navbar = ({ user }) => {
+const Navbar = () => {
   const pathname = usePathname();
+  const { data: session, status } = useSession();
+  const user = session?.user;
 
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -128,7 +131,7 @@ const Navbar = ({ user }) => {
           </Link>
 
           {/* ================= PROFILE ================= */}
-          {!hideProfile && (
+          {!hideProfile && status !== "loading" && (
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -167,10 +170,7 @@ const Navbar = ({ user }) => {
                           </p>
                         </div>
 
-                        <Link
-                          href="/users/dashboard"
-                          className="menu-item"
-                        >
+                        <Link href="/users/dashboard" className="menu-item">
                           <FaTachometerAlt /> Dashboard
                         </Link>
 
@@ -182,10 +182,7 @@ const Navbar = ({ user }) => {
                         </Link>
                       </>
                     ) : (
-                      <Link
-                        href="/api/auth/signin"
-                        className="menu-item"
-                      >
+                      <Link href="/api/auth/signin" className="menu-item">
                         <FaSignInAlt /> Login
                       </Link>
                     )}
