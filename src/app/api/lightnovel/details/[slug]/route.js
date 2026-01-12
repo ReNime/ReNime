@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server'
 
 export async function GET({ params }) {
-  const { slug } = params // ambil slug dari URL path
+  const { slug } = params
 
   if (!slug) {
     return NextResponse.json(
@@ -13,16 +13,17 @@ export async function GET({ params }) {
 
   try {
     const res = await fetch(`https://ranobedb.org/api/v0/book/${slug}`, { cache: 'no-store' })
-    if (!res.ok) throw new Error('API error ' + res.status)
+    if (!res.ok) throw new Error('Failed to fetch RanobeDB book ' + res.status)
 
     const json = await res.json()
     const book = json.book
 
+    // Mapping data aman
     const mapped = {
       id: book.id,
       title: book.title,
       alternativeTitle: book.romaji || book.romaji_orig || book.title_orig || '',
-      description: book.description || book.description_ja || '',
+      description: book.description || book.description_ja || 'No description available.',
       thumbnail: book.image ? `https://images.ranobedb.org/${book.image.filename}` : null,
       slug: slug,
       genres: book.series?.tags || [],
