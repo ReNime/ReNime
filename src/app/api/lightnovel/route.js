@@ -10,8 +10,7 @@ export async function GET() {
 
     const json = await res.json()
 
-    // Base URL untuk image RanobeDB
-    const baseImageUrl = 'https://cdn.ranobedb.org/images/'
+    const baseImageUrl = 'https://images.ranobedb.org/' // PUBLIC
 
     const data = (json.books || []).map(item => ({
       id: item.id,
