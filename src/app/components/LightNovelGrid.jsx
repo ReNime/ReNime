@@ -12,7 +12,7 @@ export default function LightNovelGrid({ list }) {
       {list.map((ln) => (
         <LightNovelCard
           key={ln.id}
-          slug={ln.slug}
+          slug={ln.id}
           title={ln.title}
           cover={ln.cover}
         />
