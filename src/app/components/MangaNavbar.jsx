@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { PiSparkleFill } from "react-icons/pi";
 
 const MangaNavbar = () => { 
