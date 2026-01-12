@@ -124,10 +124,10 @@ const Navbar = () => {
           <div className="relative" ref={bookRef}>
             <button
               onClick={() => setIsBookOpen(!isBookOpen)}
-              aria-label="Book menu"
+              aria-label="Icon menu"
               className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-theme-tertiary/60 transition"
             >
-              <FaBook size={20} />
+              <FaHome size={20} />
             </button>
 
             <AnimatePresence>
