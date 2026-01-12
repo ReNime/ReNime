@@ -4,7 +4,7 @@ const API_BASE = 'https://ranobedb.org/api/v0/book'
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url)
-  const slug = searchParams.get('slug') // di RanobeDB ini id book
+  const slug = searchParams.get('slug') // di RanobeDB ini book id
 
   if (!slug) {
     return NextResponse.json(
@@ -33,16 +33,24 @@ export async function GET(request) {
     const json = await res.json()
     const book = json.book
 
+    // Mapping aman & fallback
     const mapped = {
+      id: book.id,
       title: book.title,
       alternativeTitle: book.romaji || book.romaji_orig || book.title_orig || '',
-      description: book.description || book.description_ja || '',
+      description: book.description || book.description_ja || 'No description available.',
       thumbnail: book.image
-        ? `https://images.ranobedb.org/${book.image.filename}` // PUBLIC
-        : null,
+        ? `https://images.ranobedb.org/${book.image.filename}`
+        : '/default-cover.jpg', // fallback jika image tidak ada
       slug: cleanSlug,
       genres: book.series?.tags || [],
-      volumes: book.series?.books || []
+      volumes: (book.series?.books || []).map((vol) => ({
+        id: vol.id,
+        title: vol.title,
+        image: vol.image
+          ? `https://images.ranobedb.org/${vol.image.filename}`
+          : '/default-cover.jpg'
+      }))
     }
 
     return NextResponse.json({
