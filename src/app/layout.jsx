@@ -1,8 +1,10 @@
+"use client";
 
 import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from '@/app/context/ThemeContext';
+import { ThemeProvider } from "@/app/context/ThemeContext";
 import "./globals.css";
 import NextAuthProvider from "./components/NextAuthProvider";
+import { useEffect, useState } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,35 +16,66 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "ReNime",
-  description: "Web Streaming Anime Sub Indo",
-  icons: {
-    icon: [
-      { url: '/images/favicon_io/favicon.ico' },
-      { url: '/images/favicon_io/favicon-32x32.png', sizes: '16x16', type: 'image/png' },
-      { url: '/images/favicon_io/favicon-64x64.png', sizes: '32x32', type: 'image/png' },
-    ],
-    apple: [
-      { url: '/images/favicon_io/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
-    ],
-  },
-  manifest: '/images/favicon_io/site.webmanifest',
-};
-
 export default function RootLayout({ children }) {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstall, setShowInstall] = useState(false);
+
+  useEffect(() => {
+    // Register Service Worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js");
+    }
+
+    // Tangkap event install
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstall(true);
+    });
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    setDeferredPrompt(null);
+    setShowInstall(false);
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {showInstall && (
+          <div style={styles.installBox}>
+            <span>📲 Tambahkan ReNime di Layar Utama</span>
+            <button onClick={handleInstall}>Install</button>
+          </div>
+        )}
+
         <ThemeProvider>
-        <NextAuthProvider>
-          {children}
-        </NextAuthProvider>
+          <NextAuthProvider>{children}</NextAuthProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
+
+const styles = {
+  installBox: {
+    position: "fixed",
+    bottom: 20,
+    left: "50%",
+    transform: "translateX(-50%)",
+    background: "#111",
+    color: "#fff",
+    padding: "12px 16px",
+    borderRadius: 10,
+    display: "flex",
+    gap: 12,
+    alignItems: "center",
+    zIndex: 9999,
+  },
+};
