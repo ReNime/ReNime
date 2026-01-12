@@ -14,7 +14,7 @@ export default function LightNovelGrid({ list }) {
           key={ln.id}
           slug={ln.id}
           title={ln.title}
-          cover={ln.cover}
+          cover={ln.thumbnail}
         />
       ))}
     </div>
