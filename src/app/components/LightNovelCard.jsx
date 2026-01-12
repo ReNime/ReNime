@@ -11,7 +11,7 @@ export default function LightNovelCard({ slug, title }) {
     >
       <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-zinc-900 border border-zinc-800">
         <Image
-          src={fallbackCover}
+          src={cover || fallbackCover}
           alt={title}
           fill
           className="object-cover"
