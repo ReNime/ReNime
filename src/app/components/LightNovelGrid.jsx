@@ -12,9 +12,13 @@ export default function LightNovelGrid({ list }) {
       {list.map((ln) => (
         <LightNovelCard
           key={ln.id}
-          slug={ln.id}
+          slug={ln.id} // pakai id RanobeDB
           title={ln.title}
-          cover={ln.thumbnail}
+          cover={
+            ln.image?.filename
+              ? `https://images.ranobedb.org/${ln.image.filename}`
+              : null
+          }
         />
       ))}
     </div>
