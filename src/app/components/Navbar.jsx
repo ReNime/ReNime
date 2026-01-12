@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { PiSparkleFill } from "react-icons/pi";
 import {
@@ -10,32 +11,17 @@ import {
   FaSignOutAlt,
   FaSignInAlt,
   FaTachometerAlt,
-  FaUserShield,
 } from "react-icons/fa";
 import ThemeSwitcher from "@/app/components/ThemeSwitcher";
 
 const Navbar = ({ user }) => {
+  const pathname = usePathname();
+
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   const profileRef = useRef(null);
   const mobileMenuRef = useRef(null);
-
-  /* ================= ADMIN CHECK ================= */
-  useEffect(() => {
-    const checkAdmin = async () => {
-      if (!user?.email) return setIsAdmin(false);
-      try {
-        const res = await fetch("/api/admin/check");
-        const data = await res.json();
-        setIsAdmin(data.isAdmin === true);
-      } catch {
-        setIsAdmin(false);
-      }
-    };
-    checkAdmin();
-  }, [user?.email]);
 
   /* ================= CLICK OUTSIDE ================= */
   useEffect(() => {
@@ -51,7 +37,8 @@ const Navbar = ({ user }) => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -62,9 +49,19 @@ const Navbar = ({ user }) => {
     if (isOpen) setIsProfileOpen(false);
   }, [isOpen]);
 
+  /* ================= ROUTE LOGIC ================= */
+  const HIDE_PROFILE_ROUTES = ["/manga", "/manhwa"];
+
+  const hideProfile =
+    user &&
+    HIDE_PROFILE_ROUTES.some(
+      (route) => pathname === route || pathname.startsWith(route + "/")
+    );
+
+  /* ================= NAV LINKS ================= */
   const navLinks = [
     { href: "/manga", name: "Manga" },
-    { href: "/manhwa", name: "Manhwa" }, 
+    { href: "/manhwa", name: "Manhwa" },
     { href: "/populer", name: "Populer" },
     { href: "/movie", name: "Movie" },
     { href: "/genres", name: "Genre" },
@@ -75,7 +72,7 @@ const Navbar = ({ user }) => {
     <nav className="w-full relative z-50 bg-theme-secondary/80 backdrop-blur-xl border-b border-theme">
       <div className="container mx-auto relative flex justify-center items-center px-4 h-16 md:h-20">
         
-        {/* ================= HAMBURGER (LEFT) ================= */}
+        {/* ================= HAMBURGER ================= */}
         <div className="absolute left-4 inset-y-0 flex items-center md:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -97,7 +94,7 @@ const Navbar = ({ user }) => {
           </button>
         </div>
 
-        {/* ================= DESKTOP MENU (CENTER) ================= */}
+        {/* ================= DESKTOP MENU ================= */}
         <ul className="hidden md:flex items-center space-x-6">
           {navLinks.map((link) => (
             <li key={link.href}>
@@ -118,7 +115,7 @@ const Navbar = ({ user }) => {
           ))}
         </ul>
 
-        {/* ================= RIGHT SIDE ================= */}
+        {/* ================= RIGHT ================= */}
         <div className="absolute right-4 inset-y-0 flex items-center gap-3">
           <ThemeSwitcher />
 
@@ -131,73 +128,72 @@ const Navbar = ({ user }) => {
           </Link>
 
           {/* ================= PROFILE ================= */}
-          <div className="relative" ref={profileRef}>
-            <button
-              onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="w-10 h-10 rounded-full overflow-hidden border-2 border-theme hover:scale-105 transition"
-              style={{
-                borderColor: isProfileOpen
-                  ? "var(--accent-from)"
-                  : "var(--border-theme)",
-              }}
-            >
-              {user?.image ? (
-                <Image src={user.image} alt="Profile" width={40} height={40} />
-              ) : (
-                <div className="w-full h-full bg-theme-tertiary flex items-center justify-center">
-                  <FaUser />
-                </div>
-              )}
-            </button>
+          {!hideProfile && (
+            <div className="relative" ref={profileRef}>
+              <button
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className="w-10 h-10 rounded-full overflow-hidden border-2 border-theme hover:scale-105 transition"
+              >
+                {user?.image ? (
+                  <Image
+                    src={user.image}
+                    alt="Profile"
+                    width={40}
+                    height={40}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-theme-tertiary flex items-center justify-center">
+                    <FaUser />
+                  </div>
+                )}
+              </button>
 
-            <AnimatePresence>
-              {isProfileOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute right-0 mt-2 w-48 bg-theme-secondary border border-theme rounded-xl shadow-2xl overflow-hidden"
-                >
-                  {user ? (
-                    <>
-                      <div className="px-4 py-3 border-b border-theme">
-                        <p className="font-semibold">{user.name || "User"}</p>
-                        <p className="text-xs text-theme-tertiary truncate">
-                          {user.email}
-                        </p>
-                        {isAdmin && (
-                          <span className="inline-flex gap-1 mt-2 px-2 py-0.5 text-xs rounded-full bg-gradient-to-r from-[var(--accent-from)] to-[var(--accent-to)]">
-                            <FaUserShield /> Admin
-                          </span>
-                        )}
-                      </div>
+              <AnimatePresence>
+                {isProfileOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute right-0 mt-2 w-48 bg-theme-secondary border border-theme rounded-xl shadow-2xl overflow-hidden"
+                  >
+                    {user ? (
+                      <>
+                        <div className="px-4 py-3 border-b border-theme">
+                          <p className="font-semibold">
+                            {user.name || "User"}
+                          </p>
+                          <p className="text-xs text-theme-tertiary truncate">
+                            {user.email}
+                          </p>
+                        </div>
 
-                      <Link href="/users/dashboard" className="menu-item">
-                        <FaTachometerAlt /> Dashboard
-                      </Link>
-
-                      {isAdmin && (
-                        <Link href="/admin/dashboard" className="menu-item">
-                          <FaUserShield /> Admin
+                        <Link
+                          href="/users/dashboard"
+                          className="menu-item"
+                        >
+                          <FaTachometerAlt /> Dashboard
                         </Link>
-                      )}
 
+                        <Link
+                          href="/api/auth/signout"
+                          className="menu-item text-red-400"
+                        >
+                          <FaSignOutAlt /> Logout
+                        </Link>
+                      </>
+                    ) : (
                       <Link
-                        href="/api/auth/signout"
-                        className="menu-item text-red-400"
+                        href="/api/auth/signin"
+                        className="menu-item"
                       >
-                        <FaSignOutAlt /> Logout
+                        <FaSignInAlt /> Login
                       </Link>
-                    </>
-                  ) : (
-                    <Link href="/api/auth/signin" className="menu-item">
-                      <FaSignInAlt /> Login
-                    </Link>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
         </div>
       </div>
 
@@ -221,13 +217,7 @@ const Navbar = ({ user }) => {
                 >
                   <Link
                     href={link.href}
-                    className="
-          block py-3 px-4 rounded-lg
-          text-theme-primary
-          hover:bg-theme-tertiary/60
-          active:bg-theme-tertiary
-          transition-colors duration-200
-        "
+                    className="block py-3 px-4 rounded-lg text-theme-primary hover:bg-theme-tertiary/60 transition"
                     onClick={() => setIsOpen(false)}
                   >
                     {link.name}
