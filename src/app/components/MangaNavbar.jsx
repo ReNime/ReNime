@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
-import { usePathname } from "next/navigation";
+//import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PiSparkleFill } from "react-icons/pi";
@@ -16,7 +16,7 @@ import {
 import ThemeSwitcher from "@/app/components/ThemeSwitcher";
 
 const MangaNavbar = () => {
-  const pathname = usePathname();
+  //const pathname = usePathname();
   const { data: session, status } = useSession();
   const user = session?.user;
 
@@ -53,13 +53,13 @@ const MangaNavbar = () => {
   }, [isOpen]);
 
   /* ================= ROUTE LOGIC ================= */
-  const HIDE_PROFILE_ROUTES = ["/manga", "/manhwa"];
+  /*const HIDE_PROFILE_ROUTES = ["/manga", "/manhwa"];
 
   const hideProfile =
     user &&
     HIDE_PROFILE_ROUTES.some(
       (route) => pathname === route || pathname.startsWith(route + "/")
-    );
+    );*/
 
   /* ================= NAV LINKS ================= */
   const navLinks = [
@@ -131,7 +131,7 @@ const MangaNavbar = () => {
           </Link>
 
           {/* ================= PROFILE ================= */}
-          {!hideProfile && status !== "loading" && (
+          {status !== "loading" && (
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
