@@ -37,7 +37,7 @@ export default function LightNovelDetailPage() {
     async function load() {
       try {
         setLoading(true)
-        const res = await fetch(`/api/lightnovel/details?slug=${encodeURIComponent(slug)}`)
+        const res = await fetch(`/api/lightnovel/details/${slug}`)
         if (!res.ok) throw new Error('Failed to fetch detail')
 
         const json = await res.json()
