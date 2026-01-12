@@ -229,4 +229,4 @@ const ManhwaNavbar = () => {
   );
 };
 
-export default MangaNavbar;
+export default ManhwaNavbar;
