@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-export default function LightNovelCard({ slug, title }) {
+export default function LightNovelCard({ slug, title, cover}) {
   const fallbackCover = '/default-cover.jpg'
 
   return (
