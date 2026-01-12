@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
-//import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PiSparkleFill } from "react-icons/pi";
@@ -12,25 +11,34 @@ import {
   FaSignOutAlt,
   FaSignInAlt,
   FaTachometerAlt,
+  FaBook,
+  FaBookOpen,
 } from "react-icons/fa";
+import { MdMenuBook } from "react-icons/md";
+import { GiBookshelf } from "react-icons/gi";
 import ThemeSwitcher from "@/app/components/ThemeSwitcher";
 
 const Navbar = () => {
-  //const pathname = usePathname();
   const { data: session, status } = useSession();
   const user = session?.user;
 
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isBookOpen, setIsBookOpen] = useState(false);
 
   const profileRef = useRef(null);
   const mobileMenuRef = useRef(null);
+  const bookRef = useRef(null);
 
   /* ================= CLICK OUTSIDE ================= */
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setIsProfileOpen(false);
+      }
+
+      if (bookRef.current && !bookRef.current.contains(e.target)) {
+        setIsBookOpen(false);
       }
 
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target)) {
@@ -45,21 +53,15 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    if (isProfileOpen) setIsOpen(false);
-  }, [isProfileOpen]);
+    if (isProfileOpen || isBookOpen) setIsOpen(false);
+  }, [isProfileOpen, isBookOpen]);
 
   useEffect(() => {
-    if (isOpen) setIsProfileOpen(false);
+    if (isOpen) {
+      setIsProfileOpen(false);
+      setIsBookOpen(false);
+    }
   }, [isOpen]);
-
-  /* ================= ROUTE LOGIC ================= */
-  /*const HIDE_PROFILE_ROUTES = ["/manga", "/manhwa"];
-
-  const hideProfile =
-    user &&
-    HIDE_PROFILE_ROUTES.some(
-      (route) => pathname === route || pathname.startsWith(route + "/")
-    );*/
 
   /* ================= NAV LINKS ================= */
   const navLinks = [
@@ -71,12 +73,33 @@ const Navbar = () => {
     { href: "/schedule", name: "Schedule" },
   ];
 
+  /* ================= BOOK MENU ================= */
+  const bookMenus = [
+    {
+      name: "Library",
+      href: "/library",
+      icon: <FaBookOpen />,
+    },
+    {
+      name: "Reading",
+      href: "/reading",
+      icon: <MdMenuBook />,
+    },
+    {
+      name: "Bookshelf",
+      href: "/bookshelf",
+      icon: <GiBookshelf />,
+    },
+  ];
+
   return (
     <nav className="w-full relative z-50 bg-theme-secondary/80 backdrop-blur-xl border-b border-theme">
       <div className="container mx-auto relative flex justify-center items-center px-4 h-16 md:h-20">
-        
-        {/* ================= HAMBURGER ================= */}
-        <div className="absolute left-4 inset-y-0 flex items-center md:hidden">
+
+        {/* ================= LEFT (HAMBURGER + BOOK) ================= */}
+        <div className="absolute left-4 inset-y-0 flex items-center gap-2 md:hidden">
+
+          {/* HAMBURGER */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
@@ -95,6 +118,40 @@ const Navbar = () => {
               animate={{ rotate: isOpen ? -45 : 0, y: isOpen ? -6 : 6 }}
             />
           </button>
+
+          {/* BOOK ICON */}
+          <div className="relative" ref={bookRef}>
+            <button
+              onClick={() => setIsBookOpen(!isBookOpen)}
+              aria-label="Book menu"
+              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-theme-tertiary/60 transition"
+            >
+              <FaBook size={20} />
+            </button>
+
+            <AnimatePresence>
+              {isBookOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  className="absolute left-0 mt-2 w-48 bg-theme-secondary border border-theme rounded-xl shadow-xl overflow-hidden z-50"
+                >
+                  {bookMenus.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setIsBookOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-theme-tertiary/60 transition"
+                    >
+                      <span className="text-lg">{item.icon}</span>
+                      <span className="text-sm font-medium">{item.name}</span>
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* ================= DESKTOP MENU ================= */}
@@ -130,7 +187,7 @@ const Navbar = () => {
             <PiSparkleFill size={28} />
           </Link>
 
-          {/* ================= PROFILE ================= */}
+          {/* PROFILE */}
           {status !== "loading" && (
             <div className="relative" ref={profileRef}>
               <button
@@ -138,12 +195,7 @@ const Navbar = () => {
                 className="w-10 h-10 rounded-full overflow-hidden border-2 border-theme hover:scale-105 transition"
               >
                 {user?.image ? (
-                  <Image
-                    src={user.image}
-                    alt="Profile"
-                    width={40}
-                    height={40}
-                  />
+                  <Image src={user.image} alt="Profile" width={40} height={40} />
                 ) : (
                   <div className="w-full h-full bg-theme-tertiary flex items-center justify-center">
                     <FaUser />
@@ -214,7 +266,7 @@ const Navbar = () => {
                 >
                   <Link
                     href={link.href}
-                    className="block py-3 px-4 rounded-lg text-theme-primary hover:bg-theme-tertiary/60 transition"
+                    className="block py-3 px-4 rounded-lg hover:bg-theme-tertiary/60 transition"
                     onClick={() => setIsOpen(false)}
                   >
                     {link.name}
