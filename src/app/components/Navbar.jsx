@@ -64,6 +64,7 @@ const Navbar = ({ user }) => {
 
   const navLinks = [
     { href: "/manga", name: "Manga" },
+    { href: "/manhwa", name: "Manhwa" }, 
     { href: "/populer", name: "Populer" },
     { href: "/movie", name: "Movie" },
     { href: "/genres", name: "Genre" },
