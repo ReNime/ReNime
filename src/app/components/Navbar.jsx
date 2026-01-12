@@ -82,7 +82,7 @@ const Navbar = () => {
       icon: <FaHome />,
     },
     {
-      name: Manga",
+      name: "Manga",
       href: "/manga",
       icon: <MdMenuBook />,
     },
