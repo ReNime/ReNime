@@ -27,6 +27,7 @@ const MangaNavbar = () => {
     //{ href: "/populer", name: "Populer" },
     //{ href: "/movie", name: "Movie" },
     { href: "/manga/genres", name: "Genre" },
+    { href: "/manhwa", name: "Manhwa" }, 
     //{ href: "/schedule", name: "Schedule" },
   ];
 
@@ -63,25 +64,24 @@ const MangaNavbar = () => {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden w-full">
-          <button 
-            onClick={() => setIsOpen(!isOpen)} 
+        <div className="absolute left-4 inset-y-0 flex items-center md:hidden">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
-            className="text-theme-primary focus:outline-none hover:scale-105 transition-transform duration-200"
+            className="w-10 h-10 flex items-center justify-center"
           >
-            <svg 
-              className="w-10 h-10" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth="2" 
-                d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"}
-              />
-            </svg>
+            <motion.span
+              className="absolute w-8 h-[2px] bg-current"
+              animate={{ rotate: isOpen ? 45 : 0, y: isOpen ? 6 : -6 }}
+            />
+            <motion.span
+              className="absolute w-8 h-[2px] bg-current"
+              animate={{ opacity: isOpen ? 0 : 1 }}
+            />
+            <motion.span
+              className="absolute w-8 h-[2px] bg-current"
+              animate={{ rotate: isOpen ? -45 : 0, y: isOpen ? -6 : 6 }}
+            />
           </button>
         </div>
       </div>
