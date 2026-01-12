@@ -16,7 +16,7 @@ import {
 import ThemeSwitcher from "@/app/components/ThemeSwitcher";
 
 const ManhwaNavbar = () => {
-  const pathname = usePathname();
+  //const pathname = usePathname();
   const { data: session, status } = useSession();
   const user = session?.user;
 
