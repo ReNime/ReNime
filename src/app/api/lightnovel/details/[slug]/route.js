@@ -17,7 +17,6 @@ export async function GET(request) {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000)
 
-    // clean slug / id
     const cleanSlug = slug.replace(/^\/+/, '')
 
     const res = await fetch(`${API_BASE}/${cleanSlug}`, {
@@ -39,7 +38,7 @@ export async function GET(request) {
       alternativeTitle: book.romaji || book.romaji_orig || book.title_orig || '',
       description: book.description || book.description_ja || '',
       thumbnail: book.image
-        ? `https://cdn.ranobedb.org/images/${book.image.filename}`
+        ? `https://images.ranobedb.org/${book.image.filename}` // PUBLIC
         : null,
       slug: cleanSlug,
       genres: book.series?.tags || [],
