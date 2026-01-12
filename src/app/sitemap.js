@@ -1,6 +1,6 @@
 // /src/app/sitemap.js (Hanya untuk halaman statis)
 
-const BASE_URL = 'https://re-nime.vercel.app'; 
+const BASE_URL = 'https://renime.xyz'; 
 
 export default function sitemap() {
   return [
@@ -36,6 +36,18 @@ export default function sitemap() {
     },
     {
       url: `${BASE_URL}/schedule`, // Schedule
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${BASE_URL}/manga`, // Manga
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${BASE_URL}/manhwa`, // Manhwa
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.7,
