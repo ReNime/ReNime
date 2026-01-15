@@ -262,6 +262,23 @@ function WatchPageContent({ params, episodeSlug }) {
         {/* Episode Info & Navigation */}
         <div className="bg-theme-secondary border border-theme rounded-lg p-6 mb-6">
           <h1 className="text-2xl md:text-3xl font-bold mb-4 gradient-theme-text">{episodeTitle}</h1>
+          {downloadLinks.length > 0 && !isSwitchingServer && (
+  <div className="absolute bottom-4 right-4 z-10">
+    <a
+      href={downloadLinks[0].url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-2 px-5 py-3 rounded-full font-semibold text-white shadow-lg hover:scale-105 transition-all"
+      style={{
+        background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))',
+      }}
+    >
+      <ArrowDownTrayIcon className="h-5 w-5" />
+      Download
+    </a>
+  </div>
+)}
+
           
           {/* Navigation Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
