@@ -22,6 +22,7 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  favorites MangaFavorite[]
   accounts      Account[]
   sessions      Session[]
   comments      Comment[]
@@ -153,4 +154,16 @@ model WatchHistory {
 
   // Mencegah duplikat: satu user hanya punya satu riwayat per episode
   @@unique([userId, episodeId])
+}
+model MangaFavorite {
+  id        String   @id @default(cuid())
+  userId    String
+  mangaId   String
+  title     String
+  image     String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, mangaId])
 }
