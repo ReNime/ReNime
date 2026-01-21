@@ -4,99 +4,86 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 
-/**
- * @typedef {Object} Params
- * @property {string=} mediaId - ID dari media
- * @property {'anime' | 'manga' | 'manhwa' | 'light_novel'=} mediaType - Tipe media
- */
-
-export function useFavorites({ mediaId, mediaType } = {}) {
+export function useFavorites({ mediaId, title, image } = {}) {
   const router = useRouter()
   const { data: session } = useSession()
 
   const [favorites, setFavorites] = useState([])
   const [loading, setLoading] = useState(false)
 
+  // Fetch semua favorites user
   const fetchFavorites = useCallback(async () => {
-    setLoading(true)
-
-    if (!session?.user?.email) {
+    if (!session?.user) {
       setFavorites([])
-      setLoading(false)
       return
     }
 
     try {
-      const res = await fetch('/api/manga/favorites') // endpoint Next.js untuk fetch favorites
+      setLoading(true)
+      const res = await fetch('/api/manga/favorites')
       const data = await res.json()
       setFavorites(data || [])
     } catch (err) {
-      console.error('Error fetching favorites:', err)
+      console.error('Fetch favorites error:', err)
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }, [session])
 
   useEffect(() => {
     fetchFavorites()
   }, [fetchFavorites])
 
+  // Cek apakah manga ini sudah di-favorite
   const isFavorite = useMemo(() => {
-  if (!mediaId || !mediaType) return false
-  return favorites.some(
-    (f) =>
-      String(f.media_id) === String(mediaId) &&
-      f.media_type === mediaType
-  )
-}, [favorites, mediaId, mediaType])
+    if (!mediaId) return false
+    return favorites.some((f) => f.mangaId === mediaId)
+  }, [favorites, mediaId])
 
-
+  // Toggle favorite
   const toggleFavorite = useCallback(async () => {
-    setLoading(true)
-
-    if (!session?.user?.email) {
-      setLoading(false)
+    if (!session?.user) {
       router.push('/auth/login')
       return
     }
 
-    if (!mediaId || !mediaType) {
-      await fetchFavorites()
-      setLoading(false)
-      return
-    }
+    if (!mediaId) return
 
-    const existing = favorites.find(
-      (f) => f.media_id === mediaId && f.media_type === mediaType
-    )
+    setLoading(true)
 
     try {
-      if (existing) {
-        // Hapus favorit
-        await fetch(`/api/manga/favorites/${existing.id}`, {
+      if (isFavorite) {
+        // DELETE
+        await fetch('/api/manga/favorites', {
           method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mangaId: mediaId }),
         })
-        setFavorites((prev) => prev.filter((f) => f.id !== existing.id))
+
+        setFavorites((prev) =>
+          prev.filter((f) => f.mangaId !== mediaId)
+        )
       } else {
-        // Tambah favorit
+        // POST
         const res = await fetch('/api/manga/favorites', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            media_id: mediaId,
-            media_type: mediaType,
-            added_at: new Date().toISOString(),
+            mangaId: mediaId,
+            title,
+            image,
           }),
         })
+
         const data = await res.json()
         setFavorites((prev) => [data, ...prev])
       }
     } catch (err) {
-      console.error('Error updating favorite:', err)
+      console.error('Toggle favorite error:', err)
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
-  }, [favorites, mediaId, mediaType, fetchFavorites, router, session])
+  }, [session, mediaId, title, image, isFavorite, router])
 
   return {
     favorites,
