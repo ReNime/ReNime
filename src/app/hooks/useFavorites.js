@@ -75,8 +75,14 @@ export function useFavorites({ mediaId, title, image } = {}) {
           }),
         })
 
-        const data = await res.json()
-        setFavorites((prev) => [data, ...prev])
+        if (!res.ok) {
+  const err = await res.json()
+  throw new Error(err.error || 'Failed to add favorite')
+}
+
+const data = await res.json()
+setFavorites((prev) => [data, ...prev])
+
       }
     } catch (err) {
       console.error('Toggle favorite error:', err)
