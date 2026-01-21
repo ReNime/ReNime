@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { AuthUserSession } from '@/app/libs/auth'
-import prisma from '@/libs/prismadb'
+import { AuthUserSession } from '@/app/libs/auth-libs'
+import prisma from '@/app/libs/prisma'
 
 /**
  * GET /api/manga/favorites
