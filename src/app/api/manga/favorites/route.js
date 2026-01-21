@@ -1,20 +1,20 @@
 import { NextResponse } from 'next/server'
-import { getAuthSession } from '@/app/libs/auth-libs'
-import prisma from '@/app/libs/prisma'
+import { AuthUserSession } from '@/app/libs/auth'
+import prisma from '@/libs/prismadb'
 
 /**
  * GET /api/manga/favorites
  * Ambil semua manga favorite user
  */
 export async function GET() {
-  const session = await getAuthSession()
+  const user = await AuthUserSession()
 
-  if (!session?.user?.id) {
+  if (!user?.id) {
     return NextResponse.json([], { status: 200 })
   }
 
   const favorites = await prisma.mangaFavorite.findMany({
-    where: { userId: session.user.id },
+    where: { userId: user.id },
     orderBy: { createdAt: 'desc' }
   })
 
@@ -26,9 +26,9 @@ export async function GET() {
  * Tambah manga ke favorites
  */
 export async function POST(req) {
-  const session = await getAuthSession()
+  const user = await AuthUserSession()
 
-  if (!session?.user?.id) {
+  if (!user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -44,7 +44,7 @@ export async function POST(req) {
   try {
     const fav = await prisma.mangaFavorite.create({
       data: {
-        userId: session.user.id,
+        userId: user.id,
         mangaId,
         title,
         image
@@ -53,7 +53,7 @@ export async function POST(req) {
 
     return NextResponse.json(fav)
   } catch (err) {
-    // Duplicate favorite (already exists)
+    // Duplicate favorite
     if (err.code === 'P2002') {
       return NextResponse.json(
         { error: 'Already favorited' },
@@ -74,9 +74,9 @@ export async function POST(req) {
  * Hapus manga dari favorites
  */
 export async function DELETE(req) {
-  const session = await getAuthSession()
+  const user = await AuthUserSession()
 
-  if (!session?.user?.id) {
+  if (!user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -92,7 +92,7 @@ export async function DELETE(req) {
   await prisma.mangaFavorite.delete({
     where: {
       userId_mangaId: {
-        userId: session.user.id,
+        userId: user.id,
         mangaId
       }
     }
