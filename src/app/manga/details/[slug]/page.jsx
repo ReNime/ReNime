@@ -27,10 +27,12 @@ export default function MangaDetailPage() {
   const [showShare, setShowShare] = useState(false)
 
   const { isFavorite, toggleFavorite, loading: favLoading } =
-    useFavorites({
-      mediaId: slug,
-      mediaType: 'manga'
-    })
+  useFavorites({
+    mediaId: slug,
+    title: manga?.title,
+    image: manga?.thumbnail,
+  })
+
 
   useEffect(() => {
   if (!slug) return;
