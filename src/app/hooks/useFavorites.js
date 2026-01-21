@@ -53,37 +53,35 @@ export function useFavorites({ mediaId, title, image } = {}) {
 
     try {
       if (isFavorite) {
-        // DELETE
-        await fetch('/api/manga/favorites', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mangaId: mediaId }),
-        })
+  await fetch('/api/manga/favorites', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mangaId: mediaId }),
+  })
 
-        setFavorites((prev) =>
-          prev.filter((f) => f.mangaId !== mediaId)
-        )
-      } else {
-        // POST
-        const res = await fetch('/api/manga/favorites', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            mangaId: mediaId,
-            title,
-            image,
-          }),
-        })
+  setFavorites((prev) =>
+    prev.filter((f) => f.mangaId !== mediaId)
+  )
+} else {
+  const res = await fetch('/api/manga/favorites', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      mangaId: mediaId,
+      title,
+      image,
+    }),
+  })
 
-        if (!res.ok) {
-  const err = await res.json()
-  throw new Error(err.error || 'Failed to add favorite')
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.error)
+  }
+
+  const data = await res.json()
+  setFavorites((prev) => [data, ...prev])
 }
 
-const data = await res.json()
-setFavorites((prev) => [data, ...prev])
-
-      }
     } catch (err) {
       console.error('Toggle favorite error:', err)
     } finally {
