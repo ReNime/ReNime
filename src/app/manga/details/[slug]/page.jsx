@@ -28,7 +28,7 @@ export default function MangaDetailPage() {
 
   const { isFavorite, toggleFavorite, loading: favLoading } =
   useFavorites({
-    mediaId: slug,
+    mediaId: manga?.slug || slug, 
     title: manga?.title,
     image: manga?.thumbnail,
   })
