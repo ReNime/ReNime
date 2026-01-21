@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getAuthSession } from '@/app/libs/auth-libs'
-import { prisma } from '@/app/libs/prisma'
+import prisma from '@/app/libs/prisma'
 
 /**
  * GET /api/manga/favorites
@@ -27,6 +27,7 @@ export async function GET() {
  */
 export async function POST(req) {
   const session = await getAuthSession()
+
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -74,11 +75,13 @@ export async function POST(req) {
  */
 export async function DELETE(req) {
   const session = await getAuthSession()
+
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { mangaId } = await req.json()
+
   if (!mangaId) {
     return NextResponse.json(
       { error: 'mangaId required' },
