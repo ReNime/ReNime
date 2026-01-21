@@ -27,7 +27,7 @@ export function useFavorites({ mediaId, mediaType } = {}) {
     }
 
     try {
-      const res = await fetch('/api/favorites') // endpoint Next.js untuk fetch favorites
+      const res = await fetch('/api/manga/favorites') // endpoint Next.js untuk fetch favorites
       const data = await res.json()
       setFavorites(data || [])
     } catch (err) {
@@ -73,13 +73,13 @@ export function useFavorites({ mediaId, mediaType } = {}) {
     try {
       if (existing) {
         // Hapus favorit
-        await fetch(`/api/favorites/${existing.id}`, {
+        await fetch(`/api/manga/favorites/${existing.id}`, {
           method: 'DELETE',
         })
         setFavorites((prev) => prev.filter((f) => f.id !== existing.id))
       } else {
         // Tambah favorit
-        const res = await fetch('/api/favorites', {
+        const res = await fetch('/api/manga/favorites', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
