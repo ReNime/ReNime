@@ -53,7 +53,7 @@ export async function fetchPopularManga() {
 
 export async function fetchLatestManga() {
   const res = await axios.get(`${apiUrl}/terbaru`)
-  return res.data
+  return normalizeList(res.data)
 }
 
 /**
