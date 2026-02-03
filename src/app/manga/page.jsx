@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { fetchLatestManga } from '@/app/libs/komiku' // ✅ ganti sini
+import { fetchLatestManga } from '@/app/libs/komiku'
 import MangaGrid from '@/app/components/MangaGrid'
 import SearchManga from '@/app/components/SearchManga'
 import MangaNavbar from '@/app/components/MangaNavbar'
@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fa'
 
 export default function MangaLandingPage() {
-  const [popular, setPopular] = useState([]) // boleh tetap namanya, opsional ganti jadi latest
+  const [latest, setLatest] = useState([])
   const [loading, setLoading] = useState(true)
   const [log, setLog] = useState(null)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -22,8 +22,8 @@ export default function MangaLandingPage() {
   useEffect(() => {
     async function load() {
       try {
-        const latestRes = await fetchLatestManga() // ✅ ganti sini
-        setPopular(latestRes)
+        const latestRes = await fetchLatestManga()
+        setLatest(latestRes)
       } catch (err) {
         setLog({
           type: 'error',
@@ -33,6 +33,7 @@ export default function MangaLandingPage() {
         setLoading(false)
       }
     }
+
     load()
   }, [])
 
@@ -40,6 +41,7 @@ export default function MangaLandingPage() {
     const handleMouseMove = (e) => {
       setMousePosition({ x: e.clientX, y: e.clientY })
     }
+
     window.addEventListener('mousemove', handleMouseMove)
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [])
@@ -48,6 +50,7 @@ export default function MangaLandingPage() {
     <main className="relative min-h-screen bg-theme-primary overflow-hidden">
       <MangaNavbar />
 
+      {/* Static glow */}
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -59,6 +62,7 @@ export default function MangaLandingPage() {
         }}
       />
 
+      {/* Mouse glow */}
       <motion.div
         className="fixed inset-0 pointer-events-none z-0"
         animate={{
@@ -83,9 +87,11 @@ export default function MangaLandingPage() {
               {log.type === 'success' && (
                 <FaCheckCircle className="text-[color:var(--accent-from)]" />
               )}
+
               {log.type === 'error' && (
                 <FaTimesCircle className="text-red-400" />
               )}
+
               {log.type === 'loading' && (
                 <motion.div
                   animate={{ rotate: 360 }}
@@ -94,6 +100,7 @@ export default function MangaLandingPage() {
                   <FaSpinner />
                 </motion.div>
               )}
+
               <span>{log.message}</span>
             </motion.div>
           )}
@@ -114,7 +121,7 @@ export default function MangaLandingPage() {
               </h2>
             </div>
 
-            <MangaGrid mangaList={popular} />
+            <MangaGrid mangaList={latest} />
           </section>
         )}
       </div>
