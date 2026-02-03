@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { fetchPopularManga } from '@/app/libs/komiku'
+import { fetchLatestManga } from '@/app/libs/komiku' // ✅ ganti sini
 import MangaGrid from '@/app/components/MangaGrid'
 import SearchManga from '@/app/components/SearchManga'
 import MangaNavbar from '@/app/components/MangaNavbar'
@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fa'
 
 export default function MangaLandingPage() {
-  const [popular, setPopular] = useState([])
+  const [popular, setPopular] = useState([]) // boleh tetap namanya, opsional ganti jadi latest
   const [loading, setLoading] = useState(true)
   const [log, setLog] = useState(null)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -22,8 +22,8 @@ export default function MangaLandingPage() {
   useEffect(() => {
     async function load() {
       try {
-        const popularRes = await fetchPopularManga()
-        setPopular(popularRes)
+        const latestRes = await fetchLatestManga() // ✅ ganti sini
+        setPopular(latestRes)
       } catch (err) {
         setLog({
           type: 'error',
@@ -48,7 +48,6 @@ export default function MangaLandingPage() {
     <main className="relative min-h-screen bg-theme-primary overflow-hidden">
       <MangaNavbar />
 
-      {/* Static background glow */}
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -60,7 +59,6 @@ export default function MangaLandingPage() {
         }}
       />
 
-      {/* Mouse follow glow */}
       <motion.div
         className="fixed inset-0 pointer-events-none z-0"
         animate={{
@@ -74,18 +72,13 @@ export default function MangaLandingPage() {
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-12">
-        {/* LOG */}
         <AnimatePresence>
           {log && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className={`
-                mb-8 px-6 py-4 rounded-xl flex items-center gap-3
-                backdrop-blur-xl border border-theme
-                bg-theme-secondary text-theme-primary
-              `}
+              className="mb-8 px-6 py-4 rounded-xl flex items-center gap-3 backdrop-blur-xl border border-theme bg-theme-secondary text-theme-primary"
             >
               {log.type === 'success' && (
                 <FaCheckCircle className="text-[color:var(--accent-from)]" />
@@ -117,7 +110,7 @@ export default function MangaLandingPage() {
             <div className="flex items-center gap-3 mb-6">
               <FaFire className="text-2xl text-[color:var(--accent-from)]" />
               <h2 className="text-3xl font-black text-theme-primary">
-                Rekomendasi
+                Manga Terbaru
               </h2>
             </div>
 
