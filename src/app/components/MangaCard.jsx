@@ -4,6 +4,8 @@ import Link from 'next/link'
 export default function MangaCard({ slug, title, thumbnail }) {
   const fallbackCover = '/default-cover.jpg'
 
+  if (!slug) return null
+
   return (
     <Link
       href={`/manga/details/${slug}`}
