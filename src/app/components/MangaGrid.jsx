@@ -16,15 +16,22 @@ export default function MangaGrid({ mangaList }) {
 
     async function loadDetails() {
       setLoading(true)
+
       const promises = mangaList.map(async (manga) => {
         try {
-          const res = await fetch(`/api/manga/details?slug=${manga.slug}`)
+          const slug = manga.slug || manga.mangaSlug
+
+          if (!slug) return null
+
+          const res = await fetch(`/api/manga/details?slug=${slug}`)
           if (!res.ok) return null
+
           const data = await res.json()
+
           return {
-            slug: manga.slug,
-            title: data.title,
-            thumbnail: data.thumbnail
+            slug,
+            title: data.title || manga.title,
+            thumbnail: data.thumbnail || manga.thumbnail
           }
         } catch (err) {
           console.error(err)
